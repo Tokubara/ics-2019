@@ -22,6 +22,9 @@ typedef struct {
 #define EX(ex)             EXW(ex, 0)
 #define EMPTY              EX(inv)
 
+/**
+ * 只读了32位并且返回, 并且pc+len
+*/
 static inline uint32_t instr_fetch(vaddr_t *pc, int len) {
   uint32_t instr = vaddr_read(*pc, len);
 #ifdef DEBUG

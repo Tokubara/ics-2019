@@ -9,7 +9,7 @@
 
 void cpu_exec(uint64_t);
 
-/* We use the `readline' library to provide more flexibility to read from stdin. */
+/* We use the `readline' library to provide more flexibility to read from stdin. 大概相当于readline */
 static char* rl_gets() {
   static char *line_read = NULL;
 
@@ -109,7 +109,11 @@ void ui_mainloop(int is_batch_mode) {
         break;
       }
     }
+    -l build / nemu - log - d tools / qemu - diff / build / x86 - qemu -
+        so
 
-    if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
+        if (i == NR_CMD) {
+      printf("Unknown command '%s'\n", cmd);
+    }
   }
 }

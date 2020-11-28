@@ -1,6 +1,9 @@
 #include "cpu/exec.h"
 #include "all-instr.h"
 
+/**
+ * 设置decinfo.src/dest/src2.width=width, 如果wdith为0, 会根据isa.is_operand_size_16判断
+ */
 static inline void set_width(int width) {
   if (width == 0) {
     width = decinfo.isa.is_operand_size_16 ? 2 : 4;
