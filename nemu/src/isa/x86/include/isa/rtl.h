@@ -3,7 +3,10 @@
 
 #include "rtl/rtl.h"
 
-/* RTL pseudo instructions */
+/** RTL pseudo instructions
+ * *rtlreg_t* dest, int r, int width
+ * 接受寄存器索引, 宽度, 把相应的寄存器的内容存到某个地址中(虚拟上可能是改寄存器, 也可能是改内存).load register.
+ */
 
 static inline void rtl_lr(rtlreg_t* dest, int r, int width) {
   switch (width) {
@@ -13,7 +16,9 @@ static inline void rtl_lr(rtlreg_t* dest, int r, int width) {
     default: assert(0);
   }
 }
-
+/**
+ * 根据索引r, 写寄存器, 写的内容是*src1, 宽度是width
+ */
 static inline void rtl_sr(int r, const rtlreg_t* src1, int width) {
   switch (width) {
     case 4: rtl_mv(&reg_l(r), src1); return;

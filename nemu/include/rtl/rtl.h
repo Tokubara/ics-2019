@@ -17,7 +17,6 @@ static inline void interpret_rtl_li(rtlreg_t* dest, uint32_t imm) {
   *dest = imm;
 }
 
-/***/
 static inline void interpret_rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   *dest = *src1;
 }
@@ -77,7 +76,9 @@ static inline void interpret_rtl_idiv64_r(rtlreg_t* dest,
   int32_t divisor = (*src2);
   *dest = dividend % divisor;
 }
-
+/* 有和它有联系的函数
+* 
+*/
 static inline void interpret_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len) {
   *dest = vaddr_read(*addr, len);
 }
@@ -85,7 +86,9 @@ static inline void interpret_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int le
 static inline void interpret_rtl_sm(const rtlreg_t* addr, const rtlreg_t* src1, int len) {
   vaddr_write(*addr, *src1, len);
 }
-
+/**
+ * lm(load memory), 把地址内容的len字节存到*dest中. 虽然说是memory, 但是虚拟来看可能是指寄存器. 其实它只是提供了一个拷贝1/2/4字节到某个地址的接口
+*/
 static inline void interpret_rtl_host_lm(rtlreg_t* dest, const void *addr, int len) {
   switch (len) {
     case 4: *dest = *(uint32_t *)addr; return;
@@ -94,7 +97,9 @@ static inline void interpret_rtl_host_lm(rtlreg_t* dest, const void *addr, int l
     default: assert(0);
   }
 }
-
+/**
+ * sm(store memory), 是把寄存器内容(反正它大小是4字节, 我不太确定是不是一定是寄存器), len存入*addr中. 我觉得有点类似于mov 寄存器, 内存
+*/
 static inline void interpret_rtl_host_sm(void *addr, const rtlreg_t *src1, int len) {
   switch (len) {
     case 4: *(uint32_t *)addr = *src1; return;

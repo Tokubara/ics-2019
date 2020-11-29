@@ -2,6 +2,7 @@
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
+#include "device/map.h"
 
 #include <errno.h>
 #include <readline/history.h>
@@ -40,7 +41,7 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args);
 
-static int cmd_x(char *args) { return 0; }
+static int cmd_x(char *args);
 
 static int cmd_info(char *args);
 
@@ -136,6 +137,43 @@ static int cmd_info(char *args) {
   } else if(!strcmp(arg, "r")) {
     cmd_info_r();
   }
+  return 0;
+}
+
+static int cmd_x(char *args) { 
+  char *arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("%s - %s\n", cmd_table[CMD_X_IDX].name,
+          cmd_table[CMD_X_IDX].description);
+    return 0;
+  } 
+    // 这里只支持读16进制的
+  errno = 0;
+  int N = strtol(arg, NULL, 10);
+  if (N <= 0 || errno!=0) {
+    printf("invalid N\n");
+    return 0;
+  }
+  arg = strtok(NULL, " ");
+  vaddr_t addr = strtol(arg, NULL, 16);
+  if (addr <= 0 || errno != 0) {
+    printf("Cannot access memory at address at 0x%x\n", addr);
+    return 0;
+  }
+  uint32_t tmp;
+  int i = 0;
+  for (; i < N; i++) {
+    // 没检查内存是否有效
+    tmp = vaddr_read(addr, 4);
+    if(i%4==0) {
+      // 仿照gdb的输出, 4个word一行
+      printf("0x%.8x: 0x%.8x", addr, tmp);
+    } else {
+      printf(" 0x%.8x%c", tmp, i % 4 == 3 ? '\n' :'\0');
+    }
+    addr+=4;
+  }
+  if(i%4!=0) putchar('\n');
   return 0;
 }
 
