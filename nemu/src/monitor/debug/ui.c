@@ -156,7 +156,7 @@ static int cmd_x(char *args) {
   }
   arg = strtok(NULL, " ");
   vaddr_t addr = strtol(arg, NULL, 16);
-  if (addr <= 0 || errno != 0) {
+  if (addr <= 0 || errno != 0 || addr>=PMEM_SIZE) {
     printf("Cannot access memory at address at 0x%x\n", addr);
     return 0;
   }
@@ -164,6 +164,10 @@ static int cmd_x(char *args) {
   int i = 0;
   for (; i < N; i++) {
     // 没检查内存是否有效
+    if (addr >= PMEM_SIZE) {
+      ++i; // 为啥要++i, 为了与下面putchar('\n')的逻辑一致
+      break;
+    }
     tmp = vaddr_read(addr, 4);
     if(i%4==0) {
       // 仿照gdb的输出, 4个word一行
