@@ -38,26 +38,17 @@ static int cmd_q(char *args) { return -1; }
 
 static int cmd_help(char *args);
 
-static int cmd_si(char *args) {
-  // 用法就是si N, 只支持10进制
-  // char* endptr;
-  errno = 0;
-  long N = strtol(args, NULL, 10); // 并不关心后面怎样
-  if (N == 0 || errno != 0) {
-    fprintf(stderr, "N must greater than 0\n, and not too big");
-    return 0;
-  }
-  // 需要执行n.
-  cpu_exec(N);
-  return 0;
-}
+static int cmd_si(char *args);
 
 static int cmd_x(char *args) { return 0; }
 
-static int cmd_info_r(char *args) {
+static int cmd_info(char *args);
+
+static int cmd_info_r() {
   // 应该是打印所有寄存器吧
   for (int i = 0; i < 8; i++) {
-    printf("%s  %.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32, cpu.gpr[i]._32);
+    printf("%s  0x%.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32,
+           cpu.gpr[i]._32);
   }
   return 0;
 }
@@ -72,11 +63,20 @@ static struct {
     {"q", "Exit NEMU", cmd_q},
     {"si", "Execute [N] instuctions", cmd_si},
     {"x", "Print [N] bytes of memory from [addr]", cmd_x},
-    {"info r", "Print registers", cmd_info_r}
+    {"info", "Print useful info", cmd_info}
 
     /* TODO: Add more commands */
 
 };
+
+// enum { // 似乎框架中的enum都是小写的
+//   CMD_HELP_IDX,
+//   CMD_C_IDX,
+//   CMD_Q_IDX,
+//   CMD_SI_IDX,
+//   CMD_X_IDX,
+//   CMD_INFO_IDX
+// }
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
 
@@ -98,6 +98,42 @@ static int cmd_help(char *args) {
       }
     }
     printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
+
+static int cmd_si(char *args) {
+  // 用法就是si N, 只支持10进制
+  // char* endptr;
+  // bug:这个args根本不能用, 明明应该是NULL, 传了以后根本不是NULL,
+  // 是strtok_r+53, H0018
+  char *arg = strtok(NULL, " ");
+  if (!arg) {
+    printf("%s - %s\n", cmd_table[CMD_SI_IDX].name,
+           cmd_table[CMD_SI_IDX].description);
+    return 0;
+  }
+  errno = 0;
+  long N = strtol(arg, NULL, 10); // 并不关心后面怎样
+  if (N <= 0 || errno != 0) {
+    printf("N must greater than 0, and not too big\n");
+    return 0;
+  }
+  // 需要执行n.
+  cpu_exec(N);
+  return 0;
+}
+
+int (*cmd_info_table[])()={cmd_info_r}; // bug:这里发生了重名错误
+enum {INFO_R_IDX}; // 但是目前没用上
+
+static int cmd_info(char *args) { 
+  char *arg = strtok(NULL, " ");
+  if(arg == NULL) {
+    printf("%s - %s\n", cmd_table[CMD_INFO_IDX].name,
+           cmd_table[CMD_INFO_IDX].description);
+  } else if(!strcmp(arg, "r")) {
+    cmd_info_r();
   }
   return 0;
 }
