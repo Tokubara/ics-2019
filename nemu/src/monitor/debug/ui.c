@@ -107,18 +107,19 @@ static int cmd_si(char *args) {
   // char* endptr;
   // bug:这个args根本不能用, 明明应该是NULL, 传了以后根本不是NULL,
   // 是strtok_r+53, H0018
+  long N;
   char *arg = strtok(NULL, " ");
   if (!arg) {
-    printf("%s - %s\n", cmd_table[CMD_SI_IDX].name,
-           cmd_table[CMD_SI_IDX].description);
-    return 0;
+    N = 1;
+  } else {
+    errno = 0;
+    N = strtol(arg, NULL, 10);
+    if (N <= 0 || errno != 0) {
+      printf("N must greater than 0, and not too big\n");
+      return 0;
+    }
   }
-  errno = 0;
-  long N = strtol(arg, NULL, 10); // 并不关心后面怎样
-  if (N <= 0 || errno != 0) {
-    printf("N must greater than 0, and not too big\n");
-    return 0;
-  }
+  // 并不关心后面怎样
   // 需要执行n.
   cpu_exec(N);
   return 0;
