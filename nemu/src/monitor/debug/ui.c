@@ -1,16 +1,18 @@
-#include "monitor/monitor.h"
 #include "monitor/expr.h"
+#include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
 
-#include <stdlib.h>
-#include <readline/readline.h>
+#include <errno.h>
 #include <readline/history.h>
+#include <readline/readline.h>
+#include <stdlib.h>
 
 void cpu_exec(uint64_t);
 
-/* We use the `readline' library to provide more flexibility to read from stdin. 大概相当于readline */
-static char* rl_gets() {
+/* We use the `readline' library to provide more flexibility to read from stdin.
+ * 大概相当于readline */
+static char *rl_gets() {
   static char *line_read = NULL;
 
   if (line_read) {
@@ -32,22 +34,47 @@ static int cmd_c(char *args) {
   return 0;
 }
 
-static int cmd_q(char *args) {
-  return -1;
-}
+static int cmd_q(char *args) { return -1; }
 
 static int cmd_help(char *args);
+
+static int cmd_si(char *args) {
+  // 用法就是si N, 只支持10进制
+  // char* endptr;
+  errno = 0;
+  long N = strtol(args, NULL, 10); // 并不关心后面怎样
+  if (N == 0 || errno != 0) {
+    fprintf(stderr, "N must greater than 0\n, and not too big");
+    return 0;
+  }
+  // 需要执行n.
+  cpu_exec(N);
+  return 0;
+}
+
+static int cmd_x(char *args) { return 0; }
+
+static int cmd_info_r(char *args) {
+  // 应该是打印所有寄存器吧
+  for (int i = 0; i < 8; i++) {
+    printf("%s  %.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32, cpu.gpr[i]._32);
+  }
+  return 0;
+}
 
 static struct {
   char *name;
   char *description;
-  int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display informations about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
+  int (*handler)(char *);
+} cmd_table[] = {
+    {"help", "Display informations about all supported commands", cmd_help},
+    {"c", "Continue the execution of the program", cmd_c},
+    {"q", "Exit NEMU", cmd_q},
+    {"si", "Execute [N] instuctions", cmd_si},
+    {"x", "Print [N] bytes of memory from [addr]", cmd_x},
+    {"info r", "Print registers", cmd_info_r}
 
-  /* TODO: Add more commands */
+    /* TODO: Add more commands */
 
 };
 
@@ -60,12 +87,11 @@ static int cmd_help(char *args) {
 
   if (arg == NULL) {
     /* no argument given */
-    for (i = 0; i < NR_CMD; i ++) {
+    for (i = 0; i < NR_CMD; i++) {
       printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
     }
-  }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
+  } else {
+    for (i = 0; i < NR_CMD; i++) {
       if (strcmp(arg, cmd_table[i].name) == 0) {
         printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
         return 0;
@@ -82,17 +108,21 @@ void ui_mainloop(int is_batch_mode) {
     return;
   }
 
-  for (char *str; (str = rl_gets()) != NULL; ) {
+  for (char *str; (str = rl_gets()) != NULL;) {
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
-    if (cmd == NULL) { continue; }
+    if (cmd == NULL) {
+      continue;
+    }
 
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char *args =
+        cmd + strlen(cmd) +
+        1; // 首先这个+1是指通配符. 这时候不能再是str+了, 因为str已经改变了
     if (args >= str_end) {
       args = NULL;
     }
@@ -103,16 +133,15 @@ void ui_mainloop(int is_batch_mode) {
 #endif
 
     int i;
-    for (i = 0; i < NR_CMD; i ++) {
+    for (i = 0; i < NR_CMD; i++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
-        if (cmd_table[i].handler(args) < 0) { return; }
+        if (cmd_table[i].handler(args) < 0) {
+          return;
+        }
         break;
       }
     }
-    -l build / nemu - log - d tools / qemu - diff / build / x86 - qemu -
-        so
-
-        if (i == NR_CMD) {
+    if (i == NR_CMD) {
       printf("Unknown command '%s'\n", cmd);
     }
   }
