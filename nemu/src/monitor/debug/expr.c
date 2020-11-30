@@ -3,28 +3,38 @@
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
+#include <string.h>
 #include <sys/types.h>
 #include <regex.h>
 
+// 需要解析以下类型
+// 十进制整数
+// +, -, *, /
+// (, )
+// 空格串(一个或多个空格)
+
 enum {
-  TK_NOTYPE = 256, TK_EQ
-
-  /* TODO: Add more token types */
-
-};
+  TK_NOTYPE = 256, TK_EQ, TK_DEC_NUMBER, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV, TK_L_PAREN, TK_R_PAREN
+}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 
 static struct rule {
   char *regex;
   int token_type;
 } rules[] = {
 
-  /* TODO: Add more rules.
-   * Pay attention to the precedence level of different rules.
-   */
+    /* TODO: Add more rules.
+     * Pay attention to the precedence level of different rules.
+     */
 
-  {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"==", TK_EQ}         // equal
+    {" +", TK_NOTYPE}, // spaces //? 但是没有\t这些
+    {"==", TK_EQ},     // equal
+    {"[[:digit:]]+", TK_DEC_NUMBER},  // 已测试
+    {"\\+", TK_OP_PLUS}, // plus  //? 这里为什么会是'+', 而不是一个enum type? 已测试
+    {"-", TK_OP_SUB}, // 已测试
+    {"\\*", TK_OP_MUL}, // 不用测试, 与+类似
+    {"/", TK_OP_DIV},  // 已测试
+    {"\\(", TK_L_PAREN}, // 已测试
+    {"\\)", TK_R_PAREN}, // 不用测试
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -56,7 +66,7 @@ typedef struct token {
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
-static bool make_token(char *e) {
+bool make_token(char *e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
@@ -65,8 +75,8 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {
-      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
+    for (i = 0; i < NR_REGEX; i ++) { // 尝试每一个, 这是优先级的来源
+      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) { // 不存在子组需要match, 而且pmatch.rm_so == 0确定必须是从开始匹配, 但能不能用^呢?
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
@@ -74,17 +84,26 @@ static bool make_token(char *e) {
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
-
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_DEC_NUMBER: {
+            if (substr_len>31) { // 太长了, 处理不了
+              printf("too large number, sorry, we cannot copple with it: %.*s", substr_len, substr_start);
+              return false;
+            }
+            // 否则就是把一片字符串复制过来. 而且需要追加\0, 原来的字符串是没有\0的, 因此strcpy是不行的, 用memcpy
+            memcpy(tokens[nr_token].str, substr_start, substr_len);
+            tokens[nr_token].str[substr_len]='\0';
+            nr_token+=1;
+            break;
+          }
+          default: {
+            tokens[nr_token++].type = rules[i].token_type;
+            break;
+          };  // 我想默认应该是直接赋值
         }
-
         break;
       }
+      // return true;
     }
 
     if (i == NR_REGEX) {
