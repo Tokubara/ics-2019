@@ -103,7 +103,6 @@ bool make_token(char *e) {
         }
         break;
       }
-      // return true;
     }
 
     if (i == NR_REGEX) {
