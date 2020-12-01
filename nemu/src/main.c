@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   /* Receive commands from user. */
   // ui_mainloop(is_batch_mode);
   init_regex();
-  make_token(argv[1]);
-
+  uint32_t len = make_token(argv[1]);
+  printf("len=%u\n", len);
   return 0;
 }

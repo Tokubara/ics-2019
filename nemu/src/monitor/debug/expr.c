@@ -64,15 +64,20 @@ typedef struct token {
 } Token;
 
 static Token tokens[32] __attribute__((used)) = {};
-static int nr_token __attribute__((used))  = 0;
+static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析时, tokens的长度, 但是能不用尽量不用. 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0.
 
-bool make_token(char *e) {
+/**
+ * 根据字符串e从0开始填写tokens
+ * 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0
+ * 如果解析错误, 返回0, 否则返回tokens的个数
+ */
+uint8_t make_token(char *e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
 
-  nr_token = 0;
-
+  int nr_token = 0;
+  len_tokens = 0; // 如果不这样写, return false的时候都需要设置为0. 这样写以后, 只有return true的时候才需要设置
   while (e[position] != '\0') {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) { // 尝试每一个, 这是优先级的来源
@@ -85,8 +90,8 @@ bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
         switch (rules[i].token_type) {
           case TK_DEC_NUMBER: {
@@ -114,8 +119,9 @@ bool make_token(char *e) {
       return false;
     }
   }
-
-  return true;
+  // 此时正确解析
+  len_tokens = nr_token;
+  return nr_token;
 }
 
 uint32_t expr(char *e, bool *success) {
@@ -124,8 +130,10 @@ uint32_t expr(char *e, bool *success) {
     return 0;
   }
   // TODO: 对token数组进行预处理. 去空格, 加上0
-  // int is_error=0;
-  // uint32_t expr_val = eval(0, len, &is_error);
+  // Token pre_tokens[32];
 
-  return 0;
+      // int is_error=0;
+      // uint32_t expr_val = eval(0, len, &is_error);
+
+      return 0;
 }
