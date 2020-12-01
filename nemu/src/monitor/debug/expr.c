@@ -129,8 +129,27 @@ uint32_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
-  // TODO: 对token数组进行预处理. 去空格, 加上0
-  // Token pre_tokens[32];
+  // TODO: 对tokens数组进行预处理. 去空格, 加上0
+  Token pre_tokens[43]; // 应该比tokens数组更大, 因为可能出现很多负数, 最坏的情况, 全是负数, 那么占1/3, 因此数组为43
+  int j = 0; // j是pre_tokens的索引
+  for(int i = 0; i < len_tokens; i++) {
+    switch(tokens[i].type) {
+      TK_NOTYPE:break;
+      TK_OP_SUB:{
+        // 那么需要做一番判断
+        if (pre_tokens[j - 1].type != TK_R_PAREN && pre_tokens[j - 1].type != TK_DEC_NUMBER) { // 负数的情况
+          // 需要追加0
+          pre_tokens[j++] = { TK_DEC_NUMBER, "0" };
+        }
+        pre_tokens[j++] = tokens[i]; // 这一句话与下面一句话都可以不要
+        break;
+      }
+      default:{
+        pre_tokens[j++]=tokens[i];
+        break;
+      }
+    }
+  }
 
       // int is_error=0;
       // uint32_t expr_val = eval(0, len, &is_error);
