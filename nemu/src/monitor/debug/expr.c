@@ -77,17 +77,21 @@ bool make_token(char *e) {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) { // 尝试每一个, 这是优先级的来源
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) { // 不存在子组需要match, 而且pmatch.rm_so == 0确定必须是从开始匹配, 但能不能用^呢?
+        // switch的结果无论如何, nr_token都是会++的, 因此我们可以在这里判断
+        if (nr_token >= 32) {
+          printf("The expr is too long, we cannot deal with it\n");
+          return false;
+        }
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
-
         switch (rules[i].token_type) {
           case TK_DEC_NUMBER: {
             if (substr_len>31) { // 太长了, 处理不了
-              printf("too large number, sorry, we cannot copple with it: %.*s", substr_len, substr_start);
+              printf("too large number, sorry, we cannot deal with it: %.*s", substr_len, substr_start);
               return false;
             }
             // 否则就是把一片字符串复制过来. 而且需要追加\0, 原来的字符串是没有\0的, 因此strcpy是不行的, 用memcpy
@@ -101,7 +105,7 @@ bool make_token(char *e) {
             break;
           };  // 我想默认应该是直接赋值
         }
-        break;
+        break;  // 离开for循环, 因为已经找到了
       }
     }
 
@@ -119,9 +123,9 @@ uint32_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  // TODO: 对token数组进行预处理. 去空格, 加上0
+  // int is_error=0;
+  // uint32_t expr_val = eval(0, len, &is_error);
 
   return 0;
 }
