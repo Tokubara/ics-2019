@@ -4,6 +4,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
 
@@ -13,19 +14,15 @@
 // (, )
 // 空格串(一个或多个空格)
 
+/*写法上, 只有符号才从0开始*/
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_DEC_NUMBER, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV, TK_L_PAREN, TK_R_PAREN
+  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_L_PAREN, TK_R_PAREN, TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
 }; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 
 static struct rule {
   char *regex;
   int token_type;
 } rules[] = {
-
-    /* TODO: Add more rules.
-     * Pay attention to the precedence level of different rules.
-     */
-
     {" +", TK_NOTYPE}, // spaces //? 但是没有\t这些
     {"==", TK_EQ},     // equal
     {"[[:digit:]]+", TK_DEC_NUMBER},  // 已测试
@@ -38,6 +35,7 @@ static struct rule {
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
+#define INF 1000
 
 static regex_t re[NR_REGEX] = {};
 
@@ -124,22 +122,127 @@ uint8_t make_token(char *e) {
   return nr_token;
 }
 
+// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV,
+/* 优先级越高越大, 很不好的是, 目前硬编码了 */
+const int OP_PRIORITY[]= {
+  0, 1, 1, 2, 2
+};
+
+/**
+ * pre_tokens是预处理后的数组, left和right是闭区间, is_error是否有错误, 如果为1, 发生了错误, 比如括号不匹配
+ * 返回解析得到的值
+ * 不保证解析结果错误会怎样, 但不能让程序崩
+*/
+uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
+  // is_error必须主动是0, 因为不能指望调用者将它初始化了
+  *is_error=0;
+  // 由于是expr调用的, 越界是不可能发生的
+  if(left==right) {
+    if(pre_tokens[left].type==TK_DEC_NUMBER) {
+      return atoi(pre_tokens[left].str);
+    } else {
+      *is_error=1;
+      return 0;  // 要是有能直接return到原来的函数的办法就好了
+    }
+  }
+  if (pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
+    return eval(pre_tokens, left+1, right-1, is_error);
+  }
+
+  // 似乎可以合并检查括号和扫描主符号
+  int cur_priority=INF; // 这样只要有符号就能比它小
+  int op_pos = -1;
+  int lp_num = 0;
+  int tmp;
+  for(int i = left; i <= right; i++) {
+    switch ((tmp=pre_tokens[i].type)) {
+      case TK_L_PAREN: {
+        lp_num++;
+        break;
+      }
+      case TK_R_PAREN: {
+        lp_num--;
+        if (lp_num < 0) {
+          // 异常
+          *is_error = 1;
+          return 0;
+        }
+        break;
+      }
+      // 这里应该只是优先级判断
+      case TK_DEC_NUMBER: break;
+      default: { // default是所有的符号的情况
+        if (OP_PRIORITY[tmp]<=cur_priority) { // 不能是<, 因为同级的选靠右的
+          op_pos=i;
+          cur_priority = OP_PRIORITY[tmp];
+        }
+        break;
+      }
+    }
+  }
+  // 没有发现主符号的情况
+  if (op_pos==-1) {
+    *is_error=1;
+    return 0;
+  }
+  // 这样就应该扫描出了主符号
+  uint32_t res;
+  bool left_error=0, right_error=0;
+  uint32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
+  if (left_error) {
+    *is_error = 1;
+    return 0;
+  }
+  uint32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
+  if (right_error) {
+    *is_error = 1;
+    return 0;
+  }
+  switch (pre_tokens[op_pos].type) {
+    case TK_EQ: {
+      res = left_val == right_val; // 不好是同一个吧, 万一并行了咋办(虽然我也不知道并不并行)
+      break;
+    }
+    case TK_OP_PLUS: {
+      res = left_val + right_val;
+      break;
+    }
+    case TK_OP_SUB: {
+      res = left_val - right_val;
+      break;
+    }
+    case TK_OP_MUL: {
+      res = left_val * right_val;
+      break;
+    }
+    case TK_OP_DIV: {
+      res = left_val / right_val;
+      break;
+    }
+  }
+  return res;
+}
+
 uint32_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-  // TODO: 对tokens数组进行预处理. 去空格, 加上0
+  // 对tokens数组进行预处理. 去空格, 加上0
   Token pre_tokens[43]; // 应该比tokens数组更大, 因为可能出现很多负数, 最坏的情况, 全是负数, 那么占1/3, 因此数组为43
-  int j = 0; // j是pre_tokens的索引
+  int j = 0; // j是pre_tokens的索引, 存的是第一个未赋值的
   for(int i = 0; i < len_tokens; i++) {
     switch(tokens[i].type) {
-      TK_NOTYPE:break;
-      TK_OP_SUB:{
+      case TK_NOTYPE:
+        break;
+      case TK_OP_SUB:{
         // 那么需要做一番判断
-        if (pre_tokens[j - 1].type != TK_R_PAREN && pre_tokens[j - 1].type != TK_DEC_NUMBER) { // 负数的情况
+        if (j==0 || (pre_tokens[j - 1].type != TK_R_PAREN && pre_tokens[j - 1].type != TK_DEC_NUMBER)) { // 负数的情况
           // 需要追加0
-          pre_tokens[j++] = { TK_DEC_NUMBER, "0" };
+          pre_tokens[j].type = TK_DEC_NUMBER;
+          pre_tokens[j].str[0] = '0';
+          pre_tokens[j].str[1] = '\0';
+          ++j;
         }
         pre_tokens[j++] = tokens[i]; // 这一句话与下面一句话都可以不要
         break;
@@ -150,9 +253,12 @@ uint32_t expr(char *e, bool *success) {
       }
     }
   }
-
-      // int is_error=0;
-      // uint32_t expr_val = eval(0, len, &is_error);
-
-      return 0;
+  // 调用eval
+  bool is_error=0;
+  // char* err_msg;
+  uint32_t expr_val = eval(pre_tokens, 0, j - 1, &is_error); // 这里是闭区间
+  // return (is_error>0?)
+  *success=is_error>0?0:1;
+  return expr_val;
+  // return 0;
 }

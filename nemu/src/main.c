@@ -3,7 +3,8 @@ int init_monitor(int, char *[]);
 void ui_mainloop(int);
 
 void init_regex();
-uint8_t make_token(char *);
+// uint8_t make_token(char *);
+uint32_t expr(char *, bool *);
 
 // 原来的
 // int main(int argc, char *argv[]) {
@@ -23,7 +24,9 @@ int main(int argc, char *argv[]) {
   /* Receive commands from user. */
   // ui_mainloop(is_batch_mode);
   init_regex();
-  uint32_t len = make_token(argv[1]);
-  printf("len=%u\n", len);
+  uint8_t error=0;
+  expr(argv[1],&error);
+  // uint32_t len = make_token(argv[1]);
+  // printf("len=%u\n", len);
   return 0;
 }
