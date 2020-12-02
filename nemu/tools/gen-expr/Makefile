@@ -1,7 +1,7 @@
 APP=gen-expr
 
 $(APP): gen-expr.c
-	gcc -O2 -Wall -Werror -o $@ $<
+	gcc -O0 -g3 -Wall -Werror -o $@ $<
 
 .PHONY: clean
 clean:
