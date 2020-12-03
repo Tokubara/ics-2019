@@ -1,10 +1,12 @@
 #include "common.h"
 int init_monitor(int, char *[]);
+// #include <stdlib.h>
 void ui_mainloop(int);
 
 void init_regex();
 // uint8_t make_token(char *);
 uint32_t expr(char *, bool *);
+// #include <readline/readline.h>
 
 // 原来的
 // int main(int argc, char *argv[]) {
@@ -17,16 +19,37 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-int main(int argc, char *argv[]) {
-  /* Initialize the monitor. */
-  // int is_batch_mode = init_monitor(argc, argv);
+// 不断从外界接受字符串测试
+// int main() {
+//   init_regex();
+//   // char buf[10000];
 
-  /* Receive commands from user. */
-  // ui_mainloop(is_batch_mode);
+//   char* input;
+//   while(true) {
+//     // fgets(buf, 10000, stdin);
+//     input=readline(">");
+//     uint8_t success = 0;
+//     uint32_t res = expr(input, &success);
+//     if (success) {
+//       printf("%u\n", res);
+//     } else {
+//       printf("error\n");
+//     }
+//     free(input);
+//   }
+//   return 0;
+// }
+
+// 用于debug写死的字符串
+int main() {
   init_regex();
-  uint8_t error=0;
-  expr(argv[1],&error);
-  // uint32_t len = make_token(argv[1]);
-  // printf("len=%u\n", len);
+  char buf[10000] = "12+34*(12+3)";
+  uint8_t success = 0;
+  uint32_t res = expr(buf, &success);
+  if (success) {
+    printf("%u\n", res);
+    } else {
+      printf("error");
+    }
   return 0;
 }

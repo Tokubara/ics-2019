@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
+#define MAX_TOKEN_NUM 300
 
 // 需要解析以下类型
 // 十进制整数
@@ -61,7 +62,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[MAX_TOKEN_NUM] __attribute__((used)) = {};
 static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析时, tokens的长度, 但是能不用尽量不用. 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0.
 
 /**
@@ -81,7 +82,7 @@ uint8_t make_token(char *e) {
     for (i = 0; i < NR_REGEX; i ++) { // 尝试每一个, 这是优先级的来源
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) { // 不存在子组需要match, 而且pmatch.rm_so == 0确定必须是从开始匹配, 但能不能用^呢?
         // switch的结果无论如何, nr_token都是会++的, 因此我们可以在这里判断
-        if (nr_token >= 32) {
+        if (nr_token >= MAX_TOKEN_NUM) {
           printf("The expr is too long, we cannot deal with it\n");
           return false;
         }
@@ -98,6 +99,7 @@ uint8_t make_token(char *e) {
               return false;
             }
             // 否则就是把一片字符串复制过来. 而且需要追加\0, 原来的字符串是没有\0的, 因此strcpy是不行的, 用memcpy
+            tokens[nr_token].type=TK_DEC_NUMBER;
             memcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len]='\0';
             nr_token+=1;
@@ -141,6 +143,7 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     if(pre_tokens[left].type==TK_DEC_NUMBER) {
       return atoi(pre_tokens[left].str);
     } else {
+      printf("%s is not a number, its type is %d\n", pre_tokens[left].str, pre_tokens[left].type);
       *is_error=1;
       return 0;  // 要是有能直接return到原来的函数的办法就好了
     }
@@ -164,6 +167,7 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
         lp_num--;
         if (lp_num < 0) {
           // 异常
+          printf("parenthesis not matches\n");
           *is_error = 1;
           return 0;
         }
@@ -182,6 +186,7 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   }
   // 没有发现主符号的情况
   if (op_pos==-1) {
+    printf("cannot find operator\n");
     *is_error=1;
     return 0;
   }
@@ -216,13 +221,20 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       break;
     }
     case TK_OP_DIV: {
+      if(right_val==0) {
+        printf("divide 0\n");
+        *is_error=1;
+        return 0;
+      }
       res = left_val / right_val;
       break;
     }
   }
   return res;
 }
-
+/**
+ * 无论sucess是什么,都会得到正确的赋值
+*/
 uint32_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;

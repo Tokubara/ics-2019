@@ -16,11 +16,11 @@ static inline char *gen_rand_expr(char *start) {
   // buf[0] = '\0';
   // char* a = "12+23";
   // strcpy(buf, a);
-  int n = rand();
-  switch (n % 3) {
-    case 0: {
+  int n = rand()%7;
+  // switch (n % 7) {
+  if(n<=2) {
       // 写入一个数
-      int m = rand()%500; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
+      int m = rand()%100; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
       int k = rand() % 2;
       int len;
       if (k > 0) {
@@ -31,14 +31,14 @@ static inline char *gen_rand_expr(char *start) {
         
       return (start + len);
     }
-    case 1: {
+  else if(n==3) {
       // 括号, 表达式的情况
       sprintf(start, "(");
       char *new_start = gen_rand_expr(start + 1);
       sprintf(new_start, ")");
       return (new_start + 1);
     }
-    default: {
+    else {
       // 表达式的情况
       char *new_start = gen_rand_expr(start);
       int m = rand();
@@ -68,7 +68,6 @@ static inline char *gen_rand_expr(char *start) {
       new_start=gen_rand_expr(new_start);
       return new_start;
     }
-  }
 }
 
 static char code_buf[65536];

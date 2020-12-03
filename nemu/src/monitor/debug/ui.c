@@ -11,8 +11,9 @@
 
 void cpu_exec(uint64_t);
 
-/* We use the `readline' library to provide more flexibility to read from stdin.
- * 大概相当于readline */
+/**
+ * 输出提示(nemu), 读取一行, 不返回\n, 但是没有释放掉内存(本该释放内存的)
+ */
 static char *rl_gets() {
   static char *line_read = NULL;
 
