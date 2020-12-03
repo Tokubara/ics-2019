@@ -152,7 +152,7 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     return eval(pre_tokens, left+1, right-1, is_error);
   }
 
-  // 似乎可以合并检查括号和扫描主符号
+  // 合并检查括号和扫描主符号
   int cur_priority=INF; // 这样只要有符号就能比它小
   int op_pos = -1;
   int lp_num = 0;
@@ -175,14 +175,20 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       }
       // 这里应该只是优先级判断
       case TK_DEC_NUMBER: break;
-      default: { // default是所有的符号的情况
-        if (OP_PRIORITY[tmp]<=cur_priority) { // 不能是<, 因为同级的选靠右的
+      default: { // default是所有的符号的情况, 当前类型保证了这一点, 之后不知道
+                 // 不在括号中和是运算符, 不满足不可能
+        if (lp_num==0&&OP_PRIORITY[tmp]<=cur_priority) { // 不能是<, 因为同级的选靠右的
           op_pos=i;
           cur_priority = OP_PRIORITY[tmp];
         }
         break;
       }
     }
+  }
+  if(lp_num!=0) {
+    printf("parenthesis not matches\n");
+    *is_error = 1;
+    return 0;
   }
   // 没有发现主符号的情况
   if (op_pos==-1) {
