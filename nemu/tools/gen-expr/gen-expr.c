@@ -21,8 +21,14 @@ static inline char *gen_rand_expr(char *start) {
     case 0: {
       // 写入一个数
       int m = rand()%500; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
-      int k = rand();
-      int len = sprintf(start, "%d", ((k%2)==1)?m:-m);
+      int k = rand() % 2;
+      int len;
+      if (k > 0) {
+        len = sprintf(start, "%d", m);
+      } else {
+        len = sprintf(start, "(%d)", -m);
+      }
+        
       return (start + len);
     }
     case 1: {
@@ -37,28 +43,23 @@ static inline char *gen_rand_expr(char *start) {
       char *new_start = gen_rand_expr(start);
       int m = rand();
       // int len;
-      switch (m % 5) {
+      switch (m % 4) {
         case 0: {
-          sprintf(new_start, "==");
-          new_start += 2;
-          break;
-        }
-        case 1: {
           sprintf(new_start, "+");
           ++new_start;
           break;
         }
-        case 2: {
+        case 1: {
           sprintf(new_start, "-");
           ++new_start;
           break;
         }
-        case 3: {
+        case 2: {
           sprintf(new_start, "*");
           ++new_start;
           break;
         }
-        case 4: {
+        case 3: {
           sprintf(new_start, "/");
           ++new_start;
           break;
@@ -78,41 +79,6 @@ static char *code_format = "#include <stdio.h>\n"
                            "  return 0; "
                            "}";
 
-// int main(int argc, char *argv[]) {
-//   int seed = time(0);
-//   srand(seed);
-//   int loop = 1;                   // 生成表达式的个数
-//   if (argc > 1) {                 // 意味着可以空缺
-//     sscanf(argv[1], "%d", &loop); // 读入loop
-//   }
-//   int i;
-//   for (i = 0; i < loop; i++) {
-//     gen_rand_expr(buf);
-//     sprintf(code_buf, code_format, buf);
-
-//     FILE *fp =
-//         fopen("/tmp/.code.c",
-//               "w"); //?奇怪的是, 我运行完这句话, 根本没有出现tmp这个文件夹
-//     assert(fp != NULL);
-//     fputs(code_buf, fp);
-//     fclose(fp); // 把code_buf写入了
-
-//     int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-//     if (ret != 0)
-//       continue; // 出了错, 那么就没有意义了, 换一条
-
-//     fp = popen("/tmp/.expr", "r");
-//     assert(fp != NULL);
-
-//     int result;
-//     fscanf(fp, "%d", &result);
-//     pclose(fp);
-
-//     printf("%u %s\n", result, buf);
-//   }
-//   return 0;
-// }
-
 int main(int argc, char *argv[]) {
   int seed = time(0);
   srand(seed);
@@ -120,8 +86,43 @@ int main(int argc, char *argv[]) {
   if (argc > 1) {                 // 意味着可以空缺
     sscanf(argv[1], "%d", &loop); // 读入loop
   }
-  for(int i = 0; i < loop; i++) {
+  int i;
+  for (i = 0; i < loop; i++) {
     gen_rand_expr(buf);
-    puts(buf);
+    sprintf(code_buf, code_format, buf);
+
+    FILE *fp =
+        fopen("/tmp/.code.c",
+              "w"); //?奇怪的是, 我运行完这句话, 根本没有出现tmp这个文件夹
+    assert(fp != NULL);
+    fputs(code_buf, fp);
+    fclose(fp); // 把code_buf写入了
+
+    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    if (ret != 0)
+      continue; // 出了错, 那么就没有意义了, 换一条
+
+    fp = popen("/tmp/.expr", "r");
+    assert(fp != NULL);
+
+    int result;
+    fscanf(fp, "%d", &result);
+    pclose(fp);
+
+    printf("%u %s\n", result, buf);
   }
+  return 0;
 }
+
+// int main(int argc, char *argv[]) {
+//   int seed = time(0);
+//   srand(seed);
+//   int loop = 1;                   // 生成表达式的个数
+//   if (argc > 1) {                 // 意味着可以空缺
+//     sscanf(argv[1], "%d", &loop); // 读入loop
+//   }
+//   for(int i = 0; i < loop; i++) {
+//     gen_rand_expr(buf);
+//     puts(buf);
+//   }
+// }
