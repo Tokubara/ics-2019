@@ -135,7 +135,7 @@ const int OP_PRIORITY[]= {
  * 返回解析得到的值
  * 不保证解析结果错误会怎样, 但不能让程序崩
 */
-uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
+int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   // is_error必须主动是0, 因为不能指望调用者将它初始化了
   *is_error=0;
   // 由于是expr调用的, 越界是不可能发生的
@@ -204,14 +204,14 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     }
   }
   // 这样就应该扫描出了主符号
-  uint32_t res;
+  int32_t res;
   bool left_error=0, right_error=0;
-  uint32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
+  int32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
   if (left_error) {
     *is_error = 1;
     return 0;
   }
-  uint32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
+  int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
   if (right_error) {
     *is_error = 1;
     return 0;
