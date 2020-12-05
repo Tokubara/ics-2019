@@ -20,7 +20,7 @@ static inline char *gen_rand_expr(char *start) {
   // switch (n % 7) {
   if(n<=2) {
       // 写入一个数
-      int m = rand()%100; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
+      int m = rand()%1000; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
       int k = rand() % 2;
       int len;
       if (k > 0) {

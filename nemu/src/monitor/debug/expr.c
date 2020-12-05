@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
-#define MAX_TOKEN_NUM 300
+#define MAX_TOKEN_NUM 1000
 
 // 需要解析以下类型
 // 十进制整数
@@ -148,11 +148,12 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       return 0;  // 要是有能直接return到原来的函数的办法就好了
     }
   }
-  if (pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
-    return eval(pre_tokens, left+1, right-1, is_error);
-  }
+  // bug: 对于是不是被一堆括号包围的情况, 没有正确给出判断,  因为没有检查匹配, 比如(-52)*(-58)就不行
+  // if (pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
+  //   return eval(pre_tokens, left+1, right-1, is_error);
+  // }
 
-  // 合并检查括号和扫描主符号
+  // 合并检查括号和扫描主符号, 由于检查是不是被一对匹配的括号包围, 因此也在这里做判断
   int cur_priority=INF; // 这样只要有符号就能比它小
   int op_pos = -1;
   int lp_num = 0;
@@ -163,6 +164,7 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
         lp_num++;
         break;
       }
+      // 对于括号是不是不匹配的判断
       case TK_R_PAREN: {
         lp_num--;
         if (lp_num < 0) {
@@ -190,11 +192,16 @@ uint32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     *is_error = 1;
     return 0;
   }
-  // 没有发现主符号的情况
+  // 没有发现主符号的情况, 有可能是因为被一对括号包围
   if (op_pos==-1) {
-    printf("cannot find operator\n");
-    *is_error=1;
-    return 0;
+    // 这种判断是否被一对括号包围的正确性在于, 如果()且不匹配, 那么必然有() (), 但这两个括号之间必须有运算符包围
+    if(pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
+      return eval(pre_tokens, left + 1, right - 1, is_error);
+    } else {
+      printf("cannot find operator\n");
+      *is_error = 1;
+      return 0;
+    }
   }
   // 这样就应该扫描出了主符号
   uint32_t res;
