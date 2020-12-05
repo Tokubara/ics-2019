@@ -254,7 +254,9 @@ uint32_t expr(char *e, bool *success) {
     return 0;
   }
   // 对tokens数组进行预处理. 去空格, 加上0
-  Token pre_tokens[43]; // 应该比tokens数组更大, 因为可能出现很多负数, 最坏的情况, 全是负数, 那么占1/3, 因此数组为43
+  Token pre_tokens[MAX_TOKEN_NUM<<1]; // 应该比tokens数组更大,
+                                   // 因为可能出现很多负数, 最坏的情况,
+                                   // 全是负数, 那么占1/3, 因此数组为43
   int j = 0; // j是pre_tokens的索引, 存的是第一个未赋值的
   for(int i = 0; i < len_tokens; i++) {
     switch(tokens[i].type) {
