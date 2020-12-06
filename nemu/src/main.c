@@ -41,18 +41,41 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
+// extern char *regsl[];
+// extern char *regsw[];
+// extern char *regsb[];
+
+static char *regsl[] = {"$eax", "$ecx", "$edx", "$ebx", "$esp", "$ebp", "$esi", "$edi"};
+static char *regsw[] = {"$ax", "$cx", "$dx", "$bx", "$sp", "$bp", "$si", "$di"};
+static char *regsb[] = {"$al", "$cl", "$dl", "$bl", "$ah", "$ch", "$dh", "$bh"};
+
 // 用于debug写死的字符串
 int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
   // init_regex();
-  char buf[10000] = "($eax+0x16)&&($ax!=0x08)"; // 测试表达式写在这里就行
+  // "($eax+0x16)&&($ax!=0x08)"
+  //  char buf[10000] = "$"; // 测试表达式写在这里就行
   uint8_t success = 0;
-  uint32_t res = expr(buf, &success);
-  if (success) {
-    printf("%u\n", res);
-    } else {
-      printf("error");
+  // uint32_t res = expr(buf, &success);
+  // if (success) {
+  //   printf("%u\n", res);
+  //   } else {
+  //     printf("error");
+  //   }
+  
+  for(int i = 0; i < 8; i++) {
+    uint32_t reg32 = expr(regsl[i], &success);
+    uint32_t reg16 = expr(regsw[i], &success);
+    assert((reg32 & 0xffffu) == reg16);
+    if(i<4) {
+      uint32_t reg8_l = expr(regsb[i], &success);
+      uint32_t reg8_h = expr(regsb[i+4], &success);
+      
+      assert((reg16 & 0xff00u) == reg8_h);
+      assert((reg16 & 0x00ffu) == reg8_l);
     }
+  }
+    // uint32_t assert( expr("$eax", &success) )
   return 0;
 }
 // 用于不断读取

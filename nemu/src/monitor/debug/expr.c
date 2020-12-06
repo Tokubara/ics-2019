@@ -115,7 +115,7 @@ uint8_t make_token(char *e) {
   len_tokens = 0; // 如果不这样写, return false的时候都需要设置为0. 这样写以后, 只有return true的时候才需要设置
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) { // 尝试每一个, 这是优先级的来源
+    for (i = 0; i < NR_REGEX; i ++) { // 优先级的来源
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) { // 不存在子组需要match, 而且pmatch.rm_so == 0确定必须是从开始匹配, 但能不能用^呢?
         // switch的结果无论如何, nr_token都是会++的, 因此我们可以在这里判断
         if (nr_token >= MAX_TOKEN_NUM) {
@@ -179,11 +179,12 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
         bool success;
         uint32_t reg_content = isa_reg_str2val(pre_tokens[left].str, &success);
         if(success) {
-          return reg_content;abs(int)
+          return reg_content;
         } else {
           // 这不是用户的问题, 是代码写错了, 不可能出现这种情况
           Assert("regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
         }
+        break;
       }
       default: {
         EVAL_ERROR("%s is not a number, its type is %d\n", pre_tokens[left].str, pre_tokens[left].type);
