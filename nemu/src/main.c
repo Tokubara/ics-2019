@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
       uint32_t reg8_l = expr(regsb[i], &success);
       uint32_t reg8_h = expr(regsb[i+4], &success);
       
-      assert((reg16 & 0xff00u) == reg8_h);
+      assert((reg16 & 0xff00u)>>8 == reg8_h);
       assert((reg16 & 0x00ffu) == reg8_l);
     }
   }
