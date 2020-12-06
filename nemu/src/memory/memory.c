@@ -39,3 +39,5 @@ void paddr_write(paddr_t addr, uint32_t data, int len) {
     return map_write(addr, data, len, fetch_mmio_map(addr));
   }
 }
+
+bool is_valid_addr(paddr_t addr) { return (addr >= 0 && addr <= PMEM_SIZE); }

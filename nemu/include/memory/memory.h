@@ -24,6 +24,8 @@ void isa_vaddr_write(vaddr_t, uint32_t, int);
 uint32_t paddr_read(paddr_t, int);
 void paddr_write(paddr_t, uint32_t, int);
 
+bool is_valid_addr(paddr_t addr);
+
 #define PAGE_SIZE         4096
 #define PAGE_MASK         (PAGE_SIZE - 1)
 #define PG_ALIGN __attribute((aligned(PAGE_SIZE)))

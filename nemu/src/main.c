@@ -7,7 +7,7 @@ void init_regex();
 // uint8_t make_token(char *);
 uint32_t expr(char *, bool *);
 
-// 原来的
+/** 非调试, 正常的nemu界面*/
 // int main(int argc, char *argv[]) {
 //   /* Initialize the monitor. */
 //   int is_batch_mode = init_monitor(argc, argv);
@@ -41,7 +41,7 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-/* 寄存器的测例 */
+/** 寄存器的测例 */
 // static char *regsl[] = {"$eax", "$ecx", "$edx", "$ebx", "$esp", "$ebp", "$esi", "$edi"};
 // static char *regsw[] = {"$ax", "$cx", "$dx", "$bx", "$sp", "$bp", "$si", "$di"};
 // static char *regsb[] = {"$al", "$cl", "$dl", "$bl", "$ah", "$ch", "$dh", "$bh"};
@@ -64,24 +64,51 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-/* 对表达式的测例 */
-#include <stdio.h>
+/** 对表达式的测例, 接受不断的输入 */
+// #include <stdio.h>
 
+// int main(int argc, char *argv[]) {
+//   init_monitor(argc, argv);
+//   // init_regex();
+//   while (1) {
+//     uint32_t std_ans;
+//     char buf[65505];
+//     int len = scanf("%u %s\n", &std_ans, buf);
+//     if (len <= 0)
+//       break;
+//     uint8_t success = 0;
+//     uint32_t res = expr(buf, &success);
+//     if(res==std_ans) {
+//       printf("right\n");
+//     } else {
+//       printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
+//     }
+//   }
+// }
+extern uint8_t pmem[];
+/** 固定表达式的测例 */
 int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
   // init_regex();
-  while (1) {
-    uint32_t std_ans;
-    char buf[65505];
-    int len = scanf("%u %s\n", &std_ans, buf);
-    if (len <= 0)
-      break;
+  // while (1) {
+    // uint32_t std_ans;
+    pmem[102]=9;
+    pmem[103]=10;
+    pmem[104]=17;
+    pmem[105]=3;
+    pmem[106]=4;
+    pmem[107]=1;
+    char buf[65505] = "(*102*7+*103)/*(100*(2==2)+4)";
+    // int len = scanf("%u %s\n", &std_ans, buf);
+    // if (len <= 0)
+      // break;
     uint8_t success = 0;
     uint32_t res = expr(buf, &success);
-    if(res==std_ans) {
-      printf("right\n");
-    } else {
-      printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
-    }
-  }
+    printf("%u\n", res);
+    // if(res==std_ans) {
+    //   printf("right\n");
+    // } else {
+    //   printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
+    // }
+  // }
 }

@@ -66,9 +66,6 @@ static struct {
     {"si", "Execute [N] instuctions", cmd_si},
     {"x", "Print [N] bytes of memory from [addr]", cmd_x},
     {"info", "Print useful info", cmd_info}
-
-    /* TODO: Add more commands */
-
 };
 
 // enum { // 似乎框架中的enum都是小写的

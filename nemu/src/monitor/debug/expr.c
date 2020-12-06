@@ -299,7 +299,11 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     Assert(left==op_pos, "deference * is not the first");
     bool right_error;
     int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
-    res = vaddr_read(right_val, 4);
+    if (is_valid_addr(right_val)) {
+      res = vaddr_read(right_val, 4);
+    } else {
+      EVAL_ERROR("not a valid address");
+    }
   }
   return res;
 }
