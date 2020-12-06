@@ -41,10 +41,6 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-// extern char *regsl[];
-// extern char *regsw[];
-// extern char *regsb[];
-
 static char *regsl[] = {"$eax", "$ecx", "$edx", "$ebx", "$esp", "$ebp", "$esi", "$edi"};
 static char *regsw[] = {"$ax", "$cx", "$dx", "$bx", "$sp", "$bp", "$si", "$di"};
 static char *regsb[] = {"$al", "$cl", "$dl", "$bl", "$ah", "$ch", "$dh", "$bh"};

@@ -11,6 +11,8 @@
 #define MAX_TOKEN_NUM 1000
 #define OP_NUM 20 // OP_PRIORITY的默认大小
 #define EVAL_ERROR(...) printf(__VA_ARGS__); *is_error = 1; return 0
+#define OPERAND_TYPE(type)  (type == TK_DEC_NUMBER || type == TK_HEX_NUMBER || type == TK_REG) // 判断是否是操作数类型, 3种, 10进制数, 16进制数, 寄存器
+#define UNARY_LEFT_OP(type) (type==TK_DEREF) // 判断是否是单目左边的运算符
 
 // 需要解析以下类型
 // 十进制整数
@@ -21,7 +23,7 @@
 /*TK_ENUM_START和TK_ENUM_END并不是实际的符号, 仅仅是为了确保初始化OP_PRIORITY数组时初始化了所有符号*/
 /*!写法上要确保, 符号必须在TK_ENUM_START和TK_ENUM_END之间*/
 enum {
-  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, TK_REG, TK_L_PAREN, TK_R_PAREN, TK_ENUM_START=0, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
+  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, TK_REG, TK_L_PAREN, TK_R_PAREN, TK_ASTERISK, TK_ENUM_START=0, TK_DEREF, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
 , TK_ENUM_END}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 
 /* 优先级越高越大, 很不好的是, 目前硬编码了 */
@@ -40,7 +42,7 @@ static struct rule {
     {"[[:digit:]]+", TK_DEC_NUMBER},
     {"\\+", TK_OP_PLUS},
     {"-", TK_OP_SUB},
-    {"\\*", TK_OP_MUL},
+    {"\\*", TK_ASTERISK},
     {"/", TK_OP_DIV},
     {"\\(", TK_L_PAREN},
     {"\\)", TK_R_PAREN},
@@ -69,6 +71,7 @@ void init_priotity() {
   OP_PRIORITY[TK_OP_SUB] = -4;
   OP_PRIORITY[TK_OP_MUL] = -3;
   OP_PRIORITY[TK_OP_DIV] = -3;
+  OP_PRIORITY[TK_DEREF] = -2;
   for (int i = TK_ENUM_START+1; i < TK_ENUM_END; i++) {
     Assert(OP_PRIORITY[i]!=0,"Precedence of operator %d is not initialized", i);
   }
@@ -105,6 +108,7 @@ static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析�
  * 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0
  * 如果解析错误, 返回0, 否则返回tokens的个数
  * 为了make_token实现上的简单, 对于寄存器, 去除0x不是它的工作, 是相应的函数的工作, 也就是isa_reg_str2val的工作
+ * 解引用还是乘号的确定, 我们不在这里做, 因为我认为make_token的作用仅仅是解析正则符号, 弄懂是什么意思, 这是预处理的工作, 也就是expr
  */
 uint8_t make_token(char *e) {
   int position = 0;
@@ -130,7 +134,7 @@ uint8_t make_token(char *e) {
         position += substr_len;
         // 此时nr_token指向的是未指向的位置
         tokens[nr_token].type = rules[i].token_type;
-        if (rules[i].token_type == TK_DEC_NUMBER || rules[i].token_type == TK_HEX_NUMBER || rules[i].token_type == TK_REG) {
+        if (OPERAND_TYPE(rules[i].token_type)) {
           if (substr_len > 31) { // 太长了, 处理不了
             printf("too large number, sorry, we cannot deal with it: %.*s",
                    substr_len, substr_start);
@@ -243,53 +247,65 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   }
   // 这样就应该扫描出了主符号
   int32_t res;
-  bool left_error=0, right_error=0;
-  int32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
-  if (left_error) {
-    *is_error = 1;
-    return 0;
-  }
-  int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
-  if (right_error) {
-    *is_error = 1;
-    return 0;
-  }
-  switch (pre_tokens[op_pos].type) {
-    case TK_EQ: {
-      res = left_val == right_val; // 不好是同一个吧, 万一并行了咋办(虽然我也不知道并不并行)
-      break;
+  if (!UNARY_LEFT_OP(pre_tokens[op_pos].type)) {
+    // 如果不是单目运算符
+    bool left_error, right_error;
+    int32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
+    if (left_error) {
+      *is_error = 1;
+      return 0;
     }
-    case TK_OP_PLUS: {
-      res = left_val + right_val;
-      break;
+    int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
+    if (right_error) {
+      *is_error = 1;
+      return 0;
     }
-    case TK_OP_SUB: {
-      res = left_val - right_val;
-      break;
-    }
-    case TK_OP_MUL: {
-      res = left_val * right_val;
-      break;
-    }
-    case TK_OP_DIV: {
-      if(right_val==0) {
-        EVAL_ERROR("divide 0\n");
+    switch (pre_tokens[op_pos].type) {
+      case TK_EQ: {
+        res = left_val ==
+              right_val; // 不好是同一个吧, 万一并行了咋办(虽然我也不知道并不并行)
+        break;
       }
-      res = left_val / right_val;
-      break;
+      case TK_OP_PLUS: {
+        res = left_val + right_val;
+        break;
+      }
+      case TK_OP_SUB: {
+        res = left_val - right_val;
+        break;
+      }
+      case TK_OP_MUL: {
+        res = left_val * right_val;
+        break;
+      }
+      case TK_OP_DIV: {
+        if (right_val == 0) {
+          EVAL_ERROR("divide 0\n");
+        }
+        res = left_val / right_val;
+        break;
+      }
+      case TK_OP_AND: {
+        res = left_val && right_val;
+        break;
+      }
+      case TK_NEQ: {
+        res = left_val != right_val;
+        break;
+      }
     }
-    case TK_OP_AND: {
-      res = left_val && right_val;
-      break;
-    }
-    case TK_NEQ: {
-      res = left_val != right_val;
-    }
+  } else {
+    // 如果是*那么必然是第一个
+    Assert(left==op_pos, "deference * is not the first");
+    bool right_error;
+    int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
+    res = vaddr_read(right_val, 4);
   }
   return res;
 }
 /**
  * 无论sucess是什么,都会得到正确的赋值
+ * 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用
 */
 uint32_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -307,14 +323,19 @@ uint32_t expr(char *e, bool *success) {
         break;
       case TK_OP_SUB:{
         // 那么需要做一番判断
-        if (j==0 || (pre_tokens[j - 1].type != TK_R_PAREN && pre_tokens[j - 1].type != TK_DEC_NUMBER)) { // 负数的情况
+        if (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || OPERAND_TYPE(pre_tokens[j - 1].type))) { // 负数的情况
           // 需要追加0
           pre_tokens[j].type = TK_DEC_NUMBER;
           pre_tokens[j].str[0] = '0';
           pre_tokens[j].str[1] = '\0';
           ++j;
         }
-        pre_tokens[j++] = tokens[i]; // 这一句话与下面一句话都可以不要
+        pre_tokens[j++] = tokens[i];
+        break;
+      }
+      case TK_ASTERISK: {
+        pre_tokens[j].type = (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || OPERAND_TYPE(pre_tokens[j - 1].type)))?TK_DEREF:TK_OP_MUL;
+        ++j;
         break;
       }
       default:{
