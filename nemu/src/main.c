@@ -55,14 +55,14 @@ int main(int argc, char *argv[]) {
   // init_regex();
   // "($eax+0x16)&&($ax!=0x08)"
   //  char buf[10000] = "$"; // 测试表达式写在这里就行
-  uint8_t success = 0;
-  // uint32_t res = expr(buf, &success);
+  // uint8_t success = 0;
+  // uint32_t res = expr("$ah", &success);
   // if (success) {
   //   printf("%u\n", res);
   //   } else {
   //     printf("error");
-  //   }
-  
+  // }
+  uint8_t success = 0;
   for(int i = 0; i < 8; i++) {
     uint32_t reg32 = expr(regsl[i], &success);
     uint32_t reg16 = expr(regsw[i], &success);
@@ -75,7 +75,6 @@ int main(int argc, char *argv[]) {
       assert((reg16 & 0x00ffu) == reg8_l);
     }
   }
-    // uint32_t assert( expr("$eax", &success) )
   return 0;
 }
 // 用于不断读取
