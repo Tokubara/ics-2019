@@ -19,7 +19,7 @@
 /*TK_ENUM_START和TK_ENUM_END并不是实际的符号, 仅仅是为了确保初始化OP_PRIORITY数组时初始化了所有符号*/
 /*!写法上要确保, 符号必须在TK_ENUM_START和TK_ENUM_END之间*/
 enum {
-  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, REGS, TK_L_PAREN, TK_R_PAREN, TK_ENUM_START=0, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
+  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, TK_REG, TK_L_PAREN, TK_R_PAREN, TK_ENUM_START=0, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
 , TK_ENUM_END}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 
 // TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV,
@@ -44,7 +44,7 @@ static struct rule {
     {"\\(", TK_L_PAREN},
     {"\\)", TK_R_PAREN},
     {"\\$(eax|ecx|edx|ebx|esp|ebp|esi|edi|ax|cx|dx|bx|sp|bp|si|di|al|cl|dl|bl|"
-     "ah|ch|dh|bh)",REGS}
+     "ah|ch|dh|bh)",TK_REG}
 };
 //  测试正则表达式的文件: /Users/quebec/Playground/example/c/regex.c
 
@@ -130,24 +130,20 @@ uint8_t make_token(char *e) {
         // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
         //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
-        switch (rules[i].token_type) {
-          case TK_DEC_NUMBER: {
-            if (substr_len>31) { // 太长了, 处理不了
-              printf("too large number, sorry, we cannot deal with it: %.*s", substr_len, substr_start);
-              return false;
-            }
-            // 否则就是把一片字符串复制过来. 而且需要追加\0, 原来的字符串是没有\0的, 因此strcpy是不行的, 用memcpy
-            tokens[nr_token].type=TK_DEC_NUMBER;
+        // 此时nr_token指向的是未指向的位置
+        tokens[nr_token].type = rules[i].token_type;
+        if (rules[i].token_type == TK_DEC_NUMBER || rules[i].token_type == TK_HEX_NUMBER || rules[i].token_type == TK_REG) {
+          if (substr_len > 31) { // 太长了, 处理不了
+            printf("too large number, sorry, we cannot deal with it: %.*s",
+                   substr_len, substr_start);
+            return false;
+          } else {
             memcpy(tokens[nr_token].str, substr_start, substr_len);
-            tokens[nr_token].str[substr_len]='\0';
-            nr_token+=1;
-            break;
+            tokens[nr_token].str[substr_len] = '\0';
           }
-          default: {
-            tokens[nr_token++].type = rules[i].token_type;
-            break;
-          };  // 我想默认应该是直接赋值
         }
+        nr_token += 1;
+
         break;  // 离开for循环, 因为已经找到了
       }
     }
