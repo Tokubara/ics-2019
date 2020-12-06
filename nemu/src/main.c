@@ -41,55 +41,47 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-static char *regsl[] = {"$eax", "$ecx", "$edx", "$ebx", "$esp", "$ebp", "$esi", "$edi"};
-static char *regsw[] = {"$ax", "$cx", "$dx", "$bx", "$sp", "$bp", "$si", "$di"};
-static char *regsb[] = {"$al", "$cl", "$dl", "$bl", "$ah", "$ch", "$dh", "$bh"};
+/* 寄存器的测例 */
+// static char *regsl[] = {"$eax", "$ecx", "$edx", "$ebx", "$esp", "$ebp", "$esi", "$edi"};
+// static char *regsw[] = {"$ax", "$cx", "$dx", "$bx", "$sp", "$bp", "$si", "$di"};
+// static char *regsb[] = {"$al", "$cl", "$dl", "$bl", "$ah", "$ch", "$dh", "$bh"};
 
-// 用于debug写死的字符串
+// int main(int argc, char *argv[]) {
+//   init_monitor(argc, argv);
+//   uint8_t success = 0;
+//   for(int i = 0; i < 8; i++) {
+//     uint32_t reg32 = expr(regsl[i], &success);
+//     uint32_t reg16 = expr(regsw[i], &success);
+//     assert((reg32 & 0xffffu) == reg16);
+//     if(i<4) {
+//       uint32_t reg8_l = expr(regsb[i], &success);
+//       uint32_t reg8_h = expr(regsb[i+4], &success);
+      
+//       assert((reg16 & 0xff00u)>>8 == reg8_h);
+//       assert((reg16 & 0x00ffu) == reg8_l);
+//     }
+//   }
+//   return 0;
+// }
+
+/* 对表达式的测例 */
+#include <stdio.h>
+
 int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
   // init_regex();
-  // "($eax+0x16)&&($ax!=0x08)"
-  //  char buf[10000] = "$"; // 测试表达式写在这里就行
-  // uint8_t success = 0;
-  // uint32_t res = expr("$ah", &success);
-  // if (success) {
-  //   printf("%u\n", res);
-  //   } else {
-  //     printf("error");
-  // }
-  uint8_t success = 0;
-  for(int i = 0; i < 8; i++) {
-    uint32_t reg32 = expr(regsl[i], &success);
-    uint32_t reg16 = expr(regsw[i], &success);
-    assert((reg32 & 0xffffu) == reg16);
-    if(i<4) {
-      uint32_t reg8_l = expr(regsb[i], &success);
-      uint32_t reg8_h = expr(regsb[i+4], &success);
-      
-      assert((reg16 & 0xff00u)>>8 == reg8_h);
-      assert((reg16 & 0x00ffu) == reg8_l);
+  while (1) {
+    uint32_t std_ans;
+    char buf[65505];
+    int len = scanf("%u %s\n", &std_ans, buf);
+    if (len <= 0)
+      break;
+    uint8_t success = 0;
+    uint32_t res = expr(buf, &success);
+    if(res==std_ans) {
+      printf("right\n");
+    } else {
+      printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
     }
   }
-  return 0;
 }
-// 用于不断读取
-// #include <stdio.h>
-
-// int main() {
-//   init_regex();
-//   while (1) {
-//     uint32_t std_ans;
-//     char buf[65505];
-//     int len = scanf("%u %s\n", &std_ans, buf);
-//     if (len <= 0)
-//       break;
-//     uint8_t success = 0;
-//     uint32_t res = expr(buf, &success);
-//     if(res==std_ans) {
-//       printf("right\n");
-//     } else {
-//       printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
-//     }
-//   }
-// }

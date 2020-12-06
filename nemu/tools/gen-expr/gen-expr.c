@@ -19,7 +19,7 @@ static inline char *gen_rand_expr(char *start) {
   // strcpy(buf, a);
   int n = rand()%7;
   if (start - buf > BUF_LEN-10000) {
-    n=1; //余量已经不多了, 生成个数就行了
+    n=0; //余量已经不多了, 生成个数就行了
   }
     // switch (n % 7) {
   if (n <= 2) {
@@ -28,10 +28,10 @@ static inline char *gen_rand_expr(char *start) {
     int k = rand() % 2;
     int len;
     if (k > 0) {
-      len = sprintf(start, "0x%x", m);
+      len = sprintf(start, "(0x%x)", m);
     } else {
       len = sprintf(start, "%d", m);
-    }     
+    }
     return (start + len);
   } else if(n==3) {
       // 括号, 表达式的情况
@@ -44,7 +44,7 @@ static inline char *gen_rand_expr(char *start) {
       char *new_start = gen_rand_expr(start);
       int m = rand();
       // int len;
-      switch (m % 7) {
+      switch (m % 2) {
         case 0: {
           sprintf(new_start, "+");
           ++new_start;
@@ -56,27 +56,27 @@ static inline char *gen_rand_expr(char *start) {
           break;
         }
         case 2: {
-          sprintf(new_start, "-");
+          sprintf(new_start, "*");
           ++new_start;
           break;
         }
         case 3: {
-          sprintf(new_start, "+");
+          sprintf(new_start, "/");
           ++new_start;
           break;
         }
         case 4: {
-          sprintf(new_start, "+");
+          sprintf(new_start, "==");
           new_start+=2;
           break;
         }
         case 5: {
-          sprintf(new_start, "-");
+          sprintf(new_start, "!=");
           new_start += 2;
           break;
         }
         case 6: {
-          sprintf(new_start, "+");
+          sprintf(new_start, "&&");
           new_start += 2;
           break;
         }
