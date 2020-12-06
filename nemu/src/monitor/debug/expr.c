@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <regex.h>
 #define MAX_TOKEN_NUM 1000
+#define OP_NUM 20 // OP_PRIORITY的默认大小
 
 // 需要解析以下类型
 // 十进制整数
@@ -15,33 +16,70 @@
 // (, )
 // 空格串(一个或多个空格)
 
-/*写法上, 只有符号才从0开始*/
+/*TK_ENUM_START和TK_ENUM_END并不是实际的符号, 仅仅是为了确保初始化OP_PRIORITY数组时初始化了所有符号*/
+/*!写法上要确保, 符号必须在TK_ENUM_START和TK_ENUM_END之间*/
 enum {
-  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_L_PAREN, TK_R_PAREN, TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
-}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
+  TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, REGS, TK_L_PAREN, TK_R_PAREN, TK_ENUM_START=0, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
+, TK_ENUM_END}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
+
+// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV,
+/* 优先级越高越大, 很不好的是, 目前硬编码了 */
+int OP_PRIORITY[OP_NUM];
+// 对于这个数组的访问, 是通过OP_PRIORITY[type]这样来的
 
 static struct rule {
   char *regex;
   int token_type;
 } rules[] = {
-    {" +", TK_NOTYPE}, // spaces //? 但是没有\t这些
-    {"==", TK_EQ},     // equal
-    {"[[:digit:]]+", TK_DEC_NUMBER},  // 已测试
-    {"\\+", TK_OP_PLUS}, // plus  //? 这里为什么会是'+', 而不是一个enum type? 已测试
-    {"-", TK_OP_SUB}, // 已测试
-    {"\\*", TK_OP_MUL}, // 不用测试, 与+类似
-    {"/", TK_OP_DIV},  // 已测试
+    {" +", TK_NOTYPE},               // spaces //? 但是没有\t这些
+    {"==", TK_EQ},                   // equal
+    {"!=", TK_NEQ},
+    {"&&",TK_OP_AND},
+    {"[[:digit:]]+", TK_DEC_NUMBER}, // 已测试
+    {"\\+",
+     TK_OP_PLUS}, // plus  //? 这里为什么会是'+', 而不是一个enum type? 已测试
+    {"-", TK_OP_SUB},    // 已测试
+    {"\\*", TK_OP_MUL},  // 不用测试, 与+类似
+    {"/", TK_OP_DIV},    // 已测试
     {"\\(", TK_L_PAREN}, // 已测试
     {"\\)", TK_R_PAREN}, // 不用测试
-};
+    {"0x[[:xdigit:]]+", TK_HEX_NUMBER},
+    {"\$(eax|ecx|edx|ebx|esp|ebp|esi|edi|ax|cx|dx|bx|sp|bp|si|di|al|cl|dl|bl|ah|ch|dh|bh)",
+     REGS}
+    };
+//  测试正则表达式的文件: /Users/quebec/Playground/example/c/regex.c
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
 #define INF 1000
 
 static regex_t re[NR_REGEX] = {};
 
-/* Rules are used for many times.
- * Therefore we compile them only once before any usage.
+/**
+ * 初始化符号优先级数组OP_PRIORITY, 由于算法关系, 不需要考虑括号的优先级, 只需要考虑运算符的优先级设定
+ * 数值越小, 表示优先级越低, 比如==的优先级是0.
+ * 具体数值, 参考<https://en.cppreference.com/w/c/language/operator_precedence>
+ * 为什么是负数, 这主要是因为之前的逻辑是越小优先级越低
+ */
+
+/*写法上, 只有符号才从0开始*/
+// enum {
+// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
+// }; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
+void init_priotity() {
+  OP_PRIORITY[TK_OP_AND] = -11;
+  OP_PRIORITY[TK_EQ]=-7;
+  OP_PRIORITY[TK_NEQ] = -7;
+  OP_PRIORITY[TK_OP_PLUS] = -4;
+  OP_PRIORITY[TK_OP_SUB] = -4;
+  OP_PRIORITY[TK_OP_MUL] = -3;
+  OP_PRIORITY[TK_OP_DIV] = -3;
+  for (int i = TK_ENUM_START; i < TK_ENUM_END; i++) {
+    Assert(OP_PRIORITY[i]!=0,"Precedence of operator %d is not initialized", i);
+  }
+}
+
+/**
+ * 这里除了初始化re数组(regex数组), 还初始化了priority, 没有解耦合, 但这是为了减轻写测试的负担
  */
 void init_regex() {
   int i;
@@ -55,6 +93,7 @@ void init_regex() {
       panic("regex compilation failed: %s\n%s", error_msg, rules[i].regex);
     }
   }
+  init_priotity();
 }
 
 typedef struct token {
@@ -124,12 +163,6 @@ uint8_t make_token(char *e) {
   return nr_token;
 }
 
-// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV,
-/* 优先级越高越大, 很不好的是, 目前硬编码了 */
-const int OP_PRIORITY[]= {
-  0, 1, 1, 2, 2
-};
-
 /**
  * pre_tokens是预处理后的数组, left和right是闭区间, is_error是否有错误, 如果为1, 发生了错误, 比如括号不匹配
  * 返回解析得到的值
@@ -137,7 +170,9 @@ const int OP_PRIORITY[]= {
 */
 int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   // is_error必须主动是0, 因为不能指望调用者将它初始化了
-  *is_error=0;
+  // 保证priority被初始化了
+  Assert(OP_PRIORITY[TK_OP_AND] != 0, "function <init_priotity> hasn't been called");
+  *is_error = 0;
   // 由于是expr调用的, 越界是不可能发生的
   if(left==right) {
     if(pre_tokens[left].type==TK_DEC_NUMBER) {

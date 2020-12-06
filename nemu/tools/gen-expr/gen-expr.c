@@ -43,7 +43,7 @@ static inline char *gen_rand_expr(char *start) {
       char *new_start = gen_rand_expr(start);
       int m = rand();
       // int len;
-      switch (m % 4) {
+      switch (m % 5) {
         case 0: {
           sprintf(new_start, "+");
           ++new_start;
@@ -62,6 +62,11 @@ static inline char *gen_rand_expr(char *start) {
         case 3: {
           sprintf(new_start, "/");
           ++new_start;
+          break;
+        }
+        case 4: {
+          sprintf(new_start, "==");
+          new_start+=2;
           break;
         }
       }
