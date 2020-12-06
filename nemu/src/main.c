@@ -42,8 +42,9 @@ uint32_t expr(char *, bool *);
 // }
 
 // 用于debug写死的字符串
-int main() {
-  init_regex();
+int main(int argc, char *argv[]) {
+  init_monitor(argc, argv);
+  // init_regex();
   char buf[10000] = "($eax+0x16)&&($ax!=0x08)"; // 测试表达式写在这里就行
   uint8_t success = 0;
   uint32_t res = expr(buf, &success);

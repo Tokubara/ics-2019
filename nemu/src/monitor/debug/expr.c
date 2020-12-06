@@ -3,12 +3,14 @@
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
 #define MAX_TOKEN_NUM 1000
 #define OP_NUM 20 // OP_PRIORITY的默认大小
+#define EVAL_ERROR(...) printf(__VA_ARGS__); *is_error = 1; return 0
 
 // 需要解析以下类型
 // 十进制整数
@@ -107,6 +109,7 @@ static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析�
  * 根据字符串e从0开始填写tokens
  * 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0
  * 如果解析错误, 返回0, 否则返回tokens的个数
+ * 为了make_token实现上的简单, 对于寄存器, 去除0x不是它的工作, 是相应的函数的工作, 也就是isa_reg_str2val的工作
  */
 uint8_t make_token(char *e) {
   int position = 0;
@@ -170,12 +173,26 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   *is_error = 0;
   // 由于是expr调用的, 越界是不可能发生的
   if(left==right) {
-    if(pre_tokens[left].type==TK_DEC_NUMBER) {
-      return atoi(pre_tokens[left].str);
-    } else {
-      printf("%s is not a number, its type is %d\n", pre_tokens[left].str, pre_tokens[left].type);
-      *is_error=1;
-      return 0;  // 要是有能直接return到原来的函数的办法就好了
+    switch (pre_tokens[left].type) { 
+      case TK_DEC_NUMBER: {
+        return atoi(pre_tokens[left].str);
+      }
+      case TK_HEX_NUMBER: {
+        return strtol(pre_tokens[left].str, NULL, 16);
+      }
+      case TK_REG: {
+        bool success;
+        uint32_t reg_content = isa_reg_str2val(pre_tokens[left].str, &success);
+        if(success) {
+          return reg_content;
+        } else {
+          // 这不是用户的问题, 是代码写错了, 不可能出现这种情况
+          Assert("regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
+        }
+      }
+      default: {
+        EVAL_ERROR("%s is not a number, its type is %d\n", pre_tokens[left].str, pre_tokens[left].type);
+      }
     }
   }
   // bug: 对于是不是被一堆括号包围的情况, 没有正确给出判断,  因为没有检查匹配, 比如(-52)*(-58)就不行
@@ -198,10 +215,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       case TK_R_PAREN: {
         lp_num--;
         if (lp_num < 0) {
-          // 异常
-          printf("parenthesis not matches\n");
-          *is_error = 1;
-          return 0;
+          EVAL_ERROR("parenthesis not matches\n");
         }
         break;
       }
@@ -218,9 +232,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     }
   }
   if(lp_num!=0) {
-    printf("parenthesis not matches\n");
-    *is_error = 1;
-    return 0;
+    EVAL_ERROR("parenthesis not matches\n");
   }
   // 没有发现主符号的情况, 有可能是因为被一对括号包围
   if (op_pos==-1) {
@@ -228,9 +240,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     if(pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
       return eval(pre_tokens, left + 1, right - 1, is_error);
     } else {
-      printf("cannot find operator\n");
-      *is_error = 1;
-      return 0;
+      EVAL_ERROR("cannot find operator\n");
     }
   }
   // 这样就应该扫描出了主符号
@@ -265,9 +275,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
     }
     case TK_OP_DIV: {
       if(right_val==0) {
-        printf("divide 0\n");
-        *is_error=1;
-        return 0;
+        EVAL_ERROR("divide 0\n");
       }
       res = left_val / right_val;
       break;
