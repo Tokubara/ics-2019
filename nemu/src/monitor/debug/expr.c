@@ -31,22 +31,21 @@ static struct rule {
   char *regex;
   int token_type;
 } rules[] = {
-    {" +", TK_NOTYPE},               // spaces //? 但是没有\t这些
-    {"==", TK_EQ},                   // equal
+    {" +", TK_NOTYPE}, // spaces //? 但是没有\t这些
+    {"==", TK_EQ},     // equal
     {"!=", TK_NEQ},
-    {"&&",TK_OP_AND},
-    {"[[:digit:]]+", TK_DEC_NUMBER}, // 已测试
-    {"\\+",
-     TK_OP_PLUS}, // plus  //? 这里为什么会是'+', 而不是一个enum type? 已测试
-    {"-", TK_OP_SUB},    // 已测试
-    {"\\*", TK_OP_MUL},  // 不用测试, 与+类似
-    {"/", TK_OP_DIV},    // 已测试
-    {"\\(", TK_L_PAREN}, // 已测试
-    {"\\)", TK_R_PAREN}, // 不用测试
-    {"0x[[:xdigit:]]+", TK_HEX_NUMBER},
-    {"\$(eax|ecx|edx|ebx|esp|ebp|esi|edi|ax|cx|dx|bx|sp|bp|si|di|al|cl|dl|bl|ah|ch|dh|bh)",
-     REGS}
-    };
+    {"&&", TK_OP_AND},
+    {"0x[[:xdigit:]]+", TK_HEX_NUMBER}, // 必须放在10进制之前
+    {"[[:digit:]]+", TK_DEC_NUMBER},
+    {"\\+", TK_OP_PLUS},
+    {"-", TK_OP_SUB},
+    {"\\*", TK_OP_MUL},
+    {"/", TK_OP_DIV},
+    {"\\(", TK_L_PAREN},
+    {"\\)", TK_R_PAREN},
+    {"\\$(eax|ecx|edx|ebx|esp|ebp|esi|edi|ax|cx|dx|bx|sp|bp|si|di|al|cl|dl|bl|"
+     "ah|ch|dh|bh)",REGS}
+};
 //  测试正则表达式的文件: /Users/quebec/Playground/example/c/regex.c
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -73,7 +72,7 @@ void init_priotity() {
   OP_PRIORITY[TK_OP_SUB] = -4;
   OP_PRIORITY[TK_OP_MUL] = -3;
   OP_PRIORITY[TK_OP_DIV] = -3;
-  for (int i = TK_ENUM_START; i < TK_ENUM_END; i++) {
+  for (int i = TK_ENUM_START+1; i < TK_ENUM_END; i++) {
     Assert(OP_PRIORITY[i]!=0,"Precedence of operator %d is not initialized", i);
   }
 }

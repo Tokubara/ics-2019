@@ -42,35 +42,35 @@ uint32_t expr(char *, bool *);
 // }
 
 // 用于debug写死的字符串
-// int main() {
-//   init_regex();
-//   char buf[10000] = "12+34*(12+3)"; // 测试表达式写在这里就行
-//   uint8_t success = 0;
-//   uint32_t res = expr(buf, &success);
-//   if (success) {
-//     printf("%u\n", res);
-//     } else {
-//       printf("error");
-//     }
-//   return 0;
-// }
-// 用于不断读取
-#include <stdio.h>
-
 int main() {
   init_regex();
-  while (1) {
-    uint32_t std_ans;
-    char buf[65505];
-    int len = scanf("%u %s\n", &std_ans, buf);
-    if (len <= 0)
-      break;
-    uint8_t success = 0;
-    uint32_t res = expr(buf, &success);
-    if(res==std_ans) {
-      printf("right\n");
+  char buf[10000] = "($eax+0x16)&&($ax!=0x08)"; // 测试表达式写在这里就行
+  uint8_t success = 0;
+  uint32_t res = expr(buf, &success);
+  if (success) {
+    printf("%u\n", res);
     } else {
-      printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
+      printf("error");
     }
-  }
+  return 0;
 }
+// 用于不断读取
+// #include <stdio.h>
+
+// int main() {
+//   init_regex();
+//   while (1) {
+//     uint32_t std_ans;
+//     char buf[65505];
+//     int len = scanf("%u %s\n", &std_ans, buf);
+//     if (len <= 0)
+//       break;
+//     uint8_t success = 0;
+//     uint32_t res = expr(buf, &success);
+//     if(res==std_ans) {
+//       printf("right\n");
+//     } else {
+//       printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
+//     }
+//   }
+// }
