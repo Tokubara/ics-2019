@@ -24,7 +24,6 @@ enum {
   TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, TK_REG, TK_L_PAREN, TK_R_PAREN, TK_ENUM_START=0, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
 , TK_ENUM_END}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 
-// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV,
 /* 优先级越高越大, 很不好的是, 目前硬编码了 */
 int OP_PRIORITY[OP_NUM];
 // 对于这个数组的访问, 是通过OP_PRIORITY[type]这样来的
@@ -62,10 +61,6 @@ static regex_t re[NR_REGEX] = {};
  * 为什么是负数, 这主要是因为之前的逻辑是越小优先级越低
  */
 
-/*写法上, 只有符号才从0开始*/
-// enum {
-// TK_EQ=0, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
-// }; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
 void init_priotity() {
   OP_PRIORITY[TK_OP_AND] = -11;
   OP_PRIORITY[TK_EQ]=-7;
@@ -220,6 +215,8 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
         break;
       }
       // 这里应该只是优先级判断
+      case TK_REG:
+      case TK_HEX_NUMBER:
       case TK_DEC_NUMBER: break;
       default: { // default是所有的符号的情况, 当前类型保证了这一点, 之后不知道
                  // 不在括号中和是运算符, 不满足不可能
@@ -279,6 +276,13 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       }
       res = left_val / right_val;
       break;
+    }
+    case TK_OP_AND: {
+      res = left_val && right_val;
+      break;
+    }
+    case TK_NEQ: {
+      res = left_val != right_val;
     }
   }
   return res;
