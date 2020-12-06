@@ -51,19 +51,19 @@ uint32_t isa_reg_str2val(const char *s, bool *success) {
   char regname[]={s[1],s[2],s[3],'\0'};
   if(regname[0]=='e') {
     for(int i = 0; i<8; i++) {
-      if (strcmp(regname, regsl[i])) {
+      if (strcmp(regname, regsl[i])==0) {
         return reg_l(i);
       }
     }
   } else if(regname[2]=='l' || regname[2] == 'h') {
     for (int i = 0; i < 8; i++) {
-      if (strcmp(regname, regsb[i])) {
+      if (strcmp(regname, regsb[i])==0) {
         return reg_b(i);
       }
     }
   } else {
     for (int i = 0; i < 8; i++) {
-      if (strcmp(regname, regsw[i])) {
+      if (strcmp(regname, regsw[i])==0) {
         return reg_w(i);
       }
     }

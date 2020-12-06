@@ -179,7 +179,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
         bool success;
         uint32_t reg_content = isa_reg_str2val(pre_tokens[left].str, &success);
         if(success) {
-          return reg_content;
+          return reg_content;abs(int)
         } else {
           // 这不是用户的问题, 是代码写错了, 不可能出现这种情况
           Assert("regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
