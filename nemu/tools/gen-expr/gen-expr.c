@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#define BUF_LEN 65536
 
 // this should be enough
-static char buf[65536];
+static char buf[BUF_LEN];
 /**
  * 此函数会修改buf, start表示可以写入的字符串的位置,
  * 返回表示可以开始写的字符串的位置 由于调用的是sprintf, 可以保证以\0结尾
@@ -17,33 +18,33 @@ static inline char *gen_rand_expr(char *start) {
   // char* a = "12+23";
   // strcpy(buf, a);
   int n = rand()%7;
-  // switch (n % 7) {
-  if(n<=2) {
-      // 写入一个数
-      int m = rand()%1000; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
-      int k = rand() % 2;
-      int len;
-      if (k > 0) {
-        len = sprintf(start, "%d", m);
-      } else {
-        len = sprintf(start, "(%d)", -m);
-      }
-        
-      return (start + len);
-    }
-  else if(n==3) {
+  if (start - buf > BUF_LEN-10000) {
+    n=1; //余量已经不多了, 生成个数就行了
+  }
+    // switch (n % 7) {
+  if (n <= 2) {
+    // 写入一个数
+    int m = rand()%1000; // 否则可能得到很大的数, 但并没有什么意义, 会使表达式不必要地长
+    int k = rand() % 2;
+    int len;
+    if (k > 0) {
+      len = sprintf(start, "0x%x", m);
+    } else {
+      len = sprintf(start, "%d", m);
+    }     
+    return (start + len);
+  } else if(n==3) {
       // 括号, 表达式的情况
       sprintf(start, "(");
       char *new_start = gen_rand_expr(start + 1);
       sprintf(new_start, ")");
       return (new_start + 1);
-    }
-    else {
+    } else {
       // 表达式的情况
       char *new_start = gen_rand_expr(start);
       int m = rand();
       // int len;
-      switch (m % 5) {
+      switch (m % 7) {
         case 0: {
           sprintf(new_start, "+");
           ++new_start;
@@ -55,18 +56,28 @@ static inline char *gen_rand_expr(char *start) {
           break;
         }
         case 2: {
-          sprintf(new_start, "*");
+          sprintf(new_start, "-");
           ++new_start;
           break;
         }
         case 3: {
-          sprintf(new_start, "/");
+          sprintf(new_start, "+");
           ++new_start;
           break;
         }
         case 4: {
-          sprintf(new_start, "==");
+          sprintf(new_start, "+");
           new_start+=2;
+          break;
+        }
+        case 5: {
+          sprintf(new_start, "-");
+          new_start += 2;
+          break;
+        }
+        case 6: {
+          sprintf(new_start, "+");
+          new_start += 2;
           break;
         }
       }
