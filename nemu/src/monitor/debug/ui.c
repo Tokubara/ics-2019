@@ -68,14 +68,14 @@ static struct {
     {"info", "Print useful info", cmd_info}
 };
 
-// enum { // 似乎框架中的enum都是小写的
-//   CMD_HELP_IDX,
-//   CMD_C_IDX,
-//   CMD_Q_IDX,
-//   CMD_SI_IDX,
-//   CMD_X_IDX,
-//   CMD_INFO_IDX
-// }
+enum { // 似乎框架中的enum都是小写的
+  CMD_HELP_IDX,
+  CMD_C_IDX,
+  CMD_Q_IDX,
+  CMD_SI_IDX,
+  CMD_X_IDX,
+  CMD_INFO_IDX
+};
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
 
