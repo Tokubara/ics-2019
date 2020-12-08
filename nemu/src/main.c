@@ -7,6 +7,15 @@ void init_regex();
 // uint8_t make_token(char *);
 uint32_t expr(char *, bool *);
 
+/** 测试两个函数 */
+int main(int argc, char *argv[]) {
+  init_monitor(argc, argv);
+  //
+  // new_wp("(1+$eax)*2==$ebx");
+  // for
+  // free
+}
+
 /** 非调试, 正常的nemu界面*/
 // int main(int argc, char *argv[]) {
 //   /* Initialize the monitor. */
@@ -18,7 +27,9 @@ uint32_t expr(char *, bool *);
 //   return 0;
 // }
 
-// // 不断从外界接受字符串测试
+
+
+/** 不断从外界接受字符串测试*/
 // #include <readline/readline.h>
 // #include <stdlib.h>
 // int main() {
@@ -85,30 +96,18 @@ uint32_t expr(char *, bool *);
 //     }
 //   }
 // }
-extern uint8_t pmem[];
-/** 固定表达式的测例 */
-int main(int argc, char *argv[]) {
-  init_monitor(argc, argv);
-  // init_regex();
-  // while (1) {
-    // uint32_t std_ans;
-    pmem[102]=9;
-    pmem[103]=10;
-    pmem[104]=17;
-    pmem[105]=3;
-    pmem[106]=4;
-    pmem[107]=1;
-    char buf[65505] = "(*102*7+*103)/*(100*(2==2)+4)";
-    // int len = scanf("%u %s\n", &std_ans, buf);
-    // if (len <= 0)
-      // break;
-    uint8_t success = 0;
-    uint32_t res = expr(buf, &success);
-    printf("%u\n", res);
-    // if(res==std_ans) {
-    //   printf("right\n");
-    // } else {
-    //   printf("%s std_ans:%u mine:%u\n", buf, std_ans ,res);
-    // }
-  // }
-}
+/** 对寄存器表达式的测例 */
+// extern uint8_t pmem[];
+// int main(int argc, char *argv[]) {
+//   init_monitor(argc, argv);
+//     pmem[102]=9;
+//     pmem[103]=10;
+//     pmem[104]=17;
+//     pmem[105]=3;
+//     pmem[106]=4;
+//     pmem[107]=1;
+//     char buf[65505] = "(*102*7+*103)/*(100*(2==2)+4)";
+//     uint8_t success = 0;
+//     uint32_t res = expr(buf, &success);
+//     printf("%u\n", res);
+// }

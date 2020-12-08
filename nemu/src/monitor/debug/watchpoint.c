@@ -6,6 +6,8 @@
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
 
+extern void *malloc(size_t size);
+
 /**
  * 这个函数已经把wp_pool链接在一起了, 并且也初始化了free_和head, free_赋值为了wp_pool, head为NULL
  */
@@ -16,9 +18,77 @@ void init_wp_pool() {
     wp_pool[i].next = &wp_pool[i + 1];
   }
   wp_pool[NR_WP - 1].next = NULL;
-
-  head = NULL;
+  head = (WP*)malloc(sizeof(WP)); // 对这里进行修改, head需要是个虚拟的头部节点, 使得每一个真实的节点都有父节点, 便于删除
+  head->next=NULL;
+  head->expr=NULL;
+  head->NO=-1;
   free_ = wp_pool;
+}
+
+/**
+ * 打印所有wp的信息, 注意保证指针未被修改
+*/
+void print_wp(WP* wp) {
+  Assert(head!=NULL, "head is null");
+  WP* start = head->next;
+  if(start == NULL) {
+    printf("No watchpoints\n");
+    return;
+  }
+  printf("NO\tWhat\tValue\n");
+  while(start) {
+    printf("%d\t%s\t%u\n", start->NO, start->expr, start->val);
+    start=start->next;
+  }
+}
+
+/**
+ * 搜索head中是否有相同的no, 返回的是父节点(因为父节点可以方便找到子节点), 没有返回NULL
+*/
+WP* find_NO_prev(int tar_NO) {
+  Assert(head != NULL, "head is null");
+  WP *start = head;
+  while(start->next) {
+    if(start->next->val==tar_NO) {
+      return start;
+    }
+    start=start->next;
+  }
+  return NULL;
+}
+
+/**
+ * 遍历计算监视点, 会打印改变的监视点信息, 返回是否有变化
+ */
+bool eval_wps() {
+  Assert(head != NULL, "head is null");
+  WP *start = head->next;
+  uint32_t new_val;
+  bool has_change = false;
+  bool success;
+  while(start) {
+    new_val = expr(start->expr, &success);
+    Assert(success, "expr fails"); // 能存进去的不可能是错误的表达式
+    if(new_val!=start->val) {
+      has_change = true;
+      printf("watchpoint %d: %s\n\nOld value = %u\nNew value = %u", start->NO, start->expr, start->val, new_val);
+      start->val = new_val;
+    }
+    start = start->next;
+  }
+  return has_change;
+}
+
+/**
+ * 删除编号为NO的监视点
+ */
+void del_wp_NO(int NO) {
+  WP* wp = find_NO_prev(NO);
+  if(wp==NULL) {
+    printf("No such NO\n");
+    return;
+  }
+  free_wp(wp);
 }
 
 /**
@@ -60,16 +130,15 @@ WP* new_wp(char* expr_str) {
     printf("since the expression is not legal, no watchpoint is created\n");
     return NULL;
   }
-  // 没有两种错误情况
   // 维护free_
   WP* old_free_ = free_;
   free_=free_->next; // 如果本来就为空那就为空了
   // 维护这个新节点
   old_free_->expr = expr_str;
   old_free_->val = expr_val;
-  old_free_->next = head;
+  old_free_->next = head->next;
   // 维护head
-  head = old_free_;
+  head->next = old_free_;
   // 返回新节点
   return old_free_;
 }
