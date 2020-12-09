@@ -1,5 +1,6 @@
 #include "common.h"
-// #include "monitor/watchpoint.h"
+#include "monitor/watchpoint.h"
+#include "nemu.h"
 int init_monitor(int, char *[]);
 
 void ui_mainloop(int);
