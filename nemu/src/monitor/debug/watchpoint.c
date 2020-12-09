@@ -28,7 +28,7 @@ void init_wp_pool() {
 /**
  * 打印所有wp的信息, 注意保证指针未被修改
 */
-void print_wp(WP* wp) {
+void print_wps() {
   Assert(head!=NULL, "head is null");
   WP* start = head->next;
   if(start == NULL) {

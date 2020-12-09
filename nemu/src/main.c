@@ -1,4 +1,5 @@
 #include "common.h"
+// #include "monitor/watchpoint.h"
 int init_monitor(int, char *[]);
 
 void ui_mainloop(int);
@@ -10,8 +11,18 @@ uint32_t expr(char *, bool *);
 /** 测试两个函数 */
 int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
-  //
-  // new_wp("(1+$eax)*2==$ebx");
+  WP *wp1 = new_wp("(1+$eax)*2==$ebx");
+  WP *wp2 = new_wp("*12");
+  WP *wp3 = new_wp("$bx+4");
+  print_wps();
+  del_wp_NO(wp2->NO);
+  cpu.eax = 3;
+  eval_wps();
+
+  del_wp_NO(wp2->NO);
+  del_wp_NO(wp1->NO);
+  del_wp_NO(wp3->NO);
+  new_wp("18*19");
   // for
   // free
 }
