@@ -12,18 +12,43 @@ uint32_t expr(char *, bool *);
 /** 测试两个函数 */
 int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
-  WP *wp1 = new_wp("(1+$eax)*2+$ebx");
-  WP *wp2 = new_wp("*12");
-  WP *wp3 = new_wp("$bx+4");
-  print_wps();
-  del_wp_NO(wp2->NO);
-  cpu.eax = 3;
-  eval_wps();
-  pmem[12]=23;
-  del_wp_NO(wp2->NO); // 重复删除, 应该说找不到
-  del_wp_NO(wp1->NO);
-  del_wp_NO(wp3->NO);
-  new_wp("18*19");
+  new_wp("(1+$eax*2+$ebx");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
+  new_wp("*12+$eax");
   print_wps();
 }
 
