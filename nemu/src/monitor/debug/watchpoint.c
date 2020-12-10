@@ -3,8 +3,10 @@
 
 #define NR_WP 32
 
-static WP wp_pool[NR_WP] = {};
-static WP *head = NULL, *free_ = NULL;
+// static WP wp_pool[NR_WP] = {};
+// static WP *head = NULL, *free_ = NULL;
+WP wp_pool[NR_WP] = {};
+WP *head = NULL, *free_ = NULL;
 
 extern void *malloc(size_t size);
 
@@ -49,7 +51,7 @@ WP* find_NO_prev(int tar_NO) {
   Assert(head != NULL, "head is null");
   WP *start = head;
   while(start->next) {
-    if(start->next->val==tar_NO) {
+    if(start->next->NO==tar_NO) {
       return start;
     }
     start=start->next;
@@ -71,7 +73,7 @@ bool eval_wps() {
     Assert(success, "expr fails"); // 能存进去的不可能是错误的表达式
     if(new_val!=start->val) {
       has_change = true;
-      printf("watchpoint %d: %s\n\nOld value = %u\nNew value = %u", start->NO, start->expr, start->val, new_val);
+      printf("watchpoint %d: %s\nOld value = %u\nNew value = %u\n", start->NO, start->expr, start->val, new_val);
       start->val = new_val;
     }
     start = start->next;
