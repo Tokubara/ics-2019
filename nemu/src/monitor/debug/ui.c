@@ -194,6 +194,8 @@ static int cmd_info(char *args) {
            cmd_table[CMD_INFO_IDX].description);
   } else if(!strcmp(arg, "r")) {
     cmd_info_r();
+  } else if(!strcmp(arg, "w")) {
+    print_wps();
   }
   return 0;
 }
