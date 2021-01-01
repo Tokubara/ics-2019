@@ -309,7 +309,8 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   return res;
 }
 /**
- * e是表达式字符串, 返回所求值(uint32_t)
+ * e是表达式字符串, 如果解析成功, success置为1, 返回所求值(uint32_t), 否则success置为0, 返回0.
+ * 会打印错误信息.
 */
 uint32_t expr(char *e, bool *success) {
   // 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用

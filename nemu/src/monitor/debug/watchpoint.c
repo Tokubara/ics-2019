@@ -1,5 +1,6 @@
 #include "monitor/watchpoint.h"
 #include "monitor/expr.h"
+#include <stdlib.h>
 
 #define NR_WP 32
 
@@ -62,7 +63,7 @@ WP* find_NO_prev(int tar_NO) {
 /**
  * 遍历计算监视点, 会打印改变的监视点信息, 返回是否有变化
  */
-bool eval_wps() {
+bool check_wps() {
   Assert(head != NULL, "head is null");
   WP *start = head->next;
   uint32_t new_val;
@@ -108,6 +109,8 @@ void free_wp(WP *wp_prev) {
   wp_prev->next = wp_free->next;
   // wp为新的free_头部, 维护wp
   wp_free->val = 0;
+  assert(wp_free->expr!=NULL);
+  free(wp_free->expr);
   wp_free->expr = NULL; // 不是空串, 而是空指针, 这一点对expr调用可能有隐患
   wp_free->next = free_;
   // 维护free_
@@ -138,7 +141,8 @@ WP* new_wp(char* expr_str) {
   WP* old_free_ = free_;
   free_=free_->next; // 如果本来就为空那就为空了
   // 维护这个新节点
-  old_free_->expr = expr_str;
+  old_free_->expr = (char*)malloc(strlen(expr_str)+1);
+  strcpy(old_free_->expr, expr_str); // 由于malloc, 绝不可能没有\0
   old_free_->val = expr_val;
   old_free_->next = head->next;
   // 维护head
