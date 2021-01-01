@@ -125,35 +125,62 @@ static int cmd_help(char *args) {
   return 0;
 }
 
+/** 
+ * 支持args为NULL, 相当于为"1"
+*/
 static int cmd_si(char *args) {
   // 用法就是si N, 只支持10进制
-  // char* endptr;
   // bug:这个args根本不能用, 明明应该是NULL, 传了以后根本不是NULL,
   // 是strtok_r+53, H0018
-  long N;
-  char *arg = strtok(NULL, " ");
-  if (!arg) {
+  // long N;
+  bool success;
+  long N = parse_integer(args,&success);
+  if(!success) {
+    if(N) return 0; // 解析错误
     N = 1;
-  } else {
-    errno = 0;
-    N = strtol(arg, NULL, 10);
-    if (N <= 0 || errno != 0) {
-      printf("N must greater than 0, and not too big\n");
-      return 0;
-    }
+  } else if(N<=0){
+     puts("N must be a potive integer");
+     return 0;
   }
-  // 并不关心后面怎样
-  // 需要执行n.
   cpu_exec(N);
   return 0;
 }
 
 static int cmd_w(char *args) {
-
+  new_wp(args);
   return 0;
 }
 
+/**
+ * 解析字符串arg为整数, 失败返回错误码, success置为0. 成功success置为1, 返回解析的整数
+ * 错误码的情况: 0为NULL, -1为解析错误
+ * 会处理arg==NULL的情况
+ * 会打印错误信息, arg==NULL不会报错(比如cmd_si有这种需求),errno不为0会报错
+ * 
+*/
+long parse_integer(char* arg, bool* success) {
+  *success=1;
+  if (!arg) {
+    // puts("arg is NULL");
+    *success = 0;
+    return 0;
+  } else {
+    errno = 0;
+    long N = strtol(arg, NULL, 10);
+    if (errno != 0) {
+      puts("invalid number input");
+      *success=0;
+      return -1;
+    }
+    return N;
+  }
+}
+
 static int cmd_d(char *args) {
+  bool success;
+  int no = parse_integer(args, &success);
+  if(!success) return 0;
+  del_wp_NO(no);
   return 0;
 }
 

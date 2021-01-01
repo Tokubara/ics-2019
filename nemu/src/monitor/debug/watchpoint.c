@@ -83,6 +83,7 @@ bool eval_wps() {
 
 /**
  * 删除编号为NO的监视点
+ * 如果不存在, 会打印错误信息
  */
 void del_wp_NO(int NO) {
   WP* wp = find_NO_prev(NO);
@@ -117,6 +118,7 @@ void free_wp(WP *wp_prev) {
  * 如果没有可用空间, 返回NULL
  * 如果expr发现表达式不合法(错误信息是eval给出的), 也返回NULL
  * 根据expr_str, 计算好, 存入新的节点, 返回新节点
+ * 对于不能正常的情况, 都会打印错误信息
  * 改变了head与free_, free_指向它的子节点, head是新创建的节点
  */
 WP* new_wp(char* expr_str) {
