@@ -58,7 +58,7 @@ static int cmd_info_r() {
 static struct {
   char *name;
   char *description;
-  int (*handler)(char *);
+  int (*handler)(char *); // 统一都是接受一整个字符串
 } cmd_table[] = {
     {"help", "Display informations about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
@@ -185,7 +185,7 @@ void ui_mainloop(int is_batch_mode) {
     return;
   }
 
-  for (char *str; (str = rl_gets()) != NULL;) {
+  for (char *str; (str = rl_gets()) != NULL;) { // rl_gets这里打印了nemu, 也读入了一行
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */
@@ -197,13 +197,11 @@ void ui_mainloop(int is_batch_mode) {
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args =
-        cmd + strlen(cmd) +
-        1; // 首先这个+1是指通配符. 这时候不能再是str+了, 因为str已经改变了
+    char *args = cmd + strlen(cmd) + 1; // 指向字符串str中args的位置, 其实用strtok_r会不会好一些
     if (args >= str_end) {
       args = NULL;
     }
-
+    // 因为一些原因不明的bug, 这个args完全不能用, 传参突然就发生了改变, 虽然各种函数都以它为参数, 可是事实上就是, 没什么用.
 #ifdef HAS_IOE
     extern void sdl_clear_event_queue(void);
     sdl_clear_event_queue();
@@ -212,7 +210,7 @@ void ui_mainloop(int is_batch_mode) {
     int i;
     for (i = 0; i < NR_CMD; i++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
-        if (cmd_table[i].handler(args) < 0) {
+        if (cmd_table[i].handler(args) < 0) { // quit命令的实现方法
           return;
         }
         break;

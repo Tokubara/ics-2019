@@ -10,58 +10,58 @@ void init_regex();
 uint32_t expr(char *, bool *);
 
 /** 测试两个函数 */
-int main(int argc, char *argv[]) {
-  init_monitor(argc, argv);
-  new_wp("(1+$eax*2+$ebx");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  new_wp("*12+$eax");
-  print_wps();
-}
+// int main(int argc, char *argv[]) {
+//   init_monitor(argc, argv);
+//   new_wp("(1+$eax*2+$ebx");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   new_wp("*12+$eax");
+//   print_wps();
+// }
 
 /** 非调试, 正常的nemu界面*/
-// int main(int argc, char *argv[]) {
-//   /* Initialize the monitor. */
-//   int is_batch_mode = init_monitor(argc, argv);
+int main(int argc, char *argv[]) {
+  /* Initialize the monitor. */
+  int is_batch_mode = init_monitor(argc, argv);
 
-//   /* Receive commands from user. */
-//   ui_mainloop(is_batch_mode);
+  /* Receive commands from user. */
+  ui_mainloop(is_batch_mode);
 
-//   return 0;
-// }
+  return 0;
+}
 
 
 
