@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <regex.h>
+#include "common.h"
 #define MAX_TOKEN_NUM 1000
 #define OP_NUM 20 // OP_PRIORITY的默认大小
 #define EVAL_ERROR(...) printf(__VA_ARGS__); *is_error = 1; return 0
@@ -308,10 +309,10 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
   return res;
 }
 /**
- * 无论sucess是什么,都会得到正确的赋值
- * 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用
+ * e是表达式字符串, 返回所求值(uint32_t)
 */
 uint32_t expr(char *e, bool *success) {
+  // 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用
   if (!make_token(e)) {
     *success = false;
     return 0;

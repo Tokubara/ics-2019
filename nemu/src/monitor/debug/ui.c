@@ -1,10 +1,11 @@
+#include "common.h"
 #include "monitor/expr.h"
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
-#include "device/map.h"
+// #include "device/map.h"
 
-#include <errno.h>
+// #include <_types/_uint32_t.h>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdlib.h>
@@ -55,6 +56,10 @@ static int cmd_info_r() {
   return 0;
 }
 
+static int cmd_p(char *args);
+static int cmd_d(char *args);
+static int cmd_w(char *args);
+
 static struct {
   char *name;
   char *description;
@@ -65,7 +70,10 @@ static struct {
     {"q", "Exit NEMU", cmd_q},
     {"si", "Execute [N] instuctions", cmd_si},
     {"x", "Print [N] bytes of memory from [addr]", cmd_x},
-    {"info", "Print useful info", cmd_info}
+    {"p", "Print an expression", cmd_p},
+    {"info", "Print useful info", cmd_info},
+    {"w", "Set a watchpoint", cmd_w},
+    {"d", "Delete a watchpoint", cmd_d}
 };
 
 enum { // 似乎框架中的enum都是小写的
@@ -78,6 +86,22 @@ enum { // 似乎框架中的enum都是小写的
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
+
+static int cmd_p(char *args) {
+  if(args==NULL) {
+    puts("No given expressions");
+    return 0;
+  }
+  // expr
+  bool success;
+  uint32_t expr_val = expr(args, &success);
+  if(!success) {
+    puts("The expression is invalid");
+  } else {
+    printf("%s = %u\n", args, expr_val);
+  }
+  return 0;
+}
 
 static int cmd_help(char *args) {
   /* extract the first argument */
@@ -121,6 +145,15 @@ static int cmd_si(char *args) {
   // 并不关心后面怎样
   // 需要执行n.
   cpu_exec(N);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+
+  return 0;
+}
+
+static int cmd_d(char *args) {
   return 0;
 }
 
