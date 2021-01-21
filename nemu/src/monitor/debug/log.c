@@ -14,7 +14,9 @@ void init_log(const char *log_file) {
 char log_bytebuf[80] = {};
 char log_asmbuf[80] = {};
 static char tempbuf[256] = {};
-
+/**
+ * buf:已有的字符串指针buf, 一个格式字符串, 格式字符串需要传的参数, 将buf与格式化化后的字符串拼在一起
+*/
 void strcatf(char *buf, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);

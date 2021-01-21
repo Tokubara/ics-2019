@@ -10,6 +10,8 @@
 #include <readline/readline.h>
 #include <stdlib.h>
 
+int int_tmp_var;
+
 void cpu_exec(uint64_t);
 
 /**

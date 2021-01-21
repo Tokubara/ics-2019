@@ -47,6 +47,9 @@ void isa_reg_display() {
  * 对这个函数的实现思路是: 如果首字母是e, 在数组regsl中查找, 如果最后一个字母是h或者l在第3个数组中查找
  */
 uint32_t isa_reg_str2val(const char *s, bool *success) {
+  // 对空指针进行处理, 为便于gdb调用, 可允许null
+  bool tmp;
+  success=success==NULL?&tmp:success;
   *success=1; // 默认成功, 失败再设置
   if(s[1]=='e') {
     for (int i = 0; i < 8; i++) {

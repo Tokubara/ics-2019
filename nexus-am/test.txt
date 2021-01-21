@@ -1,0 +1,6 @@
+var=nemu-x86
+.PHONY:all
+all:
+	@echo ${word 1,${subst -, ,${var}}}
+	@echo ${word 2,${subst -, ,${var}}}
+

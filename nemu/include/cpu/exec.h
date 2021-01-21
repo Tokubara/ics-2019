@@ -71,8 +71,7 @@ void display_inv_msg(vaddr_t pc);
   print_asm(str(instr) "%c %s", suffix_char(id_dest->width), id_dest->str)
 
 #define print_asm_template2(instr) \
-  print_asm(str(instr) "%c %s,%s", suffix_char(id_dest->width), id_src->str, id_dest->str)
-
+  print_asm(str(instr) "%c %s,%s", suffix_char(id_dest->width), id_src->str, id_dest->str) // 相当于snprintf(log_asmbuf, str(instr) "%c %s,%s", suffix_char(id_dest->width), id_src->str, id_dest->str);
 #define print_asm_template3(instr) \
   print_asm(str(instr) "%c %s,%s,%s", suffix_char(id_dest->width), id_src->str, id_src2->str, id_dest->str)
 
