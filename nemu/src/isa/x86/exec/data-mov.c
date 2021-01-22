@@ -6,13 +6,13 @@ make_EHelper(mov) {
 }
 
 make_EHelper(push) {
-  TODO();
-
+  rtl_push(&id_dest->val); // 译码的时候是译在dest中的
   print_asm_template1(push);
 }
 
 make_EHelper(pop) {
-  TODO();
+	TODO();
+  // rtl_pop();
 
   print_asm_template1(pop);
 }

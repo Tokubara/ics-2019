@@ -49,6 +49,10 @@ make_rtl_arith_logic(div_r)
 make_rtl_arith_logic(idiv_q)
 make_rtl_arith_logic(idiv_r)
 
+/** *dest=src1_hi##src1_lo/src2
+ * 
+ * 之所以需要实现, 是因为有位运算这个操作, 不方便用c
+*/
 static inline void interpret_rtl_div64_q(rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
@@ -56,6 +60,10 @@ static inline void interpret_rtl_div64_q(rtlreg_t* dest,
   *dest = dividend / divisor;
 }
 
+/** *dest=src1_hi##src1_lo%src2
+ * 
+ * 类似于interpret_rtl_div64_q, 但存入的是余数
+*/
 static inline void interpret_rtl_div64_r(rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
   uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
@@ -63,9 +71,12 @@ static inline void interpret_rtl_div64_r(rtlreg_t* dest,
   *dest = dividend % divisor;
 }
 
+/** 类似于interpret_rtl_div64_q, 但被除数和除数都是符号数运算, 结果与interpret_rtl_div64_q不同
+ * 
+*/
 static inline void interpret_rtl_idiv64_q(rtlreg_t* dest,
     const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-  int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
+  int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo); // 这里(uint64_t)(*src1_hi)中的uint64_t我觉得是多余的
   int32_t divisor = (*src2);
   *dest = dividend / divisor;
 }
@@ -76,9 +87,7 @@ static inline void interpret_rtl_idiv64_r(rtlreg_t* dest,
   int32_t divisor = (*src2);
   *dest = dividend % divisor;
 }
-/* 有和它有联系的函数
-* 
-*/
+
 static inline void interpret_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len) {
   *dest = vaddr_read(*addr, len);
 }

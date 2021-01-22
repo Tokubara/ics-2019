@@ -1,8 +1,7 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+#define macro(x,y) x##y
 
-int main(void) {
-  FILE* fp =  fopen("/Users/quebec/tmp.txt","a");
-  printf("%lld\n", fp->_offset);
+int main() {
+	int x = 2;
+	int y = 3;
+	printf("%d\n", macro(x,y));
 }

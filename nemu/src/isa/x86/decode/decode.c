@@ -5,7 +5,9 @@
 
 /* Refer to Appendix A in i386 manual for the explanations of these abbreviations */
 
-/* Ib, Iv */
+/** 译出op是立即数, 会取立即数(instr_fetch), 并存入op->val
+ * 
+ */
 static inline make_DopHelper(I) {
   /* pc here is pointing to the immediate */
   op->type = OP_TYPE_IMM;
@@ -20,8 +22,11 @@ static inline make_DopHelper(I) {
  * function to decode it.
  */
 /* sign immediate */
+/** 译出op是符号立即数(i386 manual并不包含)
+ * 
+ */
 static inline make_DopHelper(SI) {
-  assert(op->width == 1 || op->width == 4);
+  assert(op->width == 1 || op->width == 4); //? 这是没有2位符号立即数的意思?
 
   op->type = OP_TYPE_IMM;
 
@@ -38,10 +43,9 @@ static inline make_DopHelper(SI) {
   print_Dop(op->str, OP_STR_SIZE, "$0x%x", op->simm);
 }
 
-/* I386 manual does not contain this abbreviation.
- * It is convenient to merge them into a single helper function.
- */
-/* AL/eAX */
+/** op保存为eax/ax/al(i386没有), 不需要decinfo
+ * 
+*/
 static inline make_DopHelper(a) {
   op->type = OP_TYPE_REG;
   op->reg = R_EAX;
@@ -52,10 +56,10 @@ static inline make_DopHelper(a) {
   print_Dop(op->str, OP_STR_SIZE, "%%%s", reg_name(R_EAX, op->width));
 }
 
-/* This helper function is use to decode register encoded in the opcode. */
-/* XX: AL, AH, BL, BH, CL, CH, DL, DH
- * eXX: eAX, eCX, eDX, eBX, eSP, eBP, eSI, eDI
- */
+/**
+ * op保存为寄存器, 通过decinfo.opcode的最后3位确定寄存器编号(i386似乎也没有)
+ *
+*/
 static inline make_DopHelper(r) {
   op->type = OP_TYPE_REG;
   op->reg = decinfo.opcode & 0x7;
@@ -66,24 +70,19 @@ static inline make_DopHelper(r) {
   print_Dop(op->str, OP_STR_SIZE, "%%%s", reg_name(op->reg, op->width));
 }
 
-/* I386 manual does not contain this abbreviation.
- * We decode everything of modR/M byte by one time.
- */
-/* Eb, Ew, Ev
- * Gb, Gv
- * Cd,
- * M
- * Rd
- * Sw
- */
+/**
+ * 读取modr/m中的信息, 参数原封不动地调用read_ModR_M(i386没有)
+*/
 static inline void decode_op_rm(vaddr_t *pc, Operand *rm, bool load_rm_val, Operand *reg, bool load_reg_val) {
   read_ModR_M(pc, rm, load_rm_val, reg, load_reg_val);
 }
 
-/* Ob, Ov */
+/**
+ * 没有modr/m, 读4字节立即数表示内存地址
+*/
 static inline make_DopHelper(O) {
   op->type = OP_TYPE_MEM;
-  rtl_li(&op->addr, instr_fetch(pc, 4));
+  rtl_li(&op->addr, instr_fetch(pc, 4)); //? 手册说可能是2byte 或者4 byte的立即数, 但是这里只有4 byte
   if (load_val) {
     rtl_lm(&op->val, &op->addr, op->width);
   }
@@ -91,20 +90,24 @@ static inline make_DopHelper(O) {
   print_Dop(op->str, OP_STR_SIZE, "0x%x", op->addr);
 }
 
-/* Eb <- Gb
- * Ev <- Gv
+/** 同时写两个操作数, ModR/M的reg(源操作数)和r/m(目的操作数)都会用于表示操作数, 两个操作数都会load_val
+ * 
+ * 调用了decode_op_rm
  */
 make_DHelper(G2E) {
   decode_op_rm(pc, id_dest, true, id_src, true);
 }
 
+/** 与make_DHelper(G2E)相似, 同时写两个操作数, ModR/M的reg(源操作数)和r/m(目的操作数)都会用于表示操作数, 但仅有src会load_val
+ * 
+*/
 make_DHelper(mov_G2E) {
   decode_op_rm(pc, id_dest, false, id_src, true);
 }
 
-/* Gb <- Eb
- * Gv <- Ev
- */
+/** 与G2E相似, 函数名的区别就说明了它们的区别
+ * 
+*/
 make_DHelper(E2G) {
   decode_op_rm(pc, id_src, true, id_dest, true);
 }
@@ -113,29 +116,28 @@ make_DHelper(mov_E2G) {
   decode_op_rm(pc, id_src, true, id_dest, false);
 }
 
+/** lea的译码
+ * 
+*/
 make_DHelper(lea_M2G) {
   decode_op_rm(pc, id_src, false, id_dest, false);
 }
 
-/* AL <- Ib
- * eAX <- Iv
+/** 
+ * 还没有被调用过
  */
 make_DHelper(I2a) {
   decode_op_a(pc, id_dest, true);
   decode_op_I(pc, id_src, true);
 }
 
-/* Gv <- EvIb
- * Gv <- EvIv
- * use for imul */
+/** 使用场景, 比如imul: IMUL r16,r/m16,imm8
+ */
 make_DHelper(I_E2G) {
   decode_op_rm(pc, id_src2, true, id_dest, false);
   decode_op_I(pc, id_src, true);
 }
 
-/* Eb <- Ib
- * Ev <- Iv
- */
 make_DHelper(I2E) {
   decode_op_rm(pc, id_dest, true, NULL, false);
   decode_op_I(pc, id_src, true);
@@ -146,9 +148,6 @@ make_DHelper(mov_I2E) {
   decode_op_I(pc, id_src, true);
 }
 
-/* XX <- Ib
- * eXX <- Iv
- */
 make_DHelper(I2r) {
   decode_op_r(pc, id_dest, true);
   decode_op_I(pc, id_src, true);
@@ -299,9 +298,7 @@ make_DHelper(out_a2dx) {
 
   print_Dop(id_dest->str, OP_STR_SIZE, "(%%dx)");
 }
-/**
- * 这是真改了cpu.gpr和pmem的, 
-*/
+
 void operand_write(Operand *op, rtlreg_t* src) {
   if (op->type == OP_TYPE_REG) { rtl_sr(op->reg, src, op->width); }
   else if (op->type == OP_TYPE_MEM) { rtl_sm(&op->addr, src, op->width); }

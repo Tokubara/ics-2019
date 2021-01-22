@@ -72,6 +72,7 @@ run-env: $(BINARY) $(QEMU_SO)
 
 run: run-env
 	$(call git_commit, "run")
+	#@echo "debug_msg:" "$(BINARY) $(ARGS) $(IMG)"
 	$(NEMU_EXEC)
 
 gdb: run-env
