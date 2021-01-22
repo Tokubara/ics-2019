@@ -9,3 +9,6 @@
 !README.md
 !.gitignore
 !init.sh
+*output.txt
+*error.txt
+*test*
