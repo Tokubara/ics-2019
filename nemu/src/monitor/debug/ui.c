@@ -224,22 +224,23 @@ static int cmd_x(char *args) {
   }
   uint32_t tmp;
   int i = 0;
+	const int byte_per_line = 8; 
   for (; i < N; i++) {
     // 没检查内存是否有效
     if (addr >= PMEM_SIZE) {
       ++i; // 为啥要++i, 为了与下面putchar('\n')的逻辑一致
       break;
     }
-    tmp = vaddr_read(addr, 4);
-    if(i%4==0) {
-      // 仿照gdb的输出, 4个word一行
-      printf("0x%.8x: 0x%.8x", addr, tmp);
+    tmp = vaddr_read(addr, 1);
+    if(i%byte_per_line==0) {
+      // 分出分支是因为起始需要输出地址
+      printf("0x%.8x: 0x%.2x", addr, tmp);
     } else {
-      printf(" 0x%.8x%c", tmp, i % 4 == 3 ? '\n' :'\0');
+      printf(" 0x%.2x%c", tmp, i % byte_per_line == (byte_per_line-1) ? '\n' :'\0');
     }
-    addr+=4;
+    ++addr;
   }
-  if(i%4!=0) putchar('\n');
+  if(i%byte_per_line!=0) putchar('\n');
   return 0;
 }
 
