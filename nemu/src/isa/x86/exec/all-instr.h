@@ -7,3 +7,5 @@ make_EHelper(operand_size);
 
 make_EHelper(inv);
 make_EHelper(nemu_trap);
+
+make_EHelper(call);
