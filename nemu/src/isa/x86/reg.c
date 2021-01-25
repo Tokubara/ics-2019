@@ -48,8 +48,8 @@ void isa_reg_display() {
  */
 uint32_t isa_reg_str2val(const char *s, bool *success) {
   // 对空指针进行处理, 为便于gdb调用, 可允许null
-  bool tmp;
-  success=success==NULL?&tmp:success;
+	// 这里曾经有个tmp变量, 用于处理success为空的情况, 内存根本是无效的, 但实际上无效也没关系, 反正调用者也不会真的使用
+  success=success==NULL?&bool_tmp_var:success;
   *success=1; // 默认成功, 失败再设置
   if(s[1]=='e') {
     for (int i = 0; i < 8; i++) {

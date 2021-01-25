@@ -10,8 +10,6 @@
 #include <readline/readline.h>
 #include <stdlib.h>
 
-int int_tmp_var;
-
 void cpu_exec(uint64_t);
 
 /**
@@ -217,7 +215,9 @@ static int cmd_x(char *args) {
     return 0;
   }
   arg = strtok(NULL, " ");
-  vaddr_t addr = strtol(arg, NULL, 16);
+	bool success;
+  vaddr_t addr = expr(arg, &success);
+	if(!success) return 0;
   if (addr <= 0 || errno != 0 || addr>=PMEM_SIZE) {
     printf("Cannot access memory at address at 0x%x\n", addr);
     return 0;

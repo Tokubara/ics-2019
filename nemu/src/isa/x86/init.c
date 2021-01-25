@@ -1,4 +1,5 @@
 #include "nemu.h"
+#include "isa/reg.h"
 
 // const uint8_t isa_default_img []  = {
 //   0xb8, 0x34, 0x12, 0x00, 0x00,        // 100000:  movl  $0x1234,%eax
@@ -12,7 +13,7 @@
 //   0xd6,                                // 100026:  nemu_trap
 // };
 const uint8_t isa_default_img []  = {
-	0x8b, 0x3d, 0x34, 0x12, 0x00, 0x00, 0x57
+	0xbf, 0x34, 0x12, 0x00, 0x00, 0x57
 };
 const long isa_default_img_size = sizeof(isa_default_img);
 
@@ -23,9 +24,9 @@ static void restart() {
 
 void init_isa(void) {
   /* Test the implementation of the `CPU_state' structure. */
-  void reg_test(void);
-  reg_test();
-
+  // void reg_test(void);
+  // reg_test();
+	reg_l(R_ESP) = 0x3ffffff;
   /* Setup physical memory address space. */
   register_pmem(0);
 

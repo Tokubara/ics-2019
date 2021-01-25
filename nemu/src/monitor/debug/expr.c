@@ -314,6 +314,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
 */
 uint32_t expr(char *e, bool *success) {
   // 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用
+	success=success?success:&bool_tmp_var;
   if (!make_token(e)) {
     *success = false;
     return 0;
