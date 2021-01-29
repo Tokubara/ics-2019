@@ -11,3 +11,6 @@
 tags
 cscope.*
 build/
+**/*output.txt
+**/*error.txt
+**/*test*
