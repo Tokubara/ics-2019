@@ -44,7 +44,7 @@ static inline void rtl_pop(rtlreg_t* dest) {
 	reg_l(4)+=4;
 }
 
-#define switch_case_width(func) switch(func) {\
+#define switch_case_width(func) switch(width) {\
 			case 1:{func(int8_t);}\
 			case 2:{func(int16_t);}\
 			case 4:{func(int32_t);}\
@@ -89,12 +89,12 @@ make_rtl_setget_eflags(OF)
 make_rtl_setget_eflags(ZF)
 make_rtl_setget_eflags(SF)
 
-#define rtl_update_ZF_macro(type) type r=(type)*result; rtl_lm(&cpu.eflags.ZF, r==0);
+#define rtl_update_ZF_macro(type) type r=(type)*result; int res=(r==0); rtl_host_lm(&cpu.eflags.ZF, &res, width);
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   switch_case_width(rtl_update_ZF_macro)
 }
 
-#define rtl_update_SF_macro(type) type r=(type)*result; rtl_lm(&cpu.eflags.ZF, r<0);
+#define rtl_update_SF_macro(type) type r=(type)*result; int res=(r<0); rtl_host_lm(&cpu.eflags.SF, &res, width);
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
 	switch_case_width(rtl_update_SF_macro)
 }
