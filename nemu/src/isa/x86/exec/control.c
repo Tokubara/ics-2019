@@ -26,8 +26,8 @@ make_EHelper(jmp_rm) {
 
 make_EHelper(call) {
 	rtl_push(pc);
-	decinfo.jmp_pc=id_dest->val;
-	rtl_j(id_dest->val);
+	decinfo.jmp_pc=id_dest->val+*pc;
+	rtl_j(decinfo.jmp_pc);
   print_asm("call %x", decinfo.jmp_pc);
 }
 
