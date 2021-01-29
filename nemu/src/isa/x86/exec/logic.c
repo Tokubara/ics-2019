@@ -14,7 +14,22 @@ make_EHelper(and) {
 }
 
 make_EHelper(xor) {
-  TODO();
+	rtl_sub(&s1, &id_dest->val, &id_src->val);
+
+  operand_write(id_dest, &s1);
+
+  if (id_dest->width != 4) {
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  rtl_update_ZFSF(&s1, id_dest->width); // 是const
+
+  // update CF, OF
+  s0=0;
+  rtl_set_CF(&s0);
+  rtl_set_OF(&s0);
+
+	rtl_update_PF(&s1);
 
   print_asm_template2(xor);
 }

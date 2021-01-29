@@ -204,6 +204,11 @@ make_DHelper(SI_E2G) {
   }
 }
 
+make_DHelper(gp1_I82E) {
+	decode_op_rm(pc, id_dest, true, NULL, false);
+	decode_op_I(pc, id_src, true);
+}
+
 /**
  * gp2_1_E都是位移指令, 并且是默认有一个操作数为1的位移指令, 详见
 */

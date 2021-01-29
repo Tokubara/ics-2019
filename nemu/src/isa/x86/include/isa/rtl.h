@@ -88,6 +88,7 @@ make_rtl_setget_eflags(CF)
 make_rtl_setget_eflags(OF)
 make_rtl_setget_eflags(ZF)
 make_rtl_setget_eflags(SF)
+make_rtl_setget_eflags(PF)
 
 #define rtl_update_ZF_macro(type) type r=(type)*result; int res=(r==0); rtl_host_lm(&cpu.eflags.ZF, &res, width);
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
@@ -97,6 +98,16 @@ static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
 #define rtl_update_SF_macro(type) type r=(type)*result; int res=(r<0); rtl_host_lm(&cpu.eflags.SF, &res, width);
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
 	switch_case_width(rtl_update_SF_macro)
+}
+
+static inline void rtl_update_PF(const rtlreg_t* result) {
+	rtlreg_t res=1;
+	rtlreg_t tmp = *result;
+	for(int i = 0; i < 8; i++) {
+		res^=(tmp&1);
+		tmp>>=1;
+	}
+	rtl_set_PF(&res);
 }
 
 static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {
