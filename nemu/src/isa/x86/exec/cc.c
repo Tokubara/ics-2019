@@ -1,7 +1,9 @@
 #include "rtl/rtl.h"
 
 /* Condition Code */
-
+/** 猜测是set指令
+ * 
+*/
 void rtl_setcc(rtlreg_t* dest, uint8_t subcode) {
   bool invert = subcode & 0x1;
   enum {

@@ -33,7 +33,6 @@ static inline void rtl_sr(int r, const rtlreg_t* src1, int width) {
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
   // M[esp] <- src1
-  // TODO();
 	reg_l(4)-=4;
 	rtl_sm(&reg_l(4), src1, 4);
 }
@@ -41,33 +40,40 @@ static inline void rtl_push(const rtlreg_t* src1) {
 static inline void rtl_pop(rtlreg_t* dest) {
   // dest <- M[esp]
   // esp <- esp + 4
-  // TODO();
 	rtl_lm(dest, &reg_l(4), 4);
 	reg_l(4)+=4;
 }
 
+#define switch_case_width(func) switch(func) {\
+			case 1:{func(int8_t);}\
+			case 2:{func(int16_t);}\
+			case 4:{func(int32_t);}\
+			default:assert(0);\
+		}
+
+#define rtl_is_sub_overflow_macro(type) type s1=(type)*src1 ; type s2=(type)*src2 ; type r=(type)*res ; int positive_of_flag=0;if(s1>0 && s2<0&& r<=0) {positive_of_flag=1;} int negative_of_flag=0;if(s1<0 && s2>0&& r>=0) {negative_of_flag=1;} *dest=!positive_of_flag&&!negative_of_flag
 static inline void rtl_is_sub_overflow(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
-  // dest <- is_overflow(src1 - src2)
-  TODO();
+		switch_case_width(rtl_is_sub_overflow_macro)
 }
 
+/**
+ * 判断减法是否有借位
+*/
 static inline void rtl_is_sub_carry(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1) {
-  // dest <- is_carry(src1 - src2)
-  TODO();
+		*dest = res>src1; // 如果结果比被减数还大, 就是借位了
 }
 
+#define rtl_is_add_overflow_macro(type) s1=(type)*src1 ; type s2=(type)*src2 ; type r=(type)*res ; *dest=((s1<0)==(s2<0)) && ((s1<0)!=(r<0))
 static inline void rtl_is_add_overflow(rtlreg_t* dest,
-    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
-  // dest <- is_overflow(src1 + src2)
-  TODO();
+    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) { // 我觉得这个不可能只用rtl实现, 否则类型转换都没法做
+		switch_case_width(rtl_is_add_overflow_macro)
 }
 
 static inline void rtl_is_add_carry(rtlreg_t* dest,
-    const rtlreg_t* res, const rtlreg_t* src1) {
-  // dest <- is_carry(src1 + src2)
-  TODO();
+    const rtlreg_t* res, const rtlreg_t* src1) { // 已是无符号数
+		*dest = (res<src1);
 }
 
 #define make_rtl_setget_eflags(f) \
@@ -83,14 +89,14 @@ make_rtl_setget_eflags(OF)
 make_rtl_setget_eflags(ZF)
 make_rtl_setget_eflags(SF)
 
+#define rtl_update_ZF_macro(type) type r=(type)*result; rtl_lm(&cpu.eflags.ZF, r==0);
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
-  // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  TODO();
+  switch_case_width(rtl_update_ZF_macro)
 }
 
+#define rtl_update_SF_macro(type) type r=(type)*result; rtl_lm(&cpu.eflags.ZF, r<0);
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
-  // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
-  TODO();
+	switch_case_width(rtl_update_SF_macro)
 }
 
 static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {

@@ -37,6 +37,14 @@ typedef struct {
     };
   };
 
+	struct {
+		rtlreg_t OF;
+		rtlreg_t SF;
+		rtlreg_t ZF;
+		rtlreg_t CF;
+		rtlreg_t IF; // 虽然我没听说if
+	} eflags;
+
   vaddr_t pc;
 
 } CPU_state;

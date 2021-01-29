@@ -204,15 +204,21 @@ make_DHelper(SI_E2G) {
   }
 }
 
+/**
+ * gp2_1_E都是位移指令, 并且是默认有一个操作数为1的位移指令, 详见
+*/
 make_DHelper(gp2_1_E) {
   decode_op_rm(pc, id_dest, true, NULL, false);
   id_src->type = OP_TYPE_IMM;
   id_src->imm = 1;
-  rtl_li(&id_src->val, 1);
+  rtl_li(&id_src->val, 1); // 以上3行, 都是因为这几条指令opcode暗含着另一个操作数为1, 虽然没有其它位表示
 
   print_Dop(id_src->str, OP_STR_SIZE, "$1");
 }
 
+/** 一个操作数会被设置为cl
+ * 
+*/
 make_DHelper(gp2_cl2E) {
   decode_op_rm(pc, id_dest, true, NULL, false);
   id_src->type = OP_TYPE_REG;
@@ -222,22 +228,27 @@ make_DHelper(gp2_cl2E) {
   print_Dop(id_src->str, OP_STR_SIZE, "%%cl");
 }
 
+/** 立即数
+ * 
+*/
 make_DHelper(gp2_Ib2E) {
   decode_op_rm(pc, id_dest, true, NULL, false);
   id_src->width = 1;
   decode_op_I(pc, id_src, true);
 }
 
-/* Ev <- GvIb
- * use for shld/shrd */
+/** 三操作数
+ * 
+*/
 make_DHelper(Ib_G2E) {
   decode_op_rm(pc, id_dest, true, id_src2, true);
   id_src->width = 1;
   decode_op_I(pc, id_src, true);
 }
 
-/* Ev <- GvCL
- * use for shld/shrd */
+/** 三操作数
+ * 
+*/
 make_DHelper(cl_G2E) {
   decode_op_rm(pc, id_dest, true, id_src2, true);
   id_src->type = OP_TYPE_REG;
