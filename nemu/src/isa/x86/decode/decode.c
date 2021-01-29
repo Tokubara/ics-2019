@@ -26,17 +26,16 @@ static inline make_DopHelper(I) {
  * 
  */
 static inline make_DopHelper(SI) {
-  assert(op->width == 1 || op->width == 4); //? 这是没有2位符号立即数的意思?
+  assert(op->width == 1 || op->width == 4);
 
   op->type = OP_TYPE_IMM;
 
-  /* TODO: Use instr_fetch() to read `op->width' bytes of memory
-   * pointed by 'pc'. Interpret the result as a signed immediate,
-   * and assign it to op->simm.
-   *
-   op->simm = ???
-   */
-  TODO();
+	rtlreg_t imm = instr_fetch(pc, op->width);
+	switch(op->width) {
+		case 1:{int8_t tmp = imm; op->simm = tmp; break; }
+		case 4:{op->simm=imm;break;}
+		default:assert(0);
+	}
 
   rtl_li(&op->val, op->simm);
 
@@ -187,7 +186,7 @@ make_DHelper(test_I) {
 make_DHelper(SI2E) {
   assert(id_dest->width == 2 || id_dest->width == 4);
   decode_op_rm(pc, id_dest, true, NULL, false);
-  id_src->width = 1;
+  id_src->width = 1; // 是1byte立即数
   decode_op_SI(pc, id_src, true);
   if (id_dest->width == 2) {
     id_src->val &= 0xffff;

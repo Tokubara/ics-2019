@@ -45,9 +45,9 @@ static inline void rtl_pop(rtlreg_t* dest) {
 }
 
 #define switch_case_width(func) switch(width) {\
-			case 1:{func(int8_t);}\
-			case 2:{func(int16_t);}\
-			case 4:{func(int32_t);}\
+			case 1:{func(int8_t);break;}\
+			case 2:{func(int16_t);break;}\
+			case 4:{func(int32_t);break;}\
 			default:assert(0);\
 		}
 
@@ -76,12 +76,14 @@ static inline void rtl_is_add_carry(rtlreg_t* dest,
 		*dest = (res<src1);
 }
 
+#define getter(f) cpu.eflags.f
+
 #define make_rtl_setget_eflags(f) \
   static inline void concat(rtl_set_, f) (const rtlreg_t* src) { \
-    TODO(); \
+    getter(f)=*src; \
   } \
   static inline void concat(rtl_get_, f) (rtlreg_t* dest) { \
-    TODO(); \
+    *dest =  getter(f); \
   }
 
 make_rtl_setget_eflags(CF)
