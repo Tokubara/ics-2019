@@ -1,1 +1,1 @@
-command! Ctags !ctags -R --exclude=src/isa/mips32 --exclude=src/isa/riscv32
+command! Ctags !ctags -R --exclude=src/isa/{mips32,riscv32} --exclude=tools/qemu-diff --exclude=tools/qemu-diff/src/isa/{mips32,riscv32}
