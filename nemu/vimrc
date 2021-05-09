@@ -1,1 +1,1 @@
-command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=src/isa/mips32 --exclude=src/isa/riscv32
+command! Ctags !ctags -R --exclude=src/isa/mips32 --exclude=src/isa/riscv32

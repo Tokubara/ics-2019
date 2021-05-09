@@ -14,5 +14,11 @@ obj:用ctags, 但是不想要riscv32和mips32下的
 
 command! Ctags !ctags -R --languages=c,asm,sh,python --exclude ./src/isa/mips32 --exclude ./src/isa/riscv3 # 两个错误, exclude后面没有=, 以及./
 command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=./src/isa/mips32 --exclude=./src/isa/riscv3 # 不能用./
-command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=src/isa/mips32 --exclude=src/isa/riscv3
+command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=src/isa/mips32 --exclude=src/isa/riscv32 # 的确是没有riscv32的问题了, 但是IMAGE_START这个宏也找不到了
+ctags -R --exclude=src/isa/mips32 --exclude=src/isa/riscv32 * # 可以, 既有宏又没有riscv的干扰
+ctags -R --languages=c,asm,sh,python --exclude=src/isa/mips32 --exclude=src/isa/riscv32 *
+ctags -R --exclude=src/isa/mips32 --exclude=src/isa/riscv32 # 也可以
+ctags --list-maps=c # 只有*.cc
+ctags --list-maps=c++ # 有*.h, 没有*.c
+conclude:应该是command! Ctags !ctags -R --exclude=src/isa/mips32 --exclude=src/isa/riscv32
 
