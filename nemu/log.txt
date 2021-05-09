@@ -9,3 +9,10 @@ sudo apt install libsdl2-dev
 make ISA=x86 run &> make_error_log.txt # 卡住了
 make ISA=x86 run # 运行成功
 
+obj:用ctags, 但是不想要riscv32和mips32下的
+中间的错误:
+
+command! Ctags !ctags -R --languages=c,asm,sh,python --exclude ./src/isa/mips32 --exclude ./src/isa/riscv3 # 两个错误, exclude后面没有=, 以及./
+command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=./src/isa/mips32 --exclude=./src/isa/riscv3 # 不能用./
+command! Ctags !ctags -R --languages=c,asm,sh,python --exclude=src/isa/mips32 --exclude=src/isa/riscv3
+
