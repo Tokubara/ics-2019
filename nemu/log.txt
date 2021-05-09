@@ -1,0 +1,11 @@
+obj:在ubuntu上能make ISA=x86 run
+exe:
+make ISA=x86 run &> make_error_log.txt
+out:ubuntu上执行make ISA=x86 run, 得到的报错是关于: libSDL2-2.0.so.0
+看Makefile, 这是由-lSDL2引起的
+ref:https://stackoverflow.com/questions/29711336/libsdl2-2-0-so-0-cannot-open-shared-object-file
+exe:
+sudo apt install libsdl2-dev
+make ISA=x86 run &> make_error_log.txt # 卡住了
+make ISA=x86 run # 运行成功
+

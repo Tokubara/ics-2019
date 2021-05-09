@@ -13,6 +13,7 @@ static inline void set_width(int width) {
 
 static make_EHelper(2byte_esc);
 
+// make_group macro {{{1 
 #define make_group(name, item0, item1, item2, item3, item4, item5, item6, item7) \
   static OpcodeEntry concat(opcode_table_, name) [8] = { \
     /* 0x00 */	item0, item1, item2, item3, \
@@ -22,6 +23,11 @@ static make_EHelper(name) { \
   idex(pc, &concat(opcode_table_, name)[decinfo.isa.ext_opcode]); \
 }
 
+/* static OpcodeEntry opcode_table_gp1 [8] = { EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY }; */
+/* static make_EHelper(gp1) { idex(pc, &opcode_table_gp1[decinfo.isa.ext_opcode]); } */
+// }}}1
+
+// use make group {{{1
 /* 0x80, 0x81, 0x83 */
 make_group(gp1,
     EX(add), EMPTY, EX(adc), EX(sbb),
@@ -51,8 +57,9 @@ make_group(gp5,
 make_group(gp7,
     EMPTY, EMPTY, EMPTY, EMPTY,
     EMPTY, EMPTY, EMPTY, EMPTY)
+// }}}1
 
-
+// opcode_table {{{1
 static OpcodeEntry opcode_table [512] = {
   /* 0x00 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x04 */	EMPTY, EMPTY, EMPTY, EMPTY,
@@ -186,6 +193,7 @@ static OpcodeEntry opcode_table [512] = {
   /* 0xf8 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xfc */	EMPTY, EMPTY, EMPTY, EMPTY
 };
+// }}}1
 
 static make_EHelper(2byte_esc) {
   uint32_t opcode = instr_fetch(pc, 1) | 0x100;
