@@ -6,8 +6,7 @@ int init_monitor(int, char *[]);
 void ui_mainloop(int);
 
 void init_regex();
-// uint8_t make_token(char *);
-uint32_t expr(char *, bool *);
+i32 expr(char *, u32*);
 
 /** 测试两个函数 */
 // int main(int argc, char *argv[]) {

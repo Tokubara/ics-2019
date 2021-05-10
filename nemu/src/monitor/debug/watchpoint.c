@@ -67,11 +67,11 @@ bool check_wps() {
   Assert(head != NULL, "head is null");
   WP *start = head->next;
   uint32_t new_val;
+  i32 ret;
   bool has_change = false;
-  bool success;
   while(start) {
-    new_val = expr(start->expr, &success);
-    Assert(success, "expr fails"); // 能存进去的不可能是错误的表达式
+    ret = expr(start->expr, &new_val);
+    Assert(ret==0, "expr fails"); // 能存进去的不可能是错误的表达式
     if(new_val!=start->val) {
       has_change = true;
       printf("watchpoint %d: %s\nOld value = %u\nNew value = %u\n", start->NO, start->expr, start->val, new_val);
@@ -131,9 +131,10 @@ WP* new_wp(char* expr_str) {
     return NULL;
   }
   // 如果expr发现表达式不合法(错误信息是eval给出的), 也返回NULL
-  bool success;
-  uint32_t expr_val = expr(expr_str, &success); // 也会算好值
-  if (!success) {
+  i32 ret;
+  uint32_t expr_val;
+  ret = expr(expr_str, &expr_val); // 也会算好值
+  if (ret<0) {
     printf("since the expression is not legal, no watchpoint is created\n");
     return NULL;
   }

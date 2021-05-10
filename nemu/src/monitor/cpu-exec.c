@@ -61,7 +61,7 @@ void cpu_exec(uint64_t n) {
   }
   log_clearbuf();
 
-  check_wps();
+  check_wps(); // TODO 放在这个位置绝对是错的
 
 #endif
 
@@ -72,7 +72,7 @@ void cpu_exec(uint64_t n) {
     device_update();
 #endif
 
-    if (nemu_state.state != NEMU_RUNNING) break;
+    if (nemu_state.state != NEMU_RUNNING) break; // 执行指令可能会改变状态
   }
 
   switch (nemu_state.state) {

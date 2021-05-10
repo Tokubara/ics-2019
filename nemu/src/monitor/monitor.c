@@ -35,7 +35,7 @@ static inline long load_img() {
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
     extern uint8_t isa_default_img[];
-    extern long isa_default_img_size; // 是39
+    extern long isa_default_img_size;
     size = isa_default_img_size;
     memcpy(guest_to_host(IMAGE_START), isa_default_img, size);
   }

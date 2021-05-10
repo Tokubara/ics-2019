@@ -56,11 +56,11 @@ make_group(gp5,
 /* 0x0f 0x01*/
 make_group(gp7,
     EMPTY, EMPTY, EMPTY, EMPTY,
-    EMPTY, EMPTY, EMPTY, EMPTY)
+    EMPTY, EMPTY, EMPTY, EMPTY);
 // }}}1
 
 // opcode_table {{{1
-static OpcodeEntry opcode_table [512] = {
+static OpcodeEntry opcode_table[512] = {
   /* 0x00 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x04 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x08 */	EMPTY, EMPTY, EMPTY, EMPTY,

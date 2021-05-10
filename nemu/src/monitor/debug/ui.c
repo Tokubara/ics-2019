@@ -16,14 +16,14 @@ void cpu_exec(uint64_t);
  * 输出提示(nemu), 读取一行, 不返回\n, 但是没有释放掉内存(本该释放内存的)
  */
 static char *rl_gets() {
-  static char *line_read = NULL;
+  static char *line_read = NULL; //? 这里为什么要存入static. 一般static变量是为了后续调用还能继续用 ,但是这里都置空了, 显然就没这个功能了. 会不会这是add_history的需求? 我的猜测是, add_history才不会拷贝参数字符串呢, 它只是保存个地址. 但也说不过去, 毕竟readline返回的应该就是堆内存, 本来也不会随函数的结束被销毁 
 
   if (line_read) {
     free(line_read);
     line_read = NULL;
   }
 
-  line_read = readline("(nemu) ");
+  line_read = readline("(nemu) "); //? line_read得到的字符串是不是不包含\n?
 
   if (line_read && *line_read) {
     add_history(line_read);
@@ -47,8 +47,8 @@ static int cmd_x(char *args);
 
 static int cmd_info(char *args);
 
+// 打印所有寄存器, 以16进制和10进制打印
 static int cmd_info_r() {
-  // 应该是打印所有寄存器吧
   for (int i = 0; i < 8; i++) {
     printf("%s  0x%.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32,
            cpu.gpr[i]._32);
@@ -69,9 +69,9 @@ static struct {
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
     {"si", "Execute [N] instuctions", cmd_si},
-    {"x", "Print [N] bytes of memory from [addr]", cmd_x},
-    {"p", "Print an expression", cmd_p},
-    {"info", "Print useful info", cmd_info},
+    {"x", "x N(base 10 integer) addr(expr)\nPrint [N] bytes of memory from [addr]", cmd_x},
+    {"p", "p expr\nPrint an expression", cmd_p},
+    {"info", "info r|w\nPrint gpr|watchpoints", cmd_info},
     {"w", "Set a watchpoint", cmd_w},
     {"d", "Delete a watchpoint", cmd_d}
 };
@@ -88,14 +88,15 @@ enum { // 似乎框架中的enum都是小写的
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
 
 static int cmd_p(char *args) {
+  i32 ret;
   if(args==NULL) {
     puts("No given expressions");
     return 0;
   }
   // expr
-  bool success;
-  uint32_t expr_val = expr(args, &success);
-  if(!success) {
+  uint32_t expr_val;
+  ret = expr(args, &expr_val);
+  if(ret<0) {
     puts("The expression is invalid");
   } else {
     printf("%s = %u\n", args, expr_val);
@@ -134,7 +135,7 @@ static int cmd_si(char *args) {
   // 是strtok_r+53, H0018
   // long N;
   bool success;
-  long N = parse_integer(args,&success);
+  long N = parse_integer(args,&success); // TODO 这个地方会不会是expr? 我感觉si本来也是支持表达式的
   if(!success) {
     if(N) return 0; // 解析错误
     N = 1;
@@ -158,7 +159,7 @@ static int cmd_w(char *args) {
  * 会打印错误信息, arg==NULL不会报错(比如cmd_si有这种需求),errno不为0会报错
  * 
 */
-long parse_integer(char* arg, bool* success) {
+long parse_integer(char* arg, bool* success) { // TODO 我感觉这种接口不太好看, 难道不应该是是否成功作为返回, 解析值是放在参数中的么?
   *success=1;
   if (!arg) {
     // puts("arg is NULL");
@@ -192,22 +193,25 @@ static int cmd_info(char *args) {
   if(arg == NULL) {
     printf("%s - %s\n", cmd_table[CMD_INFO_IDX].name,
            cmd_table[CMD_INFO_IDX].description);
-  } else if(!strcmp(arg, "r")) {
+  } else if(strcmp(arg, "r") == 0) {
     cmd_info_r();
-  } else if(!strcmp(arg, "w")) {
+  } else if(strcmp(arg, "w") == 0) {
     print_wps();
   }
   return 0;
 }
 
+// cmd_x的用法是x N(base 10 integer) addr(expr) Print [N] bytes of memory from [addr]
+// 实现中主要的麻烦是换行控制
 static int cmd_x(char *args) { 
+  i32 ret;
   char *arg = strtok(NULL, " ");
   if (arg == NULL) {
     printf("%s - %s\n", cmd_table[CMD_X_IDX].name,
           cmd_table[CMD_X_IDX].description);
     return 0;
   } 
-    // 这里只支持读16进制的
+    // 第一个参数N只能是10进制
   errno = 0;
   int N = strtol(arg, NULL, 10);
   if (N <= 0 || errno!=0) {
@@ -215,10 +219,10 @@ static int cmd_x(char *args) {
     return 0;
   }
   arg = strtok(NULL, " ");
-	bool success;
-  vaddr_t addr = expr(arg, &success);
-	if(!success) return 0;
-  if (addr <= 0 || errno != 0 || addr>=PMEM_SIZE) {
+  vaddr addr;
+  ret = expr(arg, &addr);
+	if(ret<0) return 0;
+  if (!is_valid_addr(addr)) {
     printf("Cannot access memory at address at 0x%x\n", addr);
     return 0;
   }
@@ -250,7 +254,7 @@ void ui_mainloop(int is_batch_mode) {
     return;
   }
 
-  for (char *str; (str = rl_gets()) != NULL;) { // rl_gets这里打印了nemu, 也读入了一行
+  for (char *str; (str = rl_gets()) != NULL;) {  //? 什么时候有可能得到NULL, 我怎么感觉根本没这个机会?
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */

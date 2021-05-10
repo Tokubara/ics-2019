@@ -21,6 +21,22 @@
     } \
   } while (0)
 
+#define Assert_func(cond, ...) \
+  do { \
+    if (!(cond)) { \
+      Log(__VA_ARGS__); \
+      return -1; \
+    } \
+  } while (0)
+
+// 我感觉这个有点多余, 如果有更好的办法可以与Assert_func合并, 我就合并
+#define assert_func(cond) \
+  do { \
+    if (!(cond)) { \
+      return -1; \
+    } \
+  } while (0)
+
 #define panic(...) Assert(0, __VA_ARGS__)
 
 #define TODO() panic("please implement me")

@@ -11,8 +11,8 @@
 #include "common.h"
 #define MAX_TOKEN_NUM 1000
 #define OP_NUM 20 // OP_PRIORITY的默认大小
-#define EVAL_ERROR(...) printf(__VA_ARGS__); *is_error = 1; return 0
-#define OPERAND_TYPE(type)  (type == TK_DEC_NUMBER || type == TK_HEX_NUMBER || type == TK_REG) // 判断是否是操作数类型, 3种, 10进制数, 16进制数, 寄存器
+// #define EVAL_ERROR(...) Log(__VA_ARGS__); return -1
+#define is_operand_type(type)  (type == TK_DEC_NUMBER || type == TK_HEX_NUMBER || type == TK_REG) // 判断是否是操作数类型, 3种, 10进制数, 16进制数, 寄存器
 #define UNARY_LEFT_OP(type) (type==TK_DEREF) // 判断是否是单目左边的运算符
 
 // 需要解析以下类型
@@ -25,7 +25,8 @@
 /*!写法上要确保, 符号必须在TK_ENUM_START和TK_ENUM_END之间*/
 enum {
   TK_NOTYPE = 256, TK_DEC_NUMBER, TK_HEX_NUMBER, TK_REG, TK_L_PAREN, TK_R_PAREN, TK_ASTERISK, TK_ENUM_START=0, TK_DEREF, TK_EQ, TK_NEQ, TK_OP_AND, TK_OP_PLUS, TK_OP_SUB, TK_OP_MUL, TK_OP_DIV
-, TK_ENUM_END}; //? TK_NOTYPE为什么是256? 为什么不是0? 有什么用意?
+, TK_ENUM_END};
+// 以TK_START为界, 分成了2部分, 原因在于init_priority的实现, 有优先级的在TK_ENUM_START右, 否则在TK_ENUM_START左
 
 /* 优先级越高越大, 很不好的是, 目前硬编码了 */
 int OP_PRIORITY[OP_NUM];
@@ -59,9 +60,8 @@ static regex_t re[NR_REGEX] = {};
 
 /**
  * 初始化符号优先级数组OP_PRIORITY, 由于算法关系, 不需要考虑括号的优先级, 只需要考虑运算符的优先级设定
- * 数值越小, 表示优先级越低, 比如==的优先级是0.
  * 具体数值, 参考<https://en.cppreference.com/w/c/language/operator_precedence>
- * 为什么是负数, 这主要是因为之前的逻辑是越小优先级越低
+ * 为什么是负数, 这是因为之前的逻辑是越小优先级越低
  */
 
 void init_priotity() {
@@ -102,31 +102,28 @@ typedef struct token {
 } Token;
 
 static Token tokens[MAX_TOKEN_NUM] __attribute__((used)) = {};
-static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析时, tokens的长度, 但是能不用尽量不用. 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0.
+static int len_tokens __attribute__((used))  = 0;  // 记录符号正确解析时, tokens的长度, 但是能不用尽量不用. 在make_token正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0.
 
 /**
- * 根据字符串e从0开始填写tokens
- * 在make_tokens正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0
+ * 根据字符串e从0开始填写tokens, len_tokens被设置为tokens的个数
+ * 在make_token正确解析时, 会被设置为长度, 在make_token解析错误时, 设为0 // TODO 什么设为长度, 什么设为0?
  * 如果解析错误, 返回0, 否则返回tokens的个数
  * 为了make_token实现上的简单, 对于寄存器, 去除0x不是它的工作, 是相应的函数的工作, 也就是isa_reg_str2val的工作
- * 解引用还是乘号的确定, 我们不在这里做, 因为我认为make_token的作用仅仅是解析正则符号, 弄懂是什么意思, 这是预处理的工作, 也就是expr
+ * 解引用还是乘号的确定, 我们不在这里做, 因为我认为make_token的作用仅仅是解析正则符号, 具体的语义分析是expr的工作
+  对全局变量, len_tokens, 会设置为nr_tokens
  */
-uint8_t make_token(char *e) {
+i32 make_token(char *e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
 
   int nr_token = 0;
   len_tokens = 0; // 如果不这样写, return false的时候都需要设置为0. 这样写以后, 只有return true的时候才需要设置
-  while (e[position] != '\0') {
+  while (e[position] != '\0'&&nr_token<MAX_TOKEN_NUM) {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) { // 优先级的来源
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) { // 不存在子组需要match, 而且pmatch.rm_so == 0确定必须是从开始匹配, 但能不能用^呢?
         // switch的结果无论如何, nr_token都是会++的, 因此我们可以在这里判断
-        if (nr_token >= MAX_TOKEN_NUM) {
-          printf("The expr is too long, we cannot deal with it\n");
-          return false;
-        }
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
@@ -135,11 +132,11 @@ uint8_t make_token(char *e) {
         position += substr_len;
         // 此时nr_token指向的是未指向的位置
         tokens[nr_token].type = rules[i].token_type;
-        if (OPERAND_TYPE(rules[i].token_type)) {
+        if (is_operand_type(rules[i].token_type)) {
           if (substr_len > 31) { // 太长了, 处理不了
-            printf("too large number, sorry, we cannot deal with it: %.*s",
+            Log("too large number, we cannot deal with it: %.*s",
                    substr_len, substr_start);
-            return false;
+            goto error;
           } else {
             memcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
@@ -152,49 +149,45 @@ uint8_t make_token(char *e) {
     }
 
     if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
-      return false;
+      Log("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+      goto error;
     }
   }
+  if (nr_token>=MAX_TOKEN_NUM) {
+    goto error;
+  }
+  
   // 此时正确解析
   len_tokens = nr_token;
   return nr_token;
+error:
+  return -1;
 }
 
 /**
- * pre_tokens是预处理后的数组, left和right是闭区间, is_error是否有错误, 如果为1, 发生了错误, 比如括号不匹配
- * 返回解析得到的值
- * 不保证解析结果错误会怎样, 但不能让程序崩
+ * pre_tokens是预处理后的数组, left和right是闭区间, 表示eval的求值区间
+ * 解析成功, 返回0, 否则返回-1
 */
-int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
-  // is_error必须主动是0, 因为不能指望调用者将它初始化了
-  // 保证priority被初始化了
-  Assert(OP_PRIORITY[TK_OP_AND] != 0, "function <init_priotity> hasn't been called");
-  *is_error = 0;
+i32 eval(Token* pre_tokens, int left, int right, u32* val) {
   // 由于是expr调用的, 越界是不可能发生的
+  i32 ret; // 基本都需要
   if(left==right) {
     switch (pre_tokens[left].type) { 
       case TK_DEC_NUMBER: {
-        return atoi(pre_tokens[left].str);
+        *val=atoi(pre_tokens[left].str);
       }
       case TK_HEX_NUMBER: {
-        return strtol(pre_tokens[left].str, NULL, 16);
+        *val=strtol(pre_tokens[left].str, NULL, 16);
       }
       case TK_REG: {
-        bool success;
-        uint32_t reg_content = isa_reg_str2val(pre_tokens[left].str, &success);
-        if(success) {
-          return reg_content;
-        } else {
-          // 这不是用户的问题, 是代码写错了, 不可能出现这种情况
-          Assert("regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
-        }
-        break;
+        ret = isa_reg_str2val(pre_tokens[left].str, (u32*)val);
+        Assert(ret==0, "regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
       }
       default: {
-        EVAL_ERROR("%s is not a number, its type is %d\n", pre_tokens[left].str, pre_tokens[left].type);
+        Assert_func(false, "%s is not a number, its type is %d", pre_tokens[left].str, pre_tokens[left].type);
       }
     }
+    return 0; // 如果是失败情况, 都已经在default中被返回了
   }
   // bug: 对于是不是被一堆括号包围的情况, 没有正确给出判断,  因为没有检查匹配, 比如(-52)*(-58)就不行
   // if (pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
@@ -215,9 +208,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       // 对于括号是不是不匹配的判断
       case TK_R_PAREN: {
         lp_num--;
-        if (lp_num < 0) {
-          EVAL_ERROR("parenthesis not matches\n");
-        }
+        Assert_func(lp_num >= 0, "parenthesis not matches");
         break;
       }
       // 这里应该只是优先级判断
@@ -234,37 +225,28 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       }
     }
   }
-  if(lp_num!=0) {
-    EVAL_ERROR("parenthesis not matches\n");
-  }
+  Assert_func(lp_num==0, "parenthesis not matches");
   // 没有发现主符号的情况, 有可能是因为被一对括号包围
   if (op_pos==-1) {
     // 这种判断是否被一对括号包围的正确性在于, 如果()且不匹配, 那么必然有() (), 但这两个括号之间必须有运算符包围
     if(pre_tokens[left].type==TK_L_PAREN && pre_tokens[right].type==TK_R_PAREN) {
-      return eval(pre_tokens, left + 1, right - 1, is_error);
+      return eval(pre_tokens, left + 1, right - 1, val);
     } else {
-      EVAL_ERROR("cannot find operator\n");
+      Assert_func(false, "cannot find operator");
     }
   }
   // 这样就应该扫描出了主符号
-  int32_t res;
+  u32 res;
   if (!UNARY_LEFT_OP(pre_tokens[op_pos].type)) {
     // 如果不是单目运算符
-    bool left_error, right_error;
-    int32_t left_val = eval(pre_tokens, left, op_pos - 1, &left_error);
-    if (left_error) {
-      *is_error = 1;
-      return 0;
-    }
-    int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
-    if (right_error) {
-      *is_error = 1;
-      return 0;
-    }
+    u32 left_val, right_val;
+    ret = eval(pre_tokens, left, op_pos - 1, &left_val);
+    assert_func(ret==0); // 不打印错误信息, 因为递归子函数已经打印了
+    ret = eval(pre_tokens, op_pos + 1, right, &right_val);
+    assert_func(ret==0);
     switch (pre_tokens[op_pos].type) {
       case TK_EQ: {
-        res = left_val ==
-              right_val; // 不好是同一个吧, 万一并行了咋办(虽然我也不知道并不并行)
+        res = left_val == right_val;
         break;
       }
       case TK_OP_PLUS: {
@@ -281,7 +263,7 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       }
       case TK_OP_DIV: {
         if (right_val == 0) {
-          EVAL_ERROR("divide 0\n");
+          assert_func("divide 0");
         }
         res = left_val / right_val;
         break;
@@ -296,43 +278,48 @@ int32_t eval(Token* pre_tokens, int left, int right, bool* is_error) {
       }
     }
   } else {
-    // 如果是*那么必然是第一个
-    Assert(left==op_pos, "deference * is not the first");
-    bool right_error;
-    int32_t right_val = eval(pre_tokens, op_pos + 1, right, &right_error);
-    if (is_valid_addr(right_val)) {
-      res = vaddr_read(right_val, 4);
-    } else {
-      EVAL_ERROR("not a valid address");
+    // 如果主运算符是单目运算符, 那么只能是第一个token
+    Assert_func(left==op_pos, "deference * is not the first");
+    u32 right_val;
+    ret = eval(pre_tokens, op_pos + 1, right, &right_val);
+    assert_func(ret==0);
+    switch(pre_tokens[op_pos].type) {
+      case TK_DEREF: {
+        Assert_func(is_valid_addr(right_val), "%.8x is not a valid address", right_val);
+        res = vaddr_read(right_val, 4);
+      }
+      default: {
+        Assert_func(false, "%d is not a unary operator", pre_tokens[op_pos].type);
+      }
     }
   }
-  return res;
+  *val = res;
+  return 0;
 }
 /**
- * e是表达式字符串, 如果解析成功, success置为1, 返回所求值(uint32_t), 否则success置为0, 返回0.
- * 会打印错误信息.
+ * e是表达式字符串, 如果解析成功, success置为1, 返回所求值(uint32_t), 否则返回-1.
 */
-uint32_t expr(char *e, bool *success) {
+i32 expr(char *e, u32* val) {
+  i32 ret;
   // 调用eval之前, 主要是预处理, 包括去空格, 对负数的处理, 确定*是乘号还是解引用
-	success=success?success:&bool_tmp_var;
-  if (!make_token(e)) {
-    *success = false;
-    return 0;
+  if (make_token(e) < 0) {
+    return -1;
   }
   // 对tokens数组进行预处理. 去空格, 加上0
   Token pre_tokens[MAX_TOKEN_NUM<<1]; // 应该比tokens数组更大,
                                    // 因为可能出现很多负数, 最坏的情况,
-                                   // 全是负数, 那么占1/3, 因此数组为43
+                                   // 全是负数, 那么占1/3, 因此数组为43 //? TODO 这是干啥的?
   int j = 0; // j是pre_tokens的索引, 存的是第一个未赋值的
   for(int i = 0; i < len_tokens; i++) {
     switch(tokens[i].type) {
       case TK_NOTYPE:
         break;
-      case TK_OP_SUB:{
-        // 那么需要做一番判断
-        if (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || OPERAND_TYPE(pre_tokens[j - 1].type))) { // 负数的情况
-          // 需要追加0
-          pre_tokens[j].type = TK_DEC_NUMBER;
+      case TK_OP_SUB:{ // 需要判断是减号还是负号
+        // 如果是减号, 那么左边那个, 要么是), 要么是操作数, 两种情况中任意一种出现, 都一定是减号
+        // j==0写在前面是为了不越界
+        if (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || is_operand_type(pre_tokens[j - 1].type))) {
+          // 对减号的处理方式: 在写入-之前, 先写一个0
+          pre_tokens[j].type = TK_DEC_NUMBER; // token没有value字段
           pre_tokens[j].str[0] = '0';
           pre_tokens[j].str[1] = '\0';
           ++j;
@@ -341,7 +328,7 @@ uint32_t expr(char *e, bool *success) {
         break;
       }
       case TK_ASTERISK: {
-        pre_tokens[j].type = (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || OPERAND_TYPE(pre_tokens[j - 1].type)))?TK_DEREF:TK_OP_MUL;
+        pre_tokens[j].type = (j==0 || !(pre_tokens[j - 1].type == TK_R_PAREN || is_operand_type(pre_tokens[j - 1].type)))?TK_DEREF:TK_OP_MUL;
         ++j;
         break;
       }
@@ -351,12 +338,7 @@ uint32_t expr(char *e, bool *success) {
       }
     }
   }
-  // 调用eval
-  bool is_error=0;
   // char* err_msg;
-  uint32_t expr_val = eval(pre_tokens, 0, j - 1, &is_error); // 这里是闭区间
-  // return (is_error>0?)
-  *success=is_error>0?0:1;
-  return expr_val;
-  // return 0;
+  ret = eval(pre_tokens, 0, j - 1, val); // eval接受的是闭区间
+  return ret;
 }

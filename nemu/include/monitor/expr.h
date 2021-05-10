@@ -2,7 +2,6 @@
 #define __EXPR_H__
 #include "common.h"
 
-uint32_t expr(char *, bool *);
-bool make_token(char *e);
+i32 expr(char *, u32 *);
 
 #endif
