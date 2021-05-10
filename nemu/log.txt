@@ -37,6 +37,10 @@ src/monitor/debug/ui.c:9:10: fatal error: readline/history.h: No such file or di
           ^~~~~~~~~~~~~~~~~~~~
 sudo apt-get install libreadline-dev 
 不再报错
+ls /usr/include/ | grep readline
+readline
+因此在include下的确出现了readline
+
 
 
 

@@ -40,7 +40,12 @@ void reg_test() {
   assert(pc_sample == cpu.pc);
 }
 
+// 打印所有寄存器, 以16进制和10进制打印
 void isa_reg_display() {
+  for (int i = 0; i < 8; i++) {
+    printf("%s  0x%.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32,
+           cpu.gpr[i]._32);
+  }
 }
 /**
  * s长这样:$eax,$ax,$al,$ah

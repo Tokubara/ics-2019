@@ -47,15 +47,6 @@ static int cmd_x(char *args);
 
 static int cmd_info(char *args);
 
-// 打印所有寄存器, 以16进制和10进制打印
-static int cmd_info_r() {
-  for (int i = 0; i < 8; i++) {
-    printf("%s  0x%.8x %u\n", reg_name(i, 4), cpu.gpr[i]._32,
-           cpu.gpr[i]._32);
-  }
-  return 0;
-}
-
 static int cmd_p(char *args);
 static int cmd_d(char *args);
 static int cmd_w(char *args);
@@ -185,7 +176,6 @@ static int cmd_d(char *args) {
   return 0;
 }
 
-int (*cmd_info_table[])()={cmd_info_r}; // bug:这里发生了重名错误
 enum {INFO_R_IDX}; // 但是目前没用上
 
 static int cmd_info(char *args) { 
@@ -194,7 +184,7 @@ static int cmd_info(char *args) {
     printf("%s - %s\n", cmd_table[CMD_INFO_IDX].name,
            cmd_table[CMD_INFO_IDX].description);
   } else if(strcmp(arg, "r") == 0) {
-    cmd_info_r();
+    isa_reg_display();
   } else if(strcmp(arg, "w") == 0) {
     print_wps();
   }

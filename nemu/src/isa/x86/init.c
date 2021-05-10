@@ -1,5 +1,4 @@
 #include "nemu.h"
-#include "isa/reg.h"
 
 // const uint8_t isa_default_img []  = {
 //   0xb8, 0x34, 0x12, 0x00, 0x00,        // 100000:  movl  $0x1234,%eax

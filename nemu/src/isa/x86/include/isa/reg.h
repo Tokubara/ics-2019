@@ -73,5 +73,6 @@ static inline const char* reg_name(int index, int width) {
 }
 
 i32 isa_reg_str2val(const char *s, u32* val);
+void isa_reg_display();
 
 #endif
