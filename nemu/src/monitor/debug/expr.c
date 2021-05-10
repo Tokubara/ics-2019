@@ -175,16 +175,20 @@ i32 eval(Token* pre_tokens, int left, int right, u32* val) {
     switch (pre_tokens[left].type) { 
       case TK_DEC_NUMBER: {
         *val=atoi(pre_tokens[left].str);
+        break;
       }
       case TK_HEX_NUMBER: {
         *val=strtol(pre_tokens[left].str, NULL, 16);
+        break;
       }
       case TK_REG: {
         ret = isa_reg_str2val(pre_tokens[left].str, (u32*)val);
         Assert(ret==0, "regname recognization is incorrect. Since we only recognize eax these, now isa_reg_str2val tells me he cannot find %s.\n", pre_tokens[left].str);
+        break;
       }
       default: {
         Assert_func(false, "%s is not a number, its type is %d", pre_tokens[left].str, pre_tokens[left].type);
+        break;
       }
     }
     return 0; // 如果是失败情况, 都已经在default中被返回了
@@ -221,7 +225,6 @@ i32 eval(Token* pre_tokens, int left, int right, u32* val) {
           op_pos=i;
           cur_priority = OP_PRIORITY[tmp];
         }
-        break;
       }
     }
   }
@@ -287,6 +290,7 @@ i32 eval(Token* pre_tokens, int left, int right, u32* val) {
       case TK_DEREF: {
         Assert_func(is_valid_addr(right_val), "%.8x is not a valid address", right_val);
         res = vaddr_read(right_val, 4);
+        break;
       }
       default: {
         Assert_func(false, "%d is not a unary operator", pre_tokens[op_pos].type);
@@ -334,7 +338,6 @@ i32 expr(char *e, u32* val) {
       }
       default:{
         pre_tokens[j++]=tokens[i];
-        break;
       }
     }
   }
