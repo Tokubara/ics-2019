@@ -118,23 +118,24 @@ static int cmd_help(char *args) {
 }
 
 /** 
- * 支持args为NULL, 相当于为"1"
+ * 支持args为NULL, 相当于为"1", 只能是数, 不能是表达式(因为PA1.3有说是N)
 */
 static int cmd_si(char *args) {
   // 用法就是si N, 只支持10进制
   // bug:这个args根本不能用, 明明应该是NULL, 传了以后根本不是NULL,
   // 是strtok_r+53, H0018
-  // long N;
-  bool success;
-  long N = parse_integer(args,&success); // TODO 这个地方会不会是expr? 我感觉si本来也是支持表达式的
-  if(!success) {
-    if(N) return 0; // 解析错误
-    N = 1;
-  } else if(N<=0){
-     puts("N must be a potive integer");
-     return 0;
+  if(args==NULL) {
+    cpu_exec(1);
+  } else {
+    i32 ret;
+    long N;
+    ret = parse_integer(args,&N);
+    if(ret==-1 || N<0) {
+       puts("invalid N");
+    } else {
+      cpu_exec(N);
+    }
   }
-  cpu_exec(N);
   return 0;
 }
 
@@ -144,39 +145,31 @@ static int cmd_w(char *args) {
 }
 
 /**
- * 解析字符串arg为整数, 失败返回错误码, success置为0. 成功success置为1, 返回解析的整数
- * 错误码的情况: 0为NULL, -1为解析错误
- * 会处理arg==NULL的情况
+ * 解析字符串arg为整数, 失败返回-1, 否则返回0
+ * 不会处理arg==NULL的情况
  * 会打印错误信息, arg==NULL不会报错(比如cmd_si有这种需求),errno不为0会报错
  * 
 */
-long parse_integer(char* arg, bool* success) { // TODO 我感觉这种接口不太好看, 难道不应该是是否成功作为返回, 解析值是放在参数中的么?
-  *success=1;
-  if (!arg) {
-    // puts("arg is NULL");
-    *success = 0;
-    return 0;
-  } else {
-    errno = 0;
-    long N = strtol(arg, NULL, 10);
-    if (errno != 0) {
-      puts("invalid number input");
-      *success=0;
-      return -1;
-    }
-    return N;
+i32 parse_integer(char* arg, i64* val) { // TODO 我感觉这种接口不太好看, 难道不应该是是否成功作为返回, 解析值是放在参数中的么?
+  Assert(arg!=NULL, "arg is NULL");
+  errno = 0;
+  *val = strtol(arg, NULL, 10);
+  if (errno != 0) {
+    Log("invalid number input");
+    return -1;
   }
-}
-
-static int cmd_d(char *args) {
-  bool success;
-  int no = parse_integer(args, &success);
-  if(!success) return 0;
-  del_wp_NO(no);
   return 0;
 }
 
-enum {INFO_R_IDX}; // 但是目前没用上
+static int cmd_d(char *args) {
+  i64 no;
+  i32 ret;
+  ret = parse_integer(args, &no);
+  if(ret==0) {
+    del_wp_NO(no);
+  }
+  return 0;
+}
 
 static int cmd_info(char *args) { 
   char *arg = strtok(NULL, " ");

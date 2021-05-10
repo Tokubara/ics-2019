@@ -35,12 +35,12 @@ void print_wps() {
   Assert(head!=NULL, "head is null");
   WP* start = head->next;
   if(start == NULL) {
-    printf("No watchpoints\n");
+    Log("No watchpoints");
     return;
   }
-  printf("NO\tWhat\tValue\n");
+  Log("NO\tWhat\tValue");
   while(start) {
-    printf("%d\t%s\t%u\n", start->NO, start->expr, start->val);
+    Log("%d\t%s\t%u", start->NO, start->expr, start->val);
     start=start->next;
   }
 }
@@ -74,7 +74,7 @@ bool check_wps() {
     Assert(ret==0, "expr fails"); // 能存进去的不可能是错误的表达式
     if(new_val!=start->val) {
       has_change = true;
-      printf("watchpoint %d: %s\nOld value = %u\nNew value = %u\n", start->NO, start->expr, start->val, new_val);
+      Log("watchpoint %d: %s\nOld value = %u\nNew value = %u", start->NO, start->expr, start->val, new_val);
       start->val = new_val;
     }
     start = start->next;
@@ -89,7 +89,7 @@ bool check_wps() {
 void del_wp_NO(int NO) {
   WP* wp = find_NO_prev(NO);
   if(wp==NULL) {
-    printf("No such NO\n");
+    Log("No such NO");
     return;
   }
   free_wp(wp);
@@ -127,7 +127,7 @@ void free_wp(WP *wp_prev) {
 WP* new_wp(char* expr_str) {
   // 如果没有可用空间, 返回NULL
   if(free_==NULL) {
-    printf("no more available watchpoints\n");
+    Log("no more available watchpoints");
     return NULL;
   }
   // 如果expr发现表达式不合法(错误信息是eval给出的), 也返回NULL
@@ -135,7 +135,7 @@ WP* new_wp(char* expr_str) {
   uint32_t expr_val;
   ret = expr(expr_str, &expr_val); // 也会算好值
   if (ret<0) {
-    printf("since the expression is not legal, no watchpoint is created\n");
+    Log("since the expression is not legal, no watchpoint is created");
     return NULL;
   }
   // 维护free_
