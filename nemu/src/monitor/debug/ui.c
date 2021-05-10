@@ -150,7 +150,7 @@ static int cmd_w(char *args) {
  * 会打印错误信息, arg==NULL不会报错(比如cmd_si有这种需求),errno不为0会报错
  * 
 */
-i32 parse_integer(char* arg, i64* val) { // TODO 我感觉这种接口不太好看, 难道不应该是是否成功作为返回, 解析值是放在参数中的么?
+i32 parse_integer(char* arg, i64* val) {
   Assert(arg!=NULL, "arg is NULL");
   errno = 0;
   *val = strtol(arg, NULL, 10);
