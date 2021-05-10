@@ -31,7 +31,12 @@ command! Ctags !ctags -R --exclude=src/isa/{mips32,riscv32} --exclude=tools/qemu
 
 添加了bashrc, 这样比如通过run, 就可以绕开make run进行交互式运行
 
-改了expr代码, 但是编译不过, 而且make还不给出编译错误
+
+src/monitor/debug/ui.c:9:10: fatal error: readline/history.h: No such file or directory
+ #include <readline/history.h>
+          ^~~~~~~~~~~~~~~~~~~~
+sudo apt-get install libreadline-dev 
+不再报错
 
 
 

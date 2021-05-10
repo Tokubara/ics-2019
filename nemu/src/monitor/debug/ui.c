@@ -219,7 +219,7 @@ static int cmd_x(char *args) {
     return 0;
   }
   arg = strtok(NULL, " ");
-  vaddr addr;
+  vaddr_t addr;
   ret = expr(arg, &addr);
 	if(ret<0) return 0;
   if (!is_valid_addr(addr)) {
