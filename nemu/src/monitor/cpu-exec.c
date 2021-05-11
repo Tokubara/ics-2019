@@ -46,6 +46,8 @@ void cpu_exec(uint64_t n) {
      * instruction decode, and the actual execution. */
     __attribute__((unused)) vaddr_t seq_pc = exec_once();
 
+    check_wps();
+
 #if defined(DIFF_TEST)
   difftest_step(ori_pc, cpu.pc);
 #endif
@@ -61,7 +63,6 @@ void cpu_exec(uint64_t n) {
   }
   log_clearbuf();
 
-  check_wps(); // TODO 放在这个位置绝对是错的
 
 #endif
 

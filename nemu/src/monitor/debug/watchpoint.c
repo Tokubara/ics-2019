@@ -25,7 +25,7 @@ void init_wp_pool() {
   head->next=NULL;
   head->expr=NULL;
   head->NO=-1;
-  free_ = wp_pool;
+  free_ = wp_pool; // 其实想表达的意思是, free_=&wp_pool[0]
 }
 
 /**
@@ -63,23 +63,20 @@ WP* find_NO_prev(int tar_NO) {
 /**
  * 遍历计算监视点, 会打印改变的监视点信息, 返回是否有变化
  */
-bool check_wps() {
+void check_wps() { // TODO 这个函数真的需要返回值么?
   Assert(head != NULL, "head is null");
   WP *start = head->next;
   uint32_t new_val;
   i32 ret;
-  bool has_change = false;
   while(start) {
     ret = expr(start->expr, &new_val);
     Assert(ret==0, "expr fails"); // 能存进去的不可能是错误的表达式
     if(new_val!=start->val) {
-      has_change = true;
-      Log("watchpoint %d: %s\nOld value = %u\nNew value = %u", start->NO, start->expr, start->val, new_val);
+      printf("watchpoint %d: %s\nOld value = %u\nNew value = %u\n", start->NO, start->expr, start->val, new_val);
       start->val = new_val;
     }
     start = start->next;
   }
-  return has_change;
 }
 
 /**
@@ -89,7 +86,7 @@ bool check_wps() {
 void del_wp_NO(int NO) {
   WP* wp = find_NO_prev(NO);
   if(wp==NULL) {
-    Log("No such NO");
+    Log("%d is not in use", NO);
     return;
   }
   free_wp(wp);
@@ -143,7 +140,7 @@ WP* new_wp(char* expr_str) {
   free_=free_->next; // 如果本来就为空那就为空了
   // 维护这个新节点
   old_free_->expr = (char*)malloc(strlen(expr_str)+1);
-  strcpy(old_free_->expr, expr_str); // 由于malloc, 绝不可能没有\0
+  strcpy(old_free_->expr, expr_str); // expr_str应有\0
   old_free_->val = expr_val;
   old_free_->next = head->next;
   // 维护head

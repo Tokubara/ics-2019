@@ -15,6 +15,6 @@ WP *new_wp(char *expr_str);
 void free_wp(WP *wp_prev);
 void print_wps();
 void del_wp_NO(int NO);
-bool check_wps();
+void check_wps();
 
 #endif
