@@ -61,7 +61,12 @@ override ARGS += -l $(BUILD_DIR)/nemu-log.txt
 override ARGS += -d $(QEMU_SO)
 
 # Command to execute NEMU
-IMG :=
+# IMG :=
+ifdef myapp
+	IMG := $(AM_HOME)/tests/cputest/build/$(myapp)-x86-nemu.bin
+else
+	IMG :=
+endif
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 $(BINARY): $(OBJS)
