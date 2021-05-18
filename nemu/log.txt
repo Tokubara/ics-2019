@@ -41,7 +41,11 @@ ls /usr/include/ | grep readline
 readline
 因此在include下的确出现了readline
 
+想用gdb调试
+make gdb
 
 
+make ARCH=x86-nemu ALL=dummy # 改了Makefile, 目的是只生成Makefile.dummy
+make -s -f Makefile.dummy ARCH=x86-nemu run -n # 其实之前已经存过了, 在make_dummy_run_log.txt make_dummy_run_output.txt下
 
 

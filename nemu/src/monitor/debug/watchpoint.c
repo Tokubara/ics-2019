@@ -63,7 +63,7 @@ WP* find_NO_prev(int tar_NO) {
 /**
  * 遍历计算监视点, 会打印改变的监视点信息, 返回是否有变化
  */
-void check_wps() { // TODO 这个函数真的需要返回值么?
+void check_wps() {
   Assert(head != NULL, "head is null");
   WP *start = head->next;
   uint32_t new_val;

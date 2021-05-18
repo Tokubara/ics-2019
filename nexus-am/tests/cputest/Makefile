@@ -6,6 +6,7 @@ ALL = $(basename $(notdir $(shell find tests/. -name "*.c")))
 all: $(addprefix Makefile., $(ALL))
 	@echo "" $(ALL)
 
+#? 这个目标有什么用?
 $(ALL): %: Makefile.%
 
 Makefile.%: tests/%.c latest

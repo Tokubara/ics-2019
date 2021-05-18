@@ -57,7 +57,7 @@ $(OBJ_DIR)/%.o: src/%.c
 .PHONY: app run gdb clean run-env $(QEMU_SO)
 app: $(BINARY)
 
-override ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
+override ARGS += -l $(BUILD_DIR)/nemu-log.txt
 override ARGS += -d $(QEMU_SO)
 
 # Command to execute NEMU
