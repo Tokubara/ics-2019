@@ -3,6 +3,9 @@ include $(AM_HOME)/Makefile.check
 
 ALL = $(basename $(notdir $(shell find tests/. -name "*.c")))
 
+ALL = dummy
+ARCH = x86-nemu
+
 all: $(addprefix Makefile., $(ALL))
 	@echo "" $(ALL)
 

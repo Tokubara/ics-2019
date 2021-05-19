@@ -48,4 +48,58 @@ make gdb
 make ARCH=x86-nemu ALL=dummy # 改了Makefile, 目的是只生成Makefile.dummy
 make -s -f Makefile.dummy ARCH=x86-nemu run -n # 其实之前已经存过了, 在make_dummy_run_log.txt make_dummy_run_output.txt下
 
+在/media/psf/Home/Playground/ics2019/nexus-am/tests/cputest中, 运行
+make ALL=dummy run
+结果(报错):
+/media/psf/Home/Playground/ics2019/nexus-am/am/build/am-native.a: member /media/psf/Home/Playground/ics
+2019/nexus-am/am/build/am-native.a(/) in archive is not an object
+collect2: error: ld returned 1 exit status
+/media/psf/Home/Playground/ics2019/nexus-am/am/arch/native.mk:16: recipe for target 'image' failed
+make[1]: *** [image] Error 1
+Makefile:13: recipe for target 'Makefile.dummy' failed
+make: [Makefile.dummy] Error 2 (ignored)
+# -@rm -f Makefile.dummy
+ dummy
+
+[ERROR LOG]
+在/media/psf/Home/Playground/ics2019/nexus-am/tests/cputest中, 运行
+我怀疑是因为make命令没有给ARCH参数造成的
+make ALL=dummy ARCH=x86-nemu run
+还是报错
+In file included from /usr/lib/gcc/x86_64-linux-gnu/7/include/stdint.h:9:0,
+                 from /media/psf/Home/Playground/ics2019/nexus-am/am/am.h:9,
+                 from /media/psf/Home/Playground/ics2019/nexus-am/am/src/nemu-common/trm.c:1:
+/usr/include/stdint.h:26:10: fatal error: bits/libc-header-start.h: No such file or directory
+ #include <bits/libc-header-start.h>
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+/media/psf/Home/Playground/ics2019/nexus-am/Makefile.compile:25: recipe for target '/media/psf/Home/Playground/ics2019/nexus-am/am/build/x86-nemu//src/nemu-common/trm.o' failed
+
+第一个问题是, 为什么会有两份stdint.h, 上面提到了两份:
+/usr/lib/gcc/x86_64-linux-gnu/7/include/stdint.h, 看内容, 不会是因为这个
+/usr/include/stdint.h, 的确有/usr/include/stdint.h, 但是这个头文件我可是经常用的
+它的确就是出现了: #include <bits/libc-header-start.h>
+但是bits目录并不在/usr/include/下
+回答中也显示:
+find /usr -name libc-header-start.h
+/usr/include/x86_64-linux-gnu/bits/libc-header-start.h
+[FIX]
+sudo apt-get install gcc-multilib, fix
+
+[ERROR LOG]
+在/media/psf/Home/Playground/ics2019/nexus-am/tests/cputest中, 运行
+make -s -f Makefile.dummy ARCH=x86-nemu run
+是怎么run起来的? 之前也看了run, 并不像是能run起来的样子
+Makefile:19: warning: overriding recipe for target 'run'
+/media/psf/Home/Playground/ics2019/nexus-am/am/arch/platform/nemu.mk:27: warning: ignoring old recipe for target 'run'
+有这样两个问题:
+1. 哪里用了nemu.mk?
+2. 为什么会override?
+
+[CHANGE LOG]
+nexus-am/tests/cputest/Makefile
+在此目录下, make run/gdb即可运行dummy
+
+
+
 
