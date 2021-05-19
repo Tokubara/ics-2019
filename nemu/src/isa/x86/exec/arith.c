@@ -13,7 +13,7 @@ make_EHelper(add) {
   rtl_update_ZFSF(&s1, id_dest->width); // 是const
 
   // update CF
-  rtl_is_add_carry(&s0, &s1, &id_dest->val);
+  rtl_is_add_carry(&s0, &s1, &id_dest->val, id_dest->width);
   rtl_set_CF(&s0);
 
   // update OF
@@ -86,8 +86,8 @@ make_EHelper(adc) {
   rtl_update_ZFSF(&s1, id_dest->width); // 更新ZF和SF只需要s1
 
   // update CF
-  rtl_is_add_carry(&s1, &s1, &s0); // 此时, s0还是dest+src, s1是结果
-  rtl_is_add_carry(&s0, &s0, &id_dest->val);
+  rtl_is_add_carry(&s1, &s1, &s0, id_dest->width); // 此时, s0还是dest+src, s1是结果
+  rtl_is_add_carry(&s0, &s0, &id_dest->val, id_dest->width);
   rtl_or(&s0, &s0, &s1);
   rtl_set_CF(&s0);
 
