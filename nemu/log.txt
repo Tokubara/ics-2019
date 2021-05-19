@@ -102,4 +102,10 @@ nexus-am/tests/cputest/Makefile
 
 
 
+(gdb) p/x *pc
+$13 = 0x10000f
+(gdb) p/x decinfo.jmp_c
+There is no member named jmp_c.
+(gdb) p/x decinfo.jmp_pc
+$14 = 0x100014
 

@@ -77,9 +77,9 @@ make_EHelper(adc) {
   rtl_get_CF(&s1);
   rtl_add(&s1, &s0, &s1);
 
-  operand_write(id_dest, &s1); // 写了操作数的时候, s1就无所谓了, 又可以进行修改了, 这里会自动处理操作数宽度
+  operand_write(id_dest, &s1); // operand_write已经处理了操作数宽度
 
-  if (id_dest->width != 4) {
+  if (id_dest->width != 4) { // 这一行和上一行operand_write能不能交换一下, 我感觉也行
     rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
   }
 
@@ -92,7 +92,7 @@ make_EHelper(adc) {
   rtl_set_CF(&s0);
 
   // update OF
-  rtl_is_add_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_is_add_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width); //? 可是这时候s1存的已经不是运算结果了, 怎么能调用这个函数呢, s1存的是, adc的第二次加法是否进位. 但好像s1这个参数也不是很需要, 所以, 算了
   rtl_set_OF(&s0);
 
   print_asm_template2(adc);

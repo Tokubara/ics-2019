@@ -65,9 +65,9 @@ static inline void rtl_is_sub_carry(rtlreg_t* dest,
 		*dest = res>src1; // 如果结果比被减数还大, 就是借位了
 }
 
-#define rtl_is_add_overflow_macro(type) s1=(type)*src1 ; type s2=(type)*src2 ; type r=(type)*res ; *dest=((s1<0)==(s2<0)) && ((s1<0)!=(r<0))
+#define rtl_is_add_overflow_macro(type) rtl_add(&t0,src1,src2);*dest=(((type)*src1<0)==((type)*src2<0)) && (((type)*src1<0)!=((type)t0<0))
 static inline void rtl_is_add_overflow(rtlreg_t* dest,
-    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) { // 我觉得这个不可能只用rtl实现, 否则类型转换都没法做
+    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) { //? res参数难道不是多余的? 要它有何用?
 		switch_case_width(rtl_is_add_overflow_macro)
 }
 
@@ -92,12 +92,12 @@ make_rtl_setget_eflags(ZF)
 make_rtl_setget_eflags(SF)
 make_rtl_setget_eflags(PF)
 
-#define rtl_update_ZF_macro(type) type r=(type)*result; int res=(r==0); rtl_host_lm(&cpu.eflags.ZF, &res, width);
+#define rtl_update_ZF_macro(type) t0=((type)*result==0); rtl_set_ZF(&t0);
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   switch_case_width(rtl_update_ZF_macro)
 }
 
-#define rtl_update_SF_macro(type) type r=(type)*result; int res=(r<0); rtl_host_lm(&cpu.eflags.SF, &res, width);
+#define rtl_update_SF_macro(type) t0=((type)*result<0); rtl_set_ZF(&t0);
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
 	switch_case_width(rtl_update_SF_macro)
 }

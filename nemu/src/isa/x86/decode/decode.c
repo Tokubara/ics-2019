@@ -17,13 +17,9 @@ static inline make_DopHelper(I) {
   print_Dop(op->str, OP_STR_SIZE, "$0x%x", op->imm);
 }
 
-/* I386 manual does not contain this abbreviation, but it is different from
- * the one above from the view of implementation. So we use another helper
- * function to decode it.
- */
 /* sign immediate */
-/** 译出op是符号立即数(i386 manual并不包含)
- * 
+/** 
+ * 和I类似, 我认为唯一有区别的情况是, 取0xff, 如果是I, 会存入0x000000ff, 而这里, 应该存入的是0xffffffff 
  */
 static inline make_DopHelper(SI) {
   assert(op->width == 1 || op->width == 4);
@@ -32,7 +28,7 @@ static inline make_DopHelper(SI) {
 
 	rtlreg_t imm = instr_fetch(pc, op->width);
 	switch(op->width) {
-		case 1:{int8_t tmp = imm; op->simm = tmp; break; }
+		case 1:{int8_t tmp = imm; op->simm = tmp; break; } // 这一行区别于make_DopHelper(I)
 		case 4:{op->simm=imm;break;}
 		default:assert(0);
 	}
