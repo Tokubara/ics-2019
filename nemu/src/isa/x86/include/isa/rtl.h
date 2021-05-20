@@ -33,15 +33,19 @@ static inline void rtl_sr(int r, const rtlreg_t* src1, int width) {
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
   // M[esp] <- src1
-	reg_l(4)-=4;
-	rtl_sm(&reg_l(4), src1, 4);
+  rtl_lr(&t0, 4, 4);
+  rtl_subi(&t0, &t0, 4);
+  rtl_sr(4, &t0, 4);
+	rtl_sm(&t0, src1, 4);
 }
 
 static inline void rtl_pop(rtlreg_t* dest) {
   // dest <- M[esp]
   // esp <- esp + 4
-	rtl_lm(dest, &reg_l(4), 4);
-	reg_l(4)+=4;
+  rtl_lr(&t0, 4, 4);
+	rtl_lm(dest, &t0, 4);
+  rtl_addi(&t0, &t0, 4);
+  rtl_sr(4, &t0, 4);
 }
 
 #define switch_case_width(func) switch(width) {\
