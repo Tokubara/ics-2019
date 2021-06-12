@@ -1,1 +1,3 @@
 command! Ctags !ctags -R --exclude=src/isa/{mips32,riscv32} --exclude=tools/qemu-diff --exclude=tools/qemu-diff/src/isa/{mips32,riscv32}
+nnoremap ga :Ack --type=cc "
+

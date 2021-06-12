@@ -115,13 +115,14 @@ static inline void rtl_update_SF(const rtlreg_t* result, int width) {
 }
 
 static inline void rtl_update_PF(const rtlreg_t* result) {
-	rtlreg_t res=1;
-	rtlreg_t tmp = *result;
+  rtl_li(&t0, 1); // t0寄存器存结果, t1临时
 	for(int i = 0; i < 8; i++) {
-		res^=(tmp&1);
-		tmp>>=1;
+    rtl_mv(&t1, result);
+    rtl_shri(&t1, &t1, i);
+    rtl_andi(&t1, &t1, 1);
+		rtl_xor(&t0, &t0, &t1);
 	}
-	rtl_set_PF(&res);
+	rtl_set_PF(&t0);
 }
 
 static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {

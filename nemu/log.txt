@@ -109,3 +109,5 @@ There is no member named jmp_c.
 (gdb) p/x decinfo.jmp_pc
 $14 = 0x100014
 
+a=prefix_file_prefix_txt.txt
+echo ${a/%txt/}

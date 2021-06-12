@@ -15,3 +15,5 @@ make_EHelper(xor);
 make_EHelper(sbb);
 make_EHelper(adc);
 make_EHelper(sub);
+make_EHelper(lea);
+make_EHelper(and);

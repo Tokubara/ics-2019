@@ -7,14 +7,8 @@ make_EHelper(test) {
   print_asm_template2(test);
 }
 
-make_EHelper(and) {
-  TODO();
-
-  print_asm_template2(and);
-}
-
-make_EHelper(xor) {
-	rtl_sub(&s1, &id_dest->val, &id_src->val);
+make_EHelper(and) { // 拷贝自xor, 只改了第一行和最后一行
+	rtl_and(&s1, &id_dest->val, &id_src->val);
 
   operand_write(id_dest, &s1);
 
@@ -25,7 +19,28 @@ make_EHelper(xor) {
   rtl_update_ZFSF(&s1, id_dest->width); // 是const
 
   // update CF, OF
-  s0=0;
+  rtl_li(&s0, 0);
+  rtl_set_CF(&s0);
+  rtl_set_OF(&s0);
+
+	rtl_update_PF(&s1);
+
+  print_asm_template2(and);
+}
+
+make_EHelper(xor) {
+	rtl_xor(&s1, &id_dest->val, &id_src->val);
+
+  operand_write(id_dest, &s1);
+
+  if (id_dest->width != 4) {
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  rtl_update_ZFSF(&s1, id_dest->width); // 是const
+
+  // update CF, OF
+  rtl_li(&s0, 0);
   rtl_set_CF(&s0);
   rtl_set_OF(&s0);
 

@@ -1,15 +1,16 @@
 #include "cpu/exec.h"
 
 /**
- * 用于处理modr/m中mod=0,1,2, 即r/m表示内存地址的情况, 是read_ModR_M的辅助函数(只在read_ModR_M中调用)
+ * 调用例子(仅仅在read_ModR_M被调用, 因此也是唯一调用方式): pc, &m(modr/m), rm(rm要写入信息的operand, 通常是decinfo中的dst)
+ * 用于处理modr/m byte指示有一个操作数是地址的情况, read_ModR_M除了调用load_addr, 仅负责处理操作数是寄存器的情况
 */
-//  所有的地址模式都可以用base index scale disp描述, 所以只要确定了这4个数, 即可确定内存地址.
+// 在read_ModR_M已经处理了m->mod为3的情况, 这里处理的是另一种情况, 因此必有m->mod!=3, 而且, 指示的一定是一个内存地址(为3的时候指示的是一个寄存器). 所有的地址模式都可以用base index scale disp描述, 所以只要确定了这4个数, 即可确定内存地址.
 void load_addr(vaddr_t *pc, ModR_M *m, Operand *rm) {
-  assert(m->mod != 3); // 在read_ModR_M已经处理了m->mod为3的情况, 这里处理的是另一种情况, 因此必有m->mod!=3
+  assert(m->mod != 3);
   int32_t disp = 0;
   int disp_size = 4; // 默认是4位偏置, 在mod==1时会修改
   int base_reg = -1, index_reg = -1, scale = 0; // 默认base, index寄存器都不存在, 需要设置
-  rtl_li(&s0, 0); // 把s0初始化为0, s0是临时rtl寄存器, 这里存的计算出来的内存地址
+  rtl_li(&s0, 0); // 定义在cpu.c, 定义没有提供任何信息: rtlreg_t s0, s1, t0, t1, ir; 它在这里被用于写, 用于保存地址, 但是结果还是会存到rm->addr中(内存对应的字段)
 
   if (m->R_M == R_ESP) { // <0> scale也只有在这种情况下才会被设置
     SIB s; // 应该还有立即数
@@ -34,7 +35,7 @@ void load_addr(vaddr_t *pc, ModR_M *m, Operand *rm) {
   if (disp_size != 0) {
     /* has disp */
     disp = instr_fetch(pc, disp_size);
-    if (disp_size == 1) { disp = (int8_t)disp; } //? 这句话有什么用啊? 感觉很多余的样子
+    if (disp_size == 1) { disp = (int8_t)disp; } // 类型转换
 
     rtl_addi(&s0, &s0, disp); // 加立即数
   }
@@ -48,8 +49,8 @@ void load_addr(vaddr_t *pc, ModR_M *m, Operand *rm) {
     rtl_add(&s0, &s0, &s1); // s0+=s1
   }
   rtl_mv(&rm->addr, &s0); // 保存到addr
-// {{{3 下面一长串是在写str字段, 是因为地址比较trivial, 有好几种表达情况
-#ifdef DEBUG 
+
+#ifdef DEBUG
   char disp_buf[16];
   char base_buf[8];
   char index_buf[8];
@@ -77,7 +78,6 @@ void load_addr(vaddr_t *pc, ModR_M *m, Operand *rm) {
     sprintf(rm->str, "%s(%s%s)", disp_buf, base_buf, index_buf);
   }
 #endif
-// 3}}}
   rm->type = OP_TYPE_MEM;
 }
 
