@@ -26,7 +26,7 @@ static inline make_DopHelper(I) {
  * 
  */
 static inline make_DopHelper(SI) {
-  assert(op->width == 1 || op->width == 4);
+  assert(op->width == 1 || op->width == 4); // 调用前可能需要设置宽度
 
   op->type = OP_TYPE_IMM;
 
@@ -115,6 +115,11 @@ make_DHelper(mov_E2G) {
   decode_op_rm(pc, id_src, true, id_dest, false);
 }
 
+// 添加的, 适用于movzx, movsx, 源操作数宽度为1
+make_DHelper(mov_E82G) {
+  id_src->width = 1;
+  decode_op_rm(pc, id_src, true, id_dest, false);
+}
 /** lea的译码
  * 
 */
@@ -196,6 +201,8 @@ make_DHelper(SI2E) {
   }
 }
 
+
+// 寄存器, 地址/寄存器并且取了值,
 make_DHelper(SI_E2G) {
   assert(id_dest->width == 2 || id_dest->width == 4);
   decode_op_rm(pc, id_src2, true, id_dest, false);
