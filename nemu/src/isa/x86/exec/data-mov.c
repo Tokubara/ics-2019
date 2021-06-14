@@ -30,8 +30,19 @@ make_EHelper(popa) {
 }
 
 make_EHelper(leave) {
-  TODO();
-
+  // 注意需要考虑decinfo.width
+  // 首先是恢复esp, 然后pop
+  if(decinfo.width==16) {
+    rtl_lr(&s0,R_BP,16); // 载入ebp的值
+    rtl_sr(R_SP,&s0,16);
+    rtl_pop(&s0);
+    rtl_sr(R_BP,&s0,16);
+  } else {
+    rtl_lr(&s0,R_EBP,32);
+    rtl_sr(R_ESP,&s0,32);
+    rtl_pop(&s0);
+    rtl_sr(R_EBP,&s0,32);
+  }
   print_asm("leave");
 }
 
