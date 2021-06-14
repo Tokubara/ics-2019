@@ -1,7 +1,7 @@
 #include "cpu/exec.h"
 
 make_EHelper(add) {
-  // s0 = dest - src
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
   rtl_add(&s1, &id_dest->val, &id_src->val);
 
   operand_write(id_dest, &s1);
@@ -13,18 +13,18 @@ make_EHelper(add) {
   rtl_update_ZFSF(&s1, id_dest->width); // 是const
 
   // update CF
-  rtl_is_add_carry(&s0, &s1, &id_dest->val, id_dest->width);
+  rtl_is_add_carry(&s0, &s1, &id_src->val, id_dest->width);
   rtl_set_CF(&s0);
 
   // update OF
-  rtl_is_add_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_is_add_overflow(&s0, &id_dest->val, &s2, &id_src->val, id_dest->width);
   rtl_set_OF(&s0);
 
   print_asm_template2(add);
 }
 
 make_EHelper(sub) {
-  // s0 = dest - src
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
   rtl_sub(&s1, &id_dest->val, &id_src->val);
 
   operand_write(id_dest, &s1);
@@ -36,11 +36,11 @@ make_EHelper(sub) {
   rtl_update_ZFSF(&s1, id_dest->width); // 是const
 
   // update CF
-  rtl_is_sub_carry(&s0, &s1, &id_dest->val);
+  rtl_is_sub_carry(&s0, &s1, &s2);
   rtl_set_CF(&s0);
 
   // update OF
-  rtl_is_sub_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_is_sub_overflow(&s0, &s1, &s2, &id_src->val, id_dest->width);
   rtl_set_OF(&s0);
 
   print_asm_template2(sub);
@@ -53,7 +53,22 @@ make_EHelper(cmp) {
 }
 
 make_EHelper(inc) {
-  TODO();
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
+  rtl_addi(&s1, &id_dest->val, 1);
+
+  operand_write(id_dest, &s1);
+
+  if (id_dest->width != 4) {
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  rtl_update_ZFSF(&s1, id_dest->width); // 是const
+
+  // s0存为1
+  rtl_li(&s0, 1);
+  // update OF
+  rtl_is_add_overflow(&s0, &s1, &s2, &s0, id_dest->width);
+  rtl_set_OF(&s0);
 
   print_asm_template1(inc);
 }
@@ -71,6 +86,7 @@ make_EHelper(neg) {
 }
 
 make_EHelper(adc) {
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
   // s0 = dest + src
   rtl_add(&s0, &id_dest->val, &id_src->val);
   // s1 = s0 + CF
@@ -87,12 +103,12 @@ make_EHelper(adc) {
 
   // update CF
   rtl_is_add_carry(&s1, &s1, &s0, id_dest->width); // 此时, s0还是dest+src, s1是结果
-  rtl_is_add_carry(&s0, &s0, &id_dest->val, id_dest->width);
+  rtl_is_add_carry(&s0, &s0, &id_src->val, id_dest->width); // init这里是id_dest, 但我觉得是bug, 改为了src
   rtl_or(&s0, &s0, &s1);
   rtl_set_CF(&s0);
 
   // update OF
-  rtl_is_add_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width); //? 可是这时候s1存的已经不是运算结果了, 怎么能调用这个函数呢, s1存的是, adc的第二次加法是否进位. 但好像s1这个参数也不是很需要, 所以, 算了
+  rtl_is_add_overflow(&s0, &id_dest->val, &s2, &id_src->val, id_dest->width); // 这我改了实现, nemu之前不是这样实现的, 我觉得之前的实现是错的
   rtl_set_OF(&s0);
 
   print_asm_template2(adc);
@@ -103,6 +119,7 @@ make_EHelper(adc) {
  * 实现上来说, 与adc的差别可以说是用sub替换掉add
 */
 make_EHelper(sbb) {
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
   // s0 = dest - src
   rtl_sub(&s0, &id_dest->val, &id_src->val);
   // s1 = s0 - CF
@@ -119,12 +136,12 @@ make_EHelper(sbb) {
 
   // update CF
   rtl_is_sub_carry(&s1, &s1, &s0);
-  rtl_is_sub_carry(&s0, &s0, &id_dest->val);
+  rtl_is_sub_carry(&s0, &s0, &s2);
   rtl_or(&s0, &s0, &s1);
   rtl_set_CF(&s0);
 
   // update OF
-  rtl_is_sub_overflow(&s0, &s1, &id_dest->val, &id_src->val, id_dest->width);
+  rtl_is_sub_overflow(&s0, &s1, &s2, &id_src->val, id_dest->width);
   rtl_set_OF(&s0);
 
   print_asm_template2(sbb);
