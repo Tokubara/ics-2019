@@ -62,22 +62,6 @@ static inline void rtl_pop(rtlreg_t* dest) {
 			default:assert(0);\
 		}
 
-// #define rtl_is_sub_overflow_macro(type) type s1=(type)*src1 ; type s2=(type)*src2 ; type r=(type)*res ; int positive_of_flag=0;if(s1>0 && s2<0&& r<=0) {positive_of_flag=1;} int negative_of_flag=0;if(s1<0 && s2>0&& r>=0) {negative_of_flag=1;} *dest=!positive_of_flag&&!negative_of_flag
-static inline void rtl_is_sub_overflow(rtlreg_t* dest,
-    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
-		// switch_case_width(rtl_is_sub_overflow_macro)
-    t0=-(*src2);
-    rtl_is_add_overflow(dest, res, src1, t0, width);
-}
-
-/**
- * 判断减法是否有借位
-*/
-static inline void rtl_is_sub_carry(rtlreg_t* dest,
-    const rtlreg_t* res, const rtlreg_t* src1) {
-		// *dest = res>src1; // 如果结果比被减数还大, 就是借位了
-    rtl_is_add_carry(dest, res, src1);
-}
 
 #define rtl_is_add_overflow_macro(type) *dest=(((type)*src1<0)==((type)*src2<0)) && (((type)*src1<0)!=((type)*res<0))
 static inline void rtl_is_add_overflow(rtlreg_t* dest,
@@ -89,6 +73,23 @@ static inline void rtl_is_add_overflow(rtlreg_t* dest,
 static inline void rtl_is_add_carry(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, int width) { // 已是无符号数
     switch_case_width_u(rtl_is_add_carry_macro)
+}
+
+// #define rtl_is_sub_overflow_macro(type) type s1=(type)*src1 ; type s2=(type)*src2 ; type r=(type)*res ; int positive_of_flag=0;if(s1>0 && s2<0&& r<=0) {positive_of_flag=1;} int negative_of_flag=0;if(s1<0 && s2>0&& r>=0) {negative_of_flag=1;} *dest=!positive_of_flag&&!negative_of_flag
+static inline void rtl_is_sub_overflow(rtlreg_t* dest,
+    const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
+		// switch_case_width(rtl_is_sub_overflow_macro)
+    t0=-(*src2);
+    rtl_is_add_overflow(dest, res, src1, &t0, width);
+}
+
+/**
+ * 判断减法是否有借位
+*/
+static inline void rtl_is_sub_carry(rtlreg_t* dest,
+    const rtlreg_t* res, const rtlreg_t* src1, int width) {
+		// *dest = res>src1; // 如果结果比被减数还大, 就是借位了
+    rtl_is_add_carry(dest, res, src1, width);
 }
 
 #define getter(f) cpu.eflags.f
