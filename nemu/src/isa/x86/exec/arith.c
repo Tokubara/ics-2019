@@ -47,7 +47,22 @@ make_EHelper(sub) {
 }
 
 make_EHelper(cmp) {
-  TODO();
+  rtl_sext(&s2, &id_src->val, 1); // s2存src符号扩展的结果, 因为id_dest不会修改, 不需要保存
+  rtl_sub(&s1, &id_dest->val, &s2); // 是修改它么?
+
+  if (id_dest->width != 4) {
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  rtl_update_ZFSF(&s1, id_dest->width); // 是const
+
+  // update CF
+  rtl_is_sub_carry(&s0, &s1, &id_dest->val, id_dest->width);
+  rtl_set_CF(&s0);
+
+  // update OF
+  rtl_is_sub_overflow(&s0, &s1, &id_dest->val, &s2, id_dest->width);
+  rtl_set_OF(&s0);
 
   print_asm_template2(cmp);
 }
