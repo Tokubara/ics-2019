@@ -88,8 +88,22 @@ make_EHelper(inc) {
   print_asm_template1(inc);
 }
 
-make_EHelper(dec) {
-  TODO();
+make_EHelper(dec) { // 拷贝自sub
+  rtl_mv(&s2, &id_dest->val); // s2 存dest初始值
+  rtl_subi(&s1, &id_dest->val, 1); // s1 存结果
+
+  operand_write(id_dest, &s1);
+
+  if (id_dest->width != 4) {
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  rtl_update_ZFSF(&s1, id_dest->width);
+
+  // update OF
+  rtl_li(&s0, 1);
+  rtl_is_sub_overflow(&s0, &s1, &s2, &s0, id_dest->width);
+  rtl_set_OF(&s0);
 
   print_asm_template1(dec);
 }
