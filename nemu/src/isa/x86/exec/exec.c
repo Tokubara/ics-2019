@@ -50,7 +50,7 @@ make_group(gp4,
 
 /* 0xff */
 make_group(gp5,
-    EMPTY, EMPTY, EMPTY, EMPTY,
+    EX(inc), EMPTY, EMPTY, EMPTY,
     EMPTY, EMPTY, EX(push), EMPTY)
 
 /* 0x0f 0x01*/
@@ -62,7 +62,7 @@ make_group(gp7,
 // opcode_table {{{1
 // {{{2 1 byte
 static OpcodeEntry opcode_table[512] = {
-  /* 0x00 */	EMPTY, EMPTY, EMPTY, IDEX(E2G, add),
+  /* 0x00 */	EMPTY, IDEX(G2E, add), EMPTY, IDEX(E2G, add),
   /* 0x04 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x08 */	EMPTY, IDEX(G2E, or), EMPTY, EMPTY,
   /* 0x0c */	EMPTY, EMPTY, EMPTY, EX(2byte_esc),
@@ -76,10 +76,10 @@ static OpcodeEntry opcode_table[512] = {
   /* 0x2c */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x30 */	EMPTY, IDEX(G2E, xor), EMPTY, EMPTY,
   /* 0x34 */	EMPTY, EMPTY, EMPTY, EMPTY,
-  /* 0x38 */	EMPTY, EMPTY, EMPTY, EMPTY,
+  /* 0x38 */	EMPTY, EMPTY, EMPTY, IDEX(E2G, cmp),
   /* 0x3c */	EMPTY, EMPTY, EMPTY, EMPTY,
-  /* 0x40 */	EMPTY, EMPTY, EMPTY, IDEX(r, inc),
-  /* 0x44 */	EMPTY, EMPTY, EMPTY, EMPTY,
+  /* 0x40 */	IDEX(r, inc), IDEX(r, inc), IDEX(r, inc), IDEX(r, inc),
+  /* 0x44 */	IDEX(r, inc), IDEX(r, inc), IDEX(r, inc), IDEX(r, inc),
   /* 0x48 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x4c */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x50 */	IDEX(r, push), IDEX(r, push), IDEX(r, push), IDEX(r, push),
@@ -88,7 +88,7 @@ static OpcodeEntry opcode_table[512] = {
   /* 0x5c */	IDEX(r, pop), IDEX(r, pop), IDEX(r, pop), IDEX(r, pop),
   /* 0x60 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x64 */	EMPTY, EMPTY, EX(operand_size), EMPTY, // 对应的是0x66
-  /* 0x68 */	IDEX(I, push), EMPTY, EMPTY, EMPTY,
+  /* 0x68 */	IDEX(I, push), EMPTY, IDEXW(push_SI, push, 1), EMPTY,
   /* 0x6c */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x70 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x74 */	IDEXW(J,jcc,1), IDEXW(J,jcc,1), EMPTY, EMPTY,
