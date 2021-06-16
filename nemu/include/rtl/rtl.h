@@ -156,7 +156,8 @@ static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   switch(width) {
     case 1:{int8_t tmp0 = (int8_t)*src1;*dest=(rtlreg_t)tmp0;break;} // 也可以用位运算实现, 其实tmp1已经是多余的了
     case 2:{int16_t tmp0 = (int16_t)*src1;*dest=(rtlreg_t)tmp0;break;}
-    default:panic("do not need to expand");
+    case 4:{rtl_mv(dest,src1);break;}
+    default:panic("width is %d", width);
   }
 }
 

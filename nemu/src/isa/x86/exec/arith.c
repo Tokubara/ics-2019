@@ -176,11 +176,12 @@ make_EHelper(sbb) {
   print_asm_template2(sbb);
 }
 
+// 只用到了id_dest
 make_EHelper(mul) {
   rtl_lr(&s0, R_EAX, id_dest->width);
   rtl_mul_lo(&s1, &id_dest->val, &s0);
 
-  switch (id_dest->width) {
+  switch (id_dest->width) { // 为什么这里需要一个专门的switch语句, 这是因为乘法指令对于不同的操作数宽度, 很不一样
     case 1:
       rtl_sr(R_AX, &s1, 2);
       break;
@@ -197,10 +198,12 @@ make_EHelper(mul) {
     default: assert(0);
   }
 
+  // 注意到没有设置OF和CF
   print_asm_template1(mul);
 }
 
 // imul with one operand
+// 实现上与mul没有区别, 除了把mul替换为imul之外
 make_EHelper(imul1) {
   rtl_lr(&s0, R_EAX, id_dest->width);
   rtl_imul_lo(&s1, &id_dest->val, &s0);
