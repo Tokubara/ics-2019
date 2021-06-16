@@ -113,7 +113,7 @@ static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   switch_case_width(rtl_update_ZF_macro)
 }
 
-#define rtl_update_SF_macro(type) t0=((type)*result<0); rtl_set_ZF(&t0);
+#define rtl_update_SF_macro(type) t0=((type)*result<0); rtl_set_SF(&t0);
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
 	switch_case_width(rtl_update_SF_macro)
 }
