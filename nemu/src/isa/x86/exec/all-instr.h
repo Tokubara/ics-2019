@@ -25,6 +25,7 @@ make_EHelper(inc);
 make_EHelper(dec);
 make_EHelper(cmp);
 make_EHelper(imul2);
+make_EHelper(cltd);
 
 
 make_EHelper(and);
