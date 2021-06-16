@@ -5,6 +5,7 @@ make_EHelper(movzx);
 make_EHelper(push);
 make_EHelper(pop);
 make_EHelper(leave);
+make_EHelper(cltd);
 
 make_EHelper(operand_size);
 
@@ -24,8 +25,10 @@ make_EHelper(sub);
 make_EHelper(inc);
 make_EHelper(dec);
 make_EHelper(cmp);
+
 make_EHelper(imul2);
-make_EHelper(cltd);
+make_EHelper(div);
+make_EHelper(idiv);
 
 
 make_EHelper(and);
