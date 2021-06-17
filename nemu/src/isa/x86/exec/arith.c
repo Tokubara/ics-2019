@@ -47,7 +47,7 @@ make_EHelper(sub) {
 }
 
 make_EHelper(cmp) {
-  rtl_sext(&s2, &id_src->val, 1); // s2存src符号扩展的结果, 因为id_dest不会修改, 不需要保存
+  rtl_sext(&s2, &id_src->val, id_src->width); // s2存src符号扩展的结果, 因为id_dest不会修改, 不需要保存
   rtl_sub(&s1, &id_dest->val, &s2); // 是修改它么?
 
   if (id_dest->width != 4) {
