@@ -116,10 +116,17 @@ make_DHelper(mov_E2G) {
 }
 
 // 添加的, 适用于movzx, movsx, 源操作数宽度为1
-make_DHelper(mov_E82G) {
+make_DHelper(mov_Eb2G) {
   id_src->width = 1;
   decode_op_rm(pc, id_src, true, id_dest, false);
 }
+
+// 添加的, 适用于movzx, movsx, 源操作数宽度为2
+make_DHelper(mov_Ew2G) {
+  id_src->width = 2;
+  decode_op_rm(pc, id_src, true, id_dest, false);
+}
+
 /** lea的译码
  * 
 */
