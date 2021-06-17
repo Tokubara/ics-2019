@@ -40,7 +40,7 @@ make_group(gp2,
 
 /* 0xf6, 0xf7 */
 make_group(gp3,
-    IDEXW(test_I,test,1), EMPTY, EMPTY, EMPTY,
+    IDEXW(test_I,test,1), EMPTY, EX(not), EMPTY,
     EMPTY, EMPTY, EX(div), EX(idiv))
 
 /* 0xfe */

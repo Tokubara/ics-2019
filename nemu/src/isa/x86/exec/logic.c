@@ -133,7 +133,10 @@ make_EHelper(setcc) {
 }
 
 make_EHelper(not) {
-  TODO();
+  // 不影响 eflags
+  rtl_mv(&s0, &id_dest->val);
+  rtl_li(&s0, ~s0);
+  operand_write(id_dest, &s0);
 
   print_asm_template1(not);
 }
