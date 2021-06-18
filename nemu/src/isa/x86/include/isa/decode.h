@@ -74,7 +74,7 @@ make_DHelper(O2a);
 make_DHelper(a2O);
 
 make_DHelper(J);
-make_DHelper(J_skip_M_I);
+make_DHelper(call_E);
 
 make_DHelper(push_SI);
 

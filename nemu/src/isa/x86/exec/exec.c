@@ -50,8 +50,8 @@ make_group(gp4,
 
 /* 0xff */
 make_group(gp5,
-    IDEX(E, inc), EMPTY, EMPTY, IDEX(J_skip_M_I, call),
-    EMPTY, EMPTY, IDEX(E, push), EMPTY)
+    EX(inc), EMPTY, IDEX(call_E, call), EMPTY,
+    IDEX(call_E, jmp), EMPTY, EX(push), EMPTY)
 
 /* 0x0f 0x01*/
 make_group(gp7,
@@ -125,7 +125,7 @@ static OpcodeEntry opcode_table[512] = {
   /* 0xf0 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0xf4 */	EMPTY, EMPTY, IDEXW(E, gp3, 1), IDEX(E, gp3),
   /* 0xf8 */	EMPTY, EMPTY, IDEXW(E, gp3, 1), IDEX(E, gp3),
-  /* 0xfc */	EMPTY, EMPTY, IDEXW(E, gp4, 1), EX(gp5),
+  /* 0xfc */	EMPTY, EMPTY, IDEXW(E, gp4, 1), IDEX(E, gp5),
 
 /* {{{2 2 byte_opcode_table */
 
