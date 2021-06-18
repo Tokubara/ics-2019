@@ -295,6 +295,14 @@ make_DHelper(J) {
   decinfo.jmp_pc = id_dest->simm + *pc;
 }
 
+// 添加的, 用于ff 15 f4 01 10 00    	call   *0x1001f4这种情况, 虽然15代表的m16(手册上说的), 但我觉得根本没有用
+make_DHelper(J_skip_M_I) {
+  decode_op_rm(pc, id_src, false, NULL, false); // 其实id_src也用不上的
+  decode_op_I(pc, id_dest, true);
+  decinfo.jmp_pc = id_dest->val;
+}
+
+
 make_DHelper(push_SI) {
   decode_op_SI(pc, id_dest, true);
 }
