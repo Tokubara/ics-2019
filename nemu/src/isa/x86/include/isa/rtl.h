@@ -79,12 +79,13 @@ static inline void rtl_is_add_carry(rtlreg_t* dest,
 static inline void rtl_is_sub_overflow(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, const rtlreg_t* src2, int width) {
 		// switch_case_width(rtl_is_sub_overflow_macro)
-    if(*src1==0 && *src2==0x80000000) { // 特判, 否则8与8x80000000这个组合, 本应得到1, 按加法判定会得到0
-      rtl_li(dest, 1);
-    } else {
-      t0=-(*src2);
-      rtl_is_add_overflow(dest, res, src1, &t0, width);
-    }
+    // if(*src1==0 && *src2==0x80000000) { // 特判, 否则8与8x80000000这个组合, 本应得到1, 按加法判定会得到0
+    //   rtl_li(dest, 1);
+    // } else {
+    //   t0=-(*src2);
+    //   rtl_is_add_overflow(dest, res, src1, &t0, width);
+    // }
+    rtl_li(dest, ((int)*src1 <= 0 && (int)*src2 > 0 && (int)*res >= 0) || ((int)*src1 >= 0 && (int)*src2 < 0 && (int)*res <= 0));
 }
 
 /**
