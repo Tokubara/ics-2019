@@ -94,7 +94,8 @@ static inline void rtl_is_sub_overflow(rtlreg_t* dest,
 static inline void rtl_is_sub_carry(rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1, int width) {
 		// *dest = res>src1; // 如果结果比被减数还大, 就是借位了
-    rtl_is_add_carry(dest, res, src1, width);
+    // rtl_is_add_carry(dest, res, src1, width);
+    rtl_li(dest, *res>*src1);
 }
 
 #define getter(f) cpu.eflags.f
