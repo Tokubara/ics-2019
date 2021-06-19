@@ -109,7 +109,26 @@ make_EHelper(dec) { // 拷贝自sub
 }
 
 make_EHelper(neg) {
-  TODO();
+  // s0临时, s2存原来的值, s1存结果
+  rtl_mv(&s2, &id_dest->val);
+  rtl_li(&s1, -((int)s2));
+  operand_write(id_dest, &s1); // operand_write已经处理了操作数宽度
+
+  if (id_dest->width != 4) { // 这一行和上一行operand_write能不能交换一下, 我感觉也行
+    rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  }
+
+  // ZF, SF
+  rtl_update_ZFSF(&s1, id_dest->width); // 更新ZF和SF只需要s1
+
+  // CF
+  rtl_li(&s0, s2 != 0); // IF r/m = 0 THEN CF := 0 ELSE CF := 1; FI; 这里与文档不一样, 不是用源操作数判断的, 但二者等价
+
+  rtl_set_CF(&s0);
+
+  // OF, 是有可能溢出的, 不过>0是不可能溢出的, 所以不需要写对称的情况
+  rtl_li(&s0, (int)s2<0&&(int)s1<0);  
+  rtl_set_OF(&s0);
 
   print_asm_template1(neg);
 }
