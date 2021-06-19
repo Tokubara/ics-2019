@@ -37,8 +37,8 @@ char* strncpy(char* dst, const char* src, size_t n) {
 char* strcat(char* dst, const char* src) {
   size_t i = 0, j = 0;
   while(dst[i]!='\0') ++i;
-  while(dst[j]!='\0') {
-    dst[i]=dst[j];
+  while(src[j]!='\0') {
+    dst[i]=src[j];
     ++i;
     ++j;
   }
