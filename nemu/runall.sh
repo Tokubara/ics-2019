@@ -3,23 +3,23 @@
 ISA=${1#*ISA=}
 nemu=build/$ISA-nemu
 
-echo "compiling NEMU..."
-if make ISA=$ISA; then
-  echo "NEMU compile OK"
-else
-  echo "NEMU compile error... exit..."
-  exit
-fi
+# echo "compiling NEMU..."
+# if make ISA=$ISA; then
+#   echo "NEMU compile OK"
+# else
+#   echo "NEMU compile error... exit..."
+#   exit
+# fi
 
-echo "compiling testcases..."
-if make -C $AM_HOME/tests/cputest ARCH=$ISA-nemu &> /dev/null; then
-  echo "testcases compile OK"
-else
-  echo "testcases compile error... exit..."
-  exit
-fi
+# echo "compiling testcases..."
+# if make -C $AM_HOME/tests/cputest ARCH=$ISA-nemu &> /dev/null; then
+#   echo "testcases compile OK"
+# else
+#   echo "testcases compile error... exit..."
+#   exit
+# fi
 
-files=`ls $AM_HOME/tests/cputest/build/*-$ISA-nemu.bin`
+files=`ls $AM_HOME/tests/cputest/build/bit-$ISA-nemu.bin`
 ori_log="build/nemu-log.txt"
 
 for file in $files; do

@@ -75,7 +75,7 @@ void init_difftest(char *ref_so_file, long img_size) {
       "If it is not necessary, you can turn it off in include/common.h.", ref_so_file);
 
   ref_difftest_init();
-  ref_difftest_memcpy_from_dut(PC_START, guest_to_host(IMAGE_START), img_size);
+  ref_difftest_memcpy_from_dut(PC_START, guest_to_host(IMAGE_START), img_size); // 这大概是从dut拷贝到ref中
   char *mainargs = guest_to_host(0);
   ref_difftest_memcpy_from_dut(PC_START - IMAGE_START, mainargs, strlen(mainargs) + 1);
   ref_difftest_setregs(&cpu);
@@ -95,7 +95,7 @@ void difftest_step(vaddr_t ori_pc, vaddr_t next_pc) {
 
   if (is_detach) return;
 
-  if (skip_dut_nr_instr > 0) {
+  if (skip_dut_nr_instr > 0) { // skip_dut_nr_instr的作用是什么, 我不知道, 但是x86大概不会执行这个吧
     ref_difftest_getregs(&ref_r);
     if (ref_r.pc == next_pc) {
       checkregs(&ref_r, next_pc);
