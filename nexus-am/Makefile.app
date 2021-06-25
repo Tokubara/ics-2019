@@ -9,6 +9,7 @@ include $(AM_HOME)/Makefile.check
 $(info # Building $(NAME) [$(ARCH)] with AM_HOME {$(AM_HOME)})
 
 ## Default: Build a runnable image
+# 由于前面有include, 事实上真正的rule是nemu.mk的第一个rule, 不过也是image
 default: image
 
 LIBS    += klib

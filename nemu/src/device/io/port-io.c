@@ -5,7 +5,7 @@
 
 #define NR_MAP 8
 static IOMap maps[NR_MAP] = {};
-static int nr_map = 0;
+static int nr_map = 0; // 存的是当前maps数组的长度, 会随着add_pio_map动态增加
 
 /* device interface */
 void add_pio_map(char *name, ioaddr_t addr, uint8_t *space, int len, io_callback_t callback) {
@@ -20,14 +20,15 @@ void add_pio_map(char *name, ioaddr_t addr, uint8_t *space, int len, io_callback
 
 static inline uint32_t pio_read_common(ioaddr_t addr, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
-  int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  int mapid = find_mapid_by_addr(maps, nr_map, addr); // maps在port-io, mmio中都有, 但是当然这里就是取此文件中的maps
   assert(mapid != -1);
   return map_read(addr, len, &maps[mapid]);
 }
 
+// addr表示的是端口号
 static inline void pio_write_common(ioaddr_t addr, uint32_t data, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
-  int mapid = find_mapid_by_addr(maps, nr_map, addr);
+  int mapid = find_mapid_by_addr(maps, nr_map, addr); // 找到了在maps中的数组下标
   assert(mapid != -1);
   map_write(addr, data, len, &maps[mapid]);
 }

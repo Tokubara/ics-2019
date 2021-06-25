@@ -5,8 +5,9 @@
 #define IO_SPACE_MAX (1024 * 1024)
 
 static uint8_t io_space[IO_SPACE_MAX] PG_ALIGN = {};
-static uint8_t *p_space = io_space;
+static uint8_t *p_space = io_space; // 指向的是最新的可用的io_space的地址
 
+// 没有分配存储, 都是io_space中分配好的, p_space指向的是最新的可用的io_space的地址, 分配是按页向上取整的
 uint8_t* new_space(int size) {
   uint8_t *p = p_space;
   // page aligned;
@@ -36,9 +37,10 @@ uint32_t map_read(paddr_t addr, int len, IOMap *map) {
   return data;
 }
 
+// 将data写入addr对应的真正的map的地址
 void map_write(paddr_t addr, uint32_t data, int len, IOMap *map) {
   assert(len >= 1 && len <= 4);
-  check_bound(map, addr);
+  check_bound(map, addr); // 这都没有考虑len
   uint32_t offset = addr - map->low;
 
   memcpy(map->space + offset, &data, len);

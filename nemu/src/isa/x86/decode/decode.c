@@ -327,8 +327,9 @@ make_DHelper(out_a2I) {
 }
 
 make_DHelper(out_a2dx) {
-  decode_op_a(pc, id_src, true);
+  decode_op_a(pc, id_src, true); // 有宽度, 因此感觉需要包含这个宽度信息
 
+  // 注意到dx完全没用到宽度信息
   id_dest->type = OP_TYPE_REG;
   id_dest->reg = R_DX;
   rtl_lr(&id_dest->val, R_DX, 2);

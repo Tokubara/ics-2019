@@ -43,8 +43,8 @@ void init_vga() {
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
       SDL_TEXTUREACCESS_STATIC, SCREEN_W, SCREEN_H);
 
-  screensize_port_base = (void *)new_space(8);
-  screensize_port_base[0] = ((SCREEN_W) << 16) | (SCREEN_H);
+  screensize_port_base = (void *)new_space(8); // 它本身的类型是i32, 因此有2个i32 
+  screensize_port_base[0] = ((SCREEN_W) << 16) | (SCREEN_H); // 也就是说screensize_port_base[0]这32位中, 高16位是宽度, 低16位是高度
   add_pio_map("screen", SCREEN_PORT, (void *)screensize_port_base, 8, vga_io_handler);
   add_mmio_map("screen", SCREEN_MMIO, (void *)screensize_port_base, 8, vga_io_handler);
 

@@ -4,7 +4,7 @@
 #include "common.h"
 #include "monitor/diff-test.h"
 
-typedef void(*io_callback_t)(uint32_t, int, bool);
+typedef void(*io_callback_t)(uint32_t, int, bool); // 参数的意义是offset, len, is_write
 uint8_t* new_space(int size);
 
 typedef struct {
@@ -16,6 +16,7 @@ typedef struct {
   io_callback_t callback;
 } IOMap;
 
+// 这个名字起得不好, 但意思就是看addr是否在map之内
 static inline bool map_inside(IOMap *map, paddr_t addr) {
   return (addr >= map->low && addr <= map->high);
 }
@@ -38,3 +39,4 @@ uint32_t map_read(paddr_t addr, int len, IOMap *map);
 void map_write(paddr_t addr, uint32_t data, int len, IOMap *map);
 
 #endif
+uint8_t* new_space(int size);
