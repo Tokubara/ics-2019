@@ -4,10 +4,10 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 
-char int_buf[20]; // 最大的long long十进制长度为19
+static char int_buf[20]; // 最大的long long十进制长度为19
 // 返回长度
-int fill_int_buf(unsigned long long lval) {
-  int i = 0;
+static int fill_int_buf(unsigned long long lval) {
+  int cur_pos = 0;
   if(lval==0) {
     int_buf[0]='0';
     int_buf[1]='\0';
@@ -15,11 +15,11 @@ int fill_int_buf(unsigned long long lval) {
   }
   char tmp;
   while (lval > 0) {
-    int_buf[i++] = (lval % 10) + '0';
+    int_buf[cur_pos++] = (lval % 10) + '0';
     lval /= 10;
   }
   int left = 0;
-  int right = i - 1; // 现在i是右开, 因此-1
+  int right = cur_pos - 1; // 现在cur_pos是右开, 因此-1
   while (left < right) {
     tmp = int_buf[right];
     int_buf[right] = int_buf[left];
@@ -27,17 +27,17 @@ int fill_int_buf(unsigned long long lval) {
     ++left;
     --right;
   }
-  int_buf[i]='\0';
-  return i;
+  int_buf[cur_pos]='\0';
+  return cur_pos;
 }
 
 int allprintf(char *out, const char *fmt, va_list ap) {
 #define out_putc(out_putc_ch)  if(out!=NULL) {\
-          out[i++] = out_putc_ch;\
+          out[cur_pos++] = out_putc_ch;\
       } else {\
         _putc(out_putc_ch);\
       }
-  size_t i = 0; // i指向out, j指向fmt
+  size_t cur_pos = 0; // cur_pos指向out, j指向fmt
   const char* p;
   int ival;
   unsigned long long lval = 0; // 为了过编
@@ -64,6 +64,8 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       if (ival < 0) {
         out_putc('-');
         lval = (-ival);
+      } else {
+        lval = ival;
       }
       int_buf_len = fill_int_buf(lval);
       for(size_t i = 0; i<int_buf_len; i++) {
@@ -79,7 +81,7 @@ int allprintf(char *out, const char *fmt, va_list ap) {
   }
 
   out_putc('\0');
-  return (i-1); // 因为i包括\0
+  return (cur_pos-1); // 因为cur_pos包括\0
 #undef out_putc
 }
 
