@@ -14,6 +14,7 @@ void timer_intr() {
 
 static uint32_t *rtc_port_base = NULL;
 
+// 以ms为单位
 void rtc_io_handler(uint32_t offset, int len, bool is_write) {
   assert(offset == 0);
   if (!is_write) {
@@ -25,6 +26,7 @@ void rtc_io_handler(uint32_t offset, int len, bool is_write) {
   }
 }
 
+// RTC_PORT与RTC_MMIO, 4字节
 void init_timer() {
   rtc_port_base = (void*)new_space(4);
   add_pio_map("rtc", RTC_PORT, (void *)rtc_port_base, 4, rtc_io_handler);
