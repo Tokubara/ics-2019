@@ -70,7 +70,6 @@ int allprintf(char *out, const char *fmt, va_list ap) {
         tmp_ch = int_buf[i];
         out_putc(tmp_ch);
       }
-      i+=int_buf_len;
       break;
     }
     default: {
@@ -79,8 +78,8 @@ int allprintf(char *out, const char *fmt, va_list ap) {
     }
   }
 
-  out[i] = '\0';
-  return i;
+  out_putc('\0');
+  return (i-1); // 因为i包括\0
 #undef out_putc
 }
 
