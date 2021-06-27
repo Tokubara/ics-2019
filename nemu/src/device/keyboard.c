@@ -54,9 +54,11 @@ static void i8042_data_io_handler(uint32_t offset, int len, bool is_write) {
   if (key_f != key_r) { // 我怀疑key_f表示front, 而r表示rear, 这是个环形队列
     i8042_data_port_base[0] = key_queue[key_f];
     key_f = (key_f + 1) % KEY_QUEUE_LEN;
+    printf("io_handler:%u\n",i8042_data_port_base[0]);
   }
   else {
     i8042_data_port_base[0] = _KEY_NONE;
+    // printf("io_handler: no key\n");
   }
 }
 
