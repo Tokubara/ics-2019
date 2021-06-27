@@ -22,6 +22,8 @@ void _halt(int code) {
 }
 
 void _trm_init() {
+  // extern const char _start_minus;
+  // const char *mainargs = (char*)_start_minus;
   extern const char _start;
   const char *mainargs = &_start - 0x100000;
   int ret = main(mainargs);

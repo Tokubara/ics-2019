@@ -10,7 +10,7 @@ OBJCOPY   = $(CROSS_COMPILE)objcopy
 READELF   = $(CROSS_COMPILE)readelf
 INCLUDES  = $(addprefix -I, $(INC_DIR)) -I$(AM_HOME)/am/
 INCLUDES += -I$(AM_HOME)/am/include
-CFLAGS   += -O2 -MMD -Wall -Werror -ggdb $(INCLUDES) \
+CFLAGS   += -O2 -MMD -Wall -ggdb $(INCLUDES) \
             -D__ISA__=\"$(ISA)\" -D__ISA_$(shell echo $(ISA) | tr a-z A-Z)__ \
             -D__ARCH__=$(ARCH) -D__ARCH_$(shell echo $(ARCH) | tr a-z A-Z | tr - _) \
             -DISA_H=\"$(ISA).h\" \
@@ -22,8 +22,8 @@ ASFLAGS  += -MMD $(INCLUDES)
 
 ## Compliation rule for .c -> .o (using gcc)
 $(DST_DIR)/%.o: %.c
-	@mkdir -p $(dir $@) && echo + CC $<
-	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
+	mkdir -p $(dir $@) && echo + CC $<
+	$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
 
 ## Compliation rule for .cpp -> .o (using g++)
 $(DST_DIR)/%.o: %.cpp
@@ -32,17 +32,17 @@ $(DST_DIR)/%.o: %.cpp
 
 ## Compliation rule for .S -> .o (using as)
 $(DST_DIR)/%.o: %.S
-	@mkdir -p $(dir $@) && echo + AS $<
-	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
+	mkdir -p $(dir $@) && echo + AS $<
+	$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ## Paste in dependencies (gcc generated .d) here
 -include $(addprefix $(DST_DIR)/, $(addsuffix .d, $(basename $(SRCS))))
 
 ## Compilation rules for libraries
 am:
-	@$(MAKE) -s -C $(AM_HOME)
+	@$(MAKE) -C $(AM_HOME)
 
 $(sort $(LIBS)): %:
-	@$(MAKE) -s -C $(AM_HOME)/libs/$*
+	@$(MAKE) -C $(AM_HOME)/libs/$*
 
 .PHONY: $(LIBS) am
