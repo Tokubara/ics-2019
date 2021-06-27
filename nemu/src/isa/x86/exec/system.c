@@ -42,7 +42,19 @@ void pio_write_w(ioaddr_t, uint32_t);
 void pio_write_b(ioaddr_t, uint32_t);
 
 make_EHelper(in) {
-  TODO();
+  switch(id_dest->width) { // IN AX,DX, 由AX决定
+    case 1:{ rtl_li(&s0, pio_read_b(id_src->val)); 
+             operand_write(id_dest, &s0) ;
+             break;}
+    case 2:{ rtl_li(&s0, pio_read_w(id_src->val)); 
+             operand_write(id_dest, &s0) ;
+             break;}
+    case 4:{ rtl_li(&s0, pio_read_l(id_src->val)); 
+             operand_write(id_dest, &s0) ;
+             break;}
+    default:{panic("invalid width: %d", id_dest->width);
+              break;}
+  }
 
   print_asm_template2(in);
 }
