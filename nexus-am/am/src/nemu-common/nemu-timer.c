@@ -2,12 +2,15 @@
 #include <amdev.h>
 #include <nemu.h>
 
+unsigned boot_time;
+
 size_t __am_timer_read(uintptr_t reg, void *buf, size_t size) {
   switch (reg) {
     case _DEVREG_TIMER_UPTIME: {
       _DEV_TIMER_UPTIME_t *uptime = (_DEV_TIMER_UPTIME_t *)buf;
       uptime->hi = 0;
       uptime->lo = inl(RTC_ADDR);
+      uptime->lo -= boot_time;
       return sizeof(_DEV_TIMER_UPTIME_t);
     }
     case _DEVREG_TIMER_DATE: { // 这个就是没有实现
@@ -25,4 +28,5 @@ size_t __am_timer_read(uintptr_t reg, void *buf, size_t size) {
 }
 
 void __am_timer_init() {
+  boot_time = inl(RTC_ADDR);
 }

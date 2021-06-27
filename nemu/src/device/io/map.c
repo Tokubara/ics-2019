@@ -34,6 +34,7 @@ uint32_t map_read(paddr_t addr, int len, IOMap *map) {
   invoke_callback(map->callback, offset, len, false); // prepare data to read
 
   uint32_t data = *(uint32_t *)(map->space + offset) & (~0u >> ((4 - len) << 3));
+  // printf("in nemu data:%u\n", data);
   return data;
 }
 

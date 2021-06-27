@@ -74,6 +74,15 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       }
       break;
     }
+    case 'u': {
+      lval = va_arg(ap, unsigned int);
+      int_buf_len = fill_int_buf(lval);
+      for(size_t i = 0; i<int_buf_len; i++) {
+        tmp_ch = int_buf[i];
+        out_putc(tmp_ch);
+      }
+      break;
+    }
     default: {
       return -1;
     }
