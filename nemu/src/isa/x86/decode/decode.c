@@ -127,16 +127,10 @@ make_DHelper(mov_Ew2G) {
   decode_op_rm(pc, id_src, true, id_dest, false);
 }
 
-/** lea的译码
- * 
-*/
 make_DHelper(lea_M2G) {
   decode_op_rm(pc, id_src, false, id_dest, false);
 }
 
-/** 
- * 还没有被调用过
- */
 make_DHelper(I2a) {
   decode_op_a(pc, id_dest, true);
   decode_op_I(pc, id_src, true);

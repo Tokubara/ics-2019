@@ -20,7 +20,6 @@ static SDL_Texture *texture = NULL;
 
 static uint32_t (*vmem) [SCREEN_W] = NULL;
 static uint32_t *screensize_port_base = NULL;
-static uint32_t *sync_port = NULL; // 只有4 byte
 
 static inline void update_screen() {
   SDL_UpdateTexture(texture, NULL, vmem, SCREEN_W * sizeof(vmem[0][0]));
@@ -47,11 +46,8 @@ void init_vga() {
 
   screensize_port_base = (void *)new_space(8); // 它本身的类型是i32, 因此有2个i32 
   screensize_port_base[0] = ((SCREEN_W) << 16) | (SCREEN_H); // 也就是说screensize_port_base[0]这32位中, 高16位是宽度, 低16位是高度. 我怀疑这不是SDL的一部分, 只是nemu的约定
-  add_pio_map("screen", SCREEN_PORT, (void *)screensize_port_base, 8, NULL); // 那边读取宽度和高度, 也会调用vga_io_handler, 这时候vga_io_handler应该不做处理 // 我怀疑框架这里写错了, screen就应该是读取宽度和高度的, 我不觉得它应该有同步寄存器
-  add_mmio_map("screen", SCREEN_MMIO, (void *)screensize_port_base, 8, NULL);
-  sync_port = (void *)new_space(4);
-  add_pio_map("sync", SYNC_PORT, (void *)sync_port, 4, vga_io_handler);
-  add_mmio_map("sync", SYNC_MMIO, (void *)sync_port, 4, vga_io_handler);
+  add_pio_map("screen", SCREEN_PORT, (void *)screensize_port_base, 8, vga_io_handler); // 那边读取宽度和高度, 也会调用vga_io_handler, 这时候vga_io_handler应该不做处理 // 我怀疑框架这里写错了, screen就应该是读取宽度和高度的, 我不觉得它应该有同步寄存器
+  add_mmio_map("screen", SCREEN_MMIO, (void *)screensize_port_base, 8, vga_io_handler);
 
   vmem = (void *)new_space(0x80000);
   add_mmio_map("vmem", VMEM, (void *)vmem, 0x80000, NULL);

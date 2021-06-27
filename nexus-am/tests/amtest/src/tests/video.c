@@ -77,8 +77,10 @@ void video_test() {
 
   while (1) {
     unsigned long upt = uptime();
+    printf("upt:%u,last:%u\n",upt,last);
     if (upt - last > 1000 / FPS) { // FPS=30, 也就是>1/30s, 因此FPS的意思是帧数
-      update(); // 虽然我看不懂它的逻辑, 但是我怀疑它只是更新canvas的
+      // printf("update\n");
+      update();
       redraw();
       last = upt;
       fps ++;
