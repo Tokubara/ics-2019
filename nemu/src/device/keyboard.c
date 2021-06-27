@@ -31,11 +31,12 @@ static uint32_t keymap[256] = {
 };
 
 #define KEY_QUEUE_LEN 1024
-static int key_queue[KEY_QUEUE_LEN] = {};
+static int key_queue[KEY_QUEUE_LEN] = {}; // 环形队列
 static int key_f = 0, key_r = 0;
 
 #define KEYDOWN_MASK 0x8000
 
+// 添加环形队列key_queue, 添加到队尾, 已经包含了断码的0x8000
 void send_key(uint8_t scancode, bool is_keydown) {
   if (nemu_state.state == NEMU_RUNNING &&
       keymap[scancode] != _KEY_NONE) {
@@ -46,10 +47,11 @@ void send_key(uint8_t scancode, bool is_keydown) {
   }
 }
 
+// 消费环形队列key_queue, 取出队首, 存入到space也就是i8042_data_port_base, 如果没有, 就存_KEY_NONE, 也就是0
 static void i8042_data_io_handler(uint32_t offset, int len, bool is_write) {
   assert(!is_write);
   assert(offset == 0);
-  if (key_f != key_r) {
+  if (key_f != key_r) { // 我怀疑key_f表示front, 而r表示rear, 这是个环形队列
     i8042_data_port_base[0] = key_queue[key_f];
     key_f = (key_f + 1) % KEY_QUEUE_LEN;
   }
