@@ -20,6 +20,7 @@ size_t __am_video_read(uintptr_t reg, void *buf, size_t size) {
 static inline int min(int x, int y) {
   return (x < y) ? x : y;
 }
+
 extern void* memcpy(void* dst, const void* src, size_t n);
 size_t __am_video_write(uintptr_t reg, void *buf, size_t size) {
   switch (reg) {
@@ -38,7 +39,7 @@ size_t __am_video_write(uintptr_t reg, void *buf, size_t size) {
       }
 
       if (ctl->sync) {
-        printf("video sync\n");
+        // printf("video sync\n");
         outl(SYNC_ADDR, 0); // 写入是几, 不重要, 反正都是调用callback, 不关心写的是几
       }
       return size;
@@ -49,9 +50,9 @@ size_t __am_video_write(uintptr_t reg, void *buf, size_t size) {
 }
 
 void __am_vga_init() {
-  printf("vga init is called\n");
   int i;
   int size = screen_width() * screen_height();
+  // printf("size=%d\n", size);
   uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
   for (i = 0; i < size; i ++) fb[i] = i;
   draw_sync();

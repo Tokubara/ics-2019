@@ -77,7 +77,7 @@ void video_test() {
 
   while (1) {
     unsigned long upt = uptime();
-    printf("upt:%u,last:%u\n",upt,last);
+    // printf("upt:%u,last:%u\n",upt,last);
     if (upt - last > 1000 / FPS) { // FPS=30, 也就是>1/30s, 因此FPS的意思是帧数
       // printf("update\n");
       update();
