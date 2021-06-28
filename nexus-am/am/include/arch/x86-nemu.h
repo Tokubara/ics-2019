@@ -1,10 +1,11 @@
 #ifndef __ARCH_H__
 #define __ARCH_H__
 
-struct _Context {
-  uintptr_t esi, ebx, eax, eip, edx, eflags, ecx, cs, esp, edi, ebp;
+struct _Context { // 后压入的在先
   struct _AddressSpace *as;
+  uintptr_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
   int irq;
+  uintptr_t eip, cs, eflags;
 };
 
 #define GPR1 eax
