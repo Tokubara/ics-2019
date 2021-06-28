@@ -21,11 +21,7 @@ static void restart() {
   /* Set the initial program counter. */
   cpu.pc = PC_START;
   cpu.cs = 8;
-  cpu.eflags.OF = 0;
-  cpu.eflags.ZF = 0;
-  cpu.eflags.SF = 0;
-  cpu.eflags.PF = 0;
-  cpu.eflags.CF = 0;
+  cpu.eflags.val = 0x2;
 }
 
 void init_isa(void) {

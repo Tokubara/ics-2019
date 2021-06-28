@@ -2,7 +2,7 @@
 
 void raise_intr(uint32_t NO, vaddr_t ret_addr) {
   // 压栈
-  rtl_push(&cpu.eflags);
+  rtl_push(&cpu.eflags.val);
   rtl_push(&cpu.cs);
   rtl_push(&ret_addr); // 本来写的是压cpu.pc, 但是应该不是, 应该是ret_addr, 因为cpu.pc还没有指向下一条指令, 还是指向int指令本身的
   // idt首地址
