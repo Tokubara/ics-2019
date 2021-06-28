@@ -1,7 +1,7 @@
 #include "cpu/exec.h"
 
 make_EHelper(lidt) {
-  TODO();
+  rtl_li(&cpu.idt, id_dest->addr);
 
   print_asm_template1(lidt);
 }
@@ -20,8 +20,9 @@ make_EHelper(mov_cr2r) {
   difftest_skip_ref();
 }
 
+void raise_intr(uint32_t NO, vaddr_t ret_addr);
 make_EHelper(int) {
-  TODO();
+  raise_intr(id_dest->val, *pc);
 
   print_asm("int %s", id_dest->str);
 

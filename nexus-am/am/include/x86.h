@@ -266,6 +266,7 @@ static inline void set_cr0(uint32_t cr0) {
 }
 
 
+// 调用lidt
 static inline void set_idt(GateDesc *idt, int size) {
   volatile static uint16_t data[3];
   data[0] = size - 1;

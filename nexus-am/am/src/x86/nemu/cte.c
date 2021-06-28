@@ -30,7 +30,7 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
 
   // initialize IDT
   for (unsigned int i = 0; i < NR_IRQ; i ++) {
-    idt[i] = GATE(STS_TG32, KSEL(SEG_KCODE), __am_vecnull, DPL_KERN);
+    idt[i] = GATE(STS_TG32, KSEL(SEG_KCODE), __am_vecnull, DPL_KERN); // 对GATE宏我们只需要关心第3个参数, 跳转的函数地址
   }
 
   // ----------------------- interrupts ----------------------------
