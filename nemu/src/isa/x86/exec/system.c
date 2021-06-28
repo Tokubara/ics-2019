@@ -1,7 +1,9 @@
 #include "cpu/exec.h"
 
 make_EHelper(lidt) {
-  rtl_li(&cpu.idt, id_dest->addr);
+  rtl_addi(&s0,&id_dest->addr,2);
+  unsigned idt_addr = vaddr_read(s0,4);
+  rtl_mv(&cpu.idt, &idt_addr);
 
   print_asm_template1(lidt);
 }
