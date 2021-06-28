@@ -18,13 +18,46 @@ make_EHelper(pop) {
 }
 
 make_EHelper(pusha) {
-  TODO();
+  rtl_lr(&s0, R_ESP, id_dest->width); // s0作为temp, 保存esp的初始值
+  rtl_lr(&s1, R_EAX, id_dest->width); // s1是临时的
+  rtl_push(&s1);
+  rtl_lr(&s1, R_ECX, id_dest->width);
+  rtl_push(&s1);
+  rtl_lr(&s1, R_EDX, id_dest->width);
+  rtl_push(&s1);
+  rtl_lr(&s1, R_EBX, id_dest->width);
+  rtl_push(&s1);
+
+  rtl_push(&s0); // 存temp
+
+  rtl_lr(&s1, R_EBP, id_dest->width);
+  rtl_push(&s1);
+  rtl_lr(&s1, R_ESI, id_dest->width);
+  rtl_push(&s1);
+  rtl_lr(&s1, R_EDI, id_dest->width);
+  rtl_push(&s1);
 
   print_asm("pusha");
 }
 
 make_EHelper(popa) {
-  TODO();
+  rtl_pop(&s1);
+  rtl_sr(R_EDI, &s1, id_dest->width);
+  rtl_pop(&s1);
+  rtl_sr(R_ESI, &s1, id_dest->width);
+  rtl_pop(&s1);
+  rtl_sr(R_EBP, &s1, id_dest->width);
+
+  rtl_pop(&s1); // 跳过sp
+
+  rtl_pop(&s1);
+  rtl_sr(R_EBX, &s1, id_dest->width);
+  rtl_pop(&s1);
+  rtl_sr(R_EDX, &s1, id_dest->width);
+  rtl_pop(&s1);
+  rtl_sr(R_ECX, &s1, id_dest->width);
+  rtl_pop(&s1);
+  rtl_sr(R_EAX, &s1, id_dest->width);
 
   print_asm("popa");
 }
