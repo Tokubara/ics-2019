@@ -32,7 +32,12 @@ make_EHelper(int) {
 }
 
 make_EHelper(iret) {
-  TODO();
+  rtl_pop(&s1);
+  rtl_j(s1); // 修改pc
+  rtl_pop(&s1);
+  rtl_mv(&cpu.cs, &s1);
+  rtl_pop(&s1);
+  rtl_mv(&cpu.eflags.val, &s1);
 
   print_asm("iret");
 }

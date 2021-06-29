@@ -10,10 +10,17 @@ void __am_vecnull();
 
 _Context* __am_irq_handle(_Context *c) {
   _Context *next = c;
-  printf("irq=%d\n\nedi=%u\nesi=%u\nebp=%u\nesp=%u\nebx=%u\nedx=%u\necx=%u\neax=%u\n\neip=%u,cs=%u,eflags=%u\n",c->irq, c->edi, c->esi, c->ebp, c->esp, c->ebx, c->edx, c->ecx, c->eax, c->eip, c->cs, c->eflags);
   if (user_handler) {
     _Event ev = {0};
     switch (c->irq) {
+      case 0x80: {
+                   ev.event = _EVENT_SYSCALL;
+                   break;
+                 }
+      case 0x81: {
+                   ev.event = _EVENT_YIELD;
+                   break;
+                 }
       default: ev.event = _EVENT_ERROR; break;
     }
 
