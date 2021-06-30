@@ -18,7 +18,7 @@ SINGLE_APP_FILE = $(FSIMG_PATH)/bin/$(notdir $(SINGLE_APP))
 .PHONY: update update-ramdisk-single update-ramdisk-fsimg update-fsimg
 
 update-ramdisk-single:
-	$(MAKE) -s -C $(SINGLE_APP) install ISA=$(ISA)
+	$(MAKE) -C $(SINGLE_APP) install ISA=$(ISA)
 	cp $(SINGLE_APP_FILE) $(RAMDISK_FILE)
 	touch src/files.h
 
