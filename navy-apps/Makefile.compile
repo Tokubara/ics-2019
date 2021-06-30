@@ -51,6 +51,7 @@ endif
 ifeq ($(ISA), x86)
   CFLAGS_NEWLIB = -DNO_FLOATING_POINT
   CFLAGS_COMMON += -m32 -fno-pic -march=i386 -mstringop-strategy=loop -mno-inline-all-stringops $(CFLAGS_NEWLIB)
+	CFLAGS_COMMON += -fcf-protection=none # remove endbr32 in Ubuntu 20.04 with a CPU newer than Comet Lake
   ASFLAGS  += -m32
   LDFLAGS  += -melf_i386
 endif
