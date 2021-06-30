@@ -93,6 +93,7 @@ static struct gdb_conn* gdb_begin(int fd) {
   return conn;
 }
 
+//? 
 struct gdb_conn* gdb_begin_inet(const char *addr, uint16_t port) {
   // fill the socket information
   struct sockaddr_in sa = {

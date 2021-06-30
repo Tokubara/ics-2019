@@ -36,6 +36,7 @@ typedef struct {
     };
   };
 
+  vaddr_t pc;
   union {
     struct {
       rtlreg_t CF:1;
@@ -53,8 +54,7 @@ typedef struct {
     rtlreg_t val;
   } eflags;
 
-  vaddr_t pc;
-  vaddr_t cs;
+  vaddr_t cs, ss, ds, es, fs, gs;
   vaddr_t idt;
 
 } CPU_state;

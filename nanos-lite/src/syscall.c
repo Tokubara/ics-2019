@@ -12,6 +12,7 @@ _Context* do_syscall(_Context *c) {
                       break;
                     }
     case SYS_exit: {
+                      printf("exit: exit_bumber=%d\n", c->GPR2);
                       _halt(c->GPR2);
                       break;
                     }
