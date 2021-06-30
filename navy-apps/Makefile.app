@@ -9,6 +9,7 @@ APP_DIR ?= $(shell pwd)
 INC_DIR += $(APP_DIR)/include/
 DST_DIR ?= $(APP_DIR)/build/$(ISA)/
 APP ?= $(APP_DIR)/build/$(NAME)-$(ISA)
+OBJDUMP = objdump
 
 .DEFAULT_GOAL = $(APP)
 
@@ -39,6 +40,7 @@ ifeq ($(ISA), native)
 else
 	@$(LD) $(LDFLAGS) -o $(APP) --start-group $(OBJS) $(LIB_FILES) --end-group
 endif
+	@$(OBJDUMP) -d -S -l $@ > $(APP)_asm.txt
 
 .PHONY: install run clean
 
