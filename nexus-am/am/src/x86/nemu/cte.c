@@ -25,7 +25,7 @@ _Context* __am_irq_handle(_Context *c) {
     }
 
     next = user_handler(ev, c);
-    if (next == NULL) {
+    if (next == NULL) { // 我不知道什么时候才不为NULL
       next = c;
     }
   }
