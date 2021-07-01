@@ -3,6 +3,7 @@
 static _Context* do_event(_Event e, _Context* c) {
   switch (e.event) {
     case _EVENT_SYSCALL: {
+                           printf("do_event: syscall\n");
                            do_syscall(c);
                            break;
                          }

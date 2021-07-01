@@ -33,6 +33,7 @@ int main() {
   Log("Finish initialization");
 
 #ifdef HAS_CTE
+  Log("yield in nano");
   _yield();
 #endif
 

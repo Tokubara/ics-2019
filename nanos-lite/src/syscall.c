@@ -7,12 +7,13 @@ _Context* do_syscall(_Context *c) {
 
   switch (a[0]) {
     case SYS_yield: {
+                      printf("syscall: yield\n");
                       _yield();
                       c->GPR1 = 0;
                       break;
                     }
     case SYS_exit: {
-                      printf("exit: exit_bumber=%d\n", c->GPR2);
+                      printf("exit: exit_number=%d\n", c->GPR2);
                       _halt(c->GPR2);
                       break;
                     }

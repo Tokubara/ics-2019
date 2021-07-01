@@ -7,6 +7,7 @@ extern char **environ;
 void _start(int argc, char *argv[], char *envp[]) {
   char *env[] = {NULL};
   environ = env;
-  exit(main(argc, argv, env));
+  int ret = main(argc, argv, env);
+  exit(ret);
   assert(0);
 }
