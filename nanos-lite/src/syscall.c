@@ -20,7 +20,6 @@ _Context* do_syscall(_Context *c) {
                       if (c->GPR2 == 1 || c->GPR2 == 2) {
                         char* buf = (char*)c->GPR3;
                         size_t len = c->GPR4;
-                        Log("[write], len=%u", (unsigned)len);
                         for(size_t i = 0; i < len; i++) {
                           _putc(buf[i]);
                         }
