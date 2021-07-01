@@ -15,7 +15,6 @@ _Context* __am_irq_handle(_Context *c) {
     switch (c->irq) {
       case 0x80: {
                    ev.event = _EVENT_SYSCALL;
-                   printf("ebx:%d\n", c->ebx);
                    break;
                  }
       case 0x81: {
