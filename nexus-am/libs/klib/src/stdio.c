@@ -5,8 +5,9 @@
 
 
 static char int_buf[20]; // 最大的long long十进制长度为19
-// 返回长度
-static int fill_int_buf(unsigned long long lval) {
+char* hex_digits = "0123456789abcdedf";
+// base表示是几进制, 返回长度
+static int fill_int_buf(unsigned long long lval, unsigned base) {
   int cur_pos = 0;
   if(lval==0) {
     int_buf[0]='0';
@@ -15,8 +16,8 @@ static int fill_int_buf(unsigned long long lval) {
   }
   char tmp;
   while (lval > 0) {
-    int_buf[cur_pos++] = (lval % 10) + '0';
-    lval /= 10;
+    int_buf[cur_pos++] = hex_digits[(lval % base)]; // 由于10进制的digits与hex的digits相同, 所以用hex_digits即可
+    lval /= base;
   }
   int left = 0;
   int right = cur_pos - 1; // 现在cur_pos是右开, 因此-1
@@ -67,7 +68,7 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       } else {
         lval = ival;
       }
-      int_buf_len = fill_int_buf(lval);
+      int_buf_len = fill_int_buf(lval, 10);
       for(size_t i = 0; i<int_buf_len; i++) {
         tmp_ch = int_buf[i];
         out_putc(tmp_ch);
@@ -76,7 +77,16 @@ int allprintf(char *out, const char *fmt, va_list ap) {
     }
     case 'u': {
       lval = va_arg(ap, unsigned int);
-      int_buf_len = fill_int_buf(lval);
+      int_buf_len = fill_int_buf(lval, 10);
+      for(size_t i = 0; i<int_buf_len; i++) {
+        tmp_ch = int_buf[i];
+        out_putc(tmp_ch);
+      }
+      break;
+    }
+    case 'x': {
+      lval = va_arg(ap, unsigned int);
+      int_buf_len = fill_int_buf(lval, 16);
       for(size_t i = 0; i<int_buf_len; i++) {
         tmp_ch = int_buf[i];
         out_putc(tmp_ch);
