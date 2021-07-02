@@ -41,6 +41,11 @@ typedef	__size_t	size_t;
 #define	_SIZE_T_DECLARED
 #endif
 
+#ifndef _SSIZE_T_DECLARED
+typedef	__ssize_t	ssize_t;
+#define	_SSIZE_T_DECLARED
+#endif
+
 __BEGIN_DECLS
 #if __BSD_VISIBLE || __POSIX_VISIBLE <= 200112
 int	 bcmp(const void *, const void *, size_t) __pure;	/* LEGACY */

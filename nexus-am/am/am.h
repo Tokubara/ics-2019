@@ -7,6 +7,7 @@
 #define __AM_H__
 
 #include <stdint.h>
+#include <sys/types.h>
 #include <stddef.h>
 #include ARCH_H // "arch/x86-qemu.h", "arch/native.h", ...
 

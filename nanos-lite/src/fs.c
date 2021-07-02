@@ -26,7 +26,7 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
 
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
-  {"stdin", 0, 0, invaid_read, invalid_write},
+  {"stdin", 0, 0, invalid_read, invalid_write},
   {"stdout", 0, 0, invalid_read, invalid_write},
   {"stderr", 0, 0, invalid_read, invalid_write},
 #include "files.h"
@@ -37,9 +37,9 @@ static Finfo file_table[] __attribute__((used)) = {
 int fs_open(const char *pathname, int flags, int mode) {
   int fd = -1;
   for(size_t i = 0; i < NR_FILES; i++) {
-    if(strcmp(file_table[i], pathname) == 0) {
+    if(strcmp(file_table[i].name, pathname) == 0) {
       fd = i;
-      file_table[i]->offset = 0; // 其实这是多余的, 如果真的不为0, 怎么都会导致错误
+      file_table[i].open_offset = 0; // 其实这是多余的, 如果真的不为0, 怎么都会导致错误
       break;
     }
   }
@@ -57,19 +57,19 @@ ssize_t fs_read(int fd, void *buf, size_t len) {
     Log("error: invalid fd: %d", fd);
     return 0;
   }
-  size_t read_len = min(len, file_table[fd]->size - file_table[fd]->open_offset);
-  size_t disk_offset = file_table[fd]->disk_offset + file_table[fd]->open_offset;
+  size_t read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
+  size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
   ramdisk_read(buf, disk_offset, read_len);
-  file_table[fd]->open_offset += read_len;
+  file_table[fd].open_offset += read_len;
   return read_len;
 }
 
 ssize_t fs_write(int fd, const void *buf, size_t len) {
   check_fd;
-  size_t write_len = min(len, file_table[fd]->size - file_table[fd]->open_offset);
-  size_t disk_offset = file_table[fd]->disk_offset + file_table[fd]->open_offset;
+  size_t write_len = min(len, file_table[fd].size - file_table[fd].open_offset);
+  size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
   ramdisk_write(buf, disk_offset, write_len);
-  file_table[fd]->open_offset += write_len;
+  file_table[fd].open_offset += write_len;
   return write_len;
 }
 
@@ -82,11 +82,11 @@ ssize_t fs_lseek(int fd, ssize_t offset, int whence) { // 讲义与man 2 lseek�
                      break;
                    }
     case SEEK_CUR: {
-                     new_offset = file_table[fd]->open_offset + offset;
+                     new_offset = file_table[fd].open_offset + offset;
                      break;
                    }
     case SEEK_END: {
-                     new_offset = file_table[fd]->size + offset;
+                     new_offset = file_table[fd].size + offset;
                      break;
                    }
     default: {
@@ -95,11 +95,11 @@ ssize_t fs_lseek(int fd, ssize_t offset, int whence) { // 讲义与man 2 lseek�
                      break;
                    }
   }
-  if(new_offset < 0 && new_offset > file_table[fd]->size) {
+  if(new_offset < 0 && new_offset > file_table[fd].size) {
     Log("invalid offset: %d, offset unchange", (int)new_offset);
-    return file_table[fd]->open_offset;
+    return file_table[fd].open_offset;
   }
-  fd_table[fd]->open_offset = new_offset;
+  file_table[fd].open_offset = new_offset;
   return new_offset;
 }
 
