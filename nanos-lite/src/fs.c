@@ -39,6 +39,7 @@ int fs_open(const char *pathname, int flags, int mode) {
   for(size_t i = 0; i < NR_FILES; i++) {
     if(strcmp(file_table[i], pathname) == 0) {
       fd = i;
+      file_table[i]->offset = 0; // 其实这是多余的, 如果真的不为0, 怎么都会导致错误
       break;
     }
   }
