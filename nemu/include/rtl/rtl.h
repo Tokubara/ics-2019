@@ -6,7 +6,7 @@
 #include "rtl/relop.h"
 #include "rtl/rtl-wrapper.h"
 
-extern rtlreg_t s0, s1, s2, t0, t1, ir;
+extern rtlreg_t s0, s1, s2, s3, t0, t1, ir;
 
 void decinfo_set_jmp(bool is_jmp);
 bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2);
@@ -116,6 +116,11 @@ static inline void interpret_rtl_host_sm(void *addr, const rtlreg_t *src1, int l
     case 2: *(uint16_t *)addr = *src1; return;
     default: assert(0);
   }
+}
+
+static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len) {
+  int ret = pmem_cpy(*dest_addr, *src_addr, len);
+  rtl_li(ret_reg, ret);
 }
 
 static inline void interpret_rtl_setrelop(uint32_t relop, rtlreg_t *dest,

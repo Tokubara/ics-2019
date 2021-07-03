@@ -42,4 +42,16 @@ void paddr_write(paddr_t addr, uint32_t data, int len) {
   }
 }
 
+// movsb, 失败返回-1, 这样movsb的执行函数调用rtl_exit
+int pmem_cpy(paddr_t dest_addr, paddr_t src_addr, size_t len) {
+  if (map_inside(&pmem_map, dest_addr) && map_inside(&pmem_map, dest_addr+len-1) && map_inside(&pmem_map, src_addr) && map_inside(&pmem_map, src_addr+len-1)) {
+    uint8_t* dest = pmem + (dest_addr - pmem_map.low);
+    uint8_t* src = pmem + (src_addr - pmem_map.low);
+    memcpy(dest, src, len);
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
 bool is_valid_addr(paddr_t addr) { return (addr >= pmem_map.low && addr <= pmem_map.high); }

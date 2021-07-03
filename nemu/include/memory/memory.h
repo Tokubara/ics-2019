@@ -23,6 +23,7 @@ void isa_vaddr_write(vaddr_t, uint32_t, int);
 
 uint32_t paddr_read(paddr_t, int);
 void paddr_write(paddr_t, uint32_t, int);
+int pmem_cpy(paddr_t dest_addr, paddr_t src_addr, size_t len);
 
 bool is_valid_addr(paddr_t addr);
 

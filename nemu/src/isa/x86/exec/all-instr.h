@@ -8,6 +8,10 @@ make_EHelper(pop);
 make_EHelper(leave);
 make_EHelper(cltd);
 
+make_EHelper(cld);
+make_EHelper(rep);
+make_EHelper(movsb);
+
 make_EHelper(operand_size);
 
 make_EHelper(inv);

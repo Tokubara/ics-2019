@@ -128,3 +128,37 @@ make_EHelper(lea) {
   operand_write(id_dest, &id_src->addr);
   print_asm_template2(lea);
 }
+
+make_EHelper(cld) {
+  // 不是不可以用rtl指令, 不过这样反而麻烦了, 还需要做位运算
+  cpu.eflags.DF = 0;
+  print_asm_template1(cld);
+}
+
+make_EHelper(rep) {
+  // 啥也没干
+  print_asm_template1(rep);
+}
+
+make_EHelper(movsb) {
+  // s1源地址
+  // s2目的地址
+  assert(cpu.eflags.DF==0);
+  rtl_lr(&s1, R_ESI, 4);
+  rtl_lr(&s2, R_EDI, 4);
+  // 必须需要4个寄存器, 于是增加了s3
+  rtl_lr(&s3, R_ECX, 4); // len
+
+  // static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len)
+  rtl_memcpy(&s0, &s2, &s1, s3); 
+  if(s0<0) {
+    // void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret)
+    Log("error: bad addr");
+    rtl_exit(NEMU_END, cpu.pc, -1);
+  } else {
+    // 第2个参数还是指针
+    rtl_li(&s1, 0);
+    rtl_sr(R_ECX, &s1, 4);
+  }
+  print_asm_template1(movsb);
+}

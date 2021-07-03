@@ -31,6 +31,7 @@
 #define rtl_sm        concat(RTL_PREFIX, _rtl_sm      )
 #define rtl_host_lm   concat(RTL_PREFIX, _rtl_host_lm )
 #define rtl_host_sm   concat(RTL_PREFIX, _rtl_host_sm )
+#define rtl_memcpy    concat(RTL_PREFIX, _rtl_memcpy  )
 #define rtl_setrelop  concat(RTL_PREFIX, _rtl_setrelop)
 #define rtl_j         concat(RTL_PREFIX, _rtl_j       )
 #define rtl_jr        concat(RTL_PREFIX, _rtl_jr      )
