@@ -25,19 +25,12 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   int key_code = read_key();
   char* ch_buf = (char*)buf;
   if(key_code != _KEY_NONE) {
-    // int key_down = (key_code&0x8000!=0);
-    // ch_buf[write_len++] = 'k';
-    // ch_buf[write_len++] = (key_code&0x8000!=0)?'d':'u';
-    // ch_buf[write_len++] = ' ';
-    // key_code &= ~0x8000;
-    // strcat(ch_buf+write_len, names[key_code]);
-    // write_len+=strlen(names[key_code]); // 感觉这里用sprintf也会好看一些
     int key_down = ((key_code&0x8000)!=0);
     key_code &= ~0x8000;
-    write_len = snprintf(ch_buf, len, "k%c %s", (key_down)?'d':'u', names[key_code]);
+    write_len = snprintf(ch_buf, len, "k%c %s\n", (key_down)?'d':'u', names[key_code]);
   } else {
     unsigned time = uptime();
-    write_len = snprintf(ch_buf, len, "t %u", time);
+    write_len = snprintf(ch_buf, len, "t %u\n", time);
   }
   return write_len;
 }
