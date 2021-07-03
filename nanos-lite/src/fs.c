@@ -24,11 +24,13 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
   return 0;
 }
 
+// {{{1 device声明和file_table
+size_t serial_write(const void *buf, size_t offset, size_t len);
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
   {"stdin", 0, 0, invalid_read, invalid_write},
-  {"stdout", 0, 0, invalid_read, invalid_write},
-  {"stderr", 0, 0, invalid_read, invalid_write},
+  {"stdout", 0, 0, invalid_read, serial_write},
+  {"stderr", 0, 0, invalid_read, serial_write},
 #include "files.h"
 };
 
@@ -66,10 +68,15 @@ ssize_t fs_read(int fd, void *buf, size_t len) {
 
 ssize_t fs_write(int fd, const void *buf, size_t len) {
   check_fd;
-  size_t write_len = min(len, file_table[fd].size - file_table[fd].open_offset);
-  size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
-  ramdisk_write(buf, disk_offset, write_len);
-  file_table[fd].open_offset += write_len;
+  ssize_t write_len;
+  if(file_table[fd].write != NULL) {
+    write_len = file_table[fd].write(buf, 0, len); // offset参数用不上, 写为0
+  } else {
+    write_len = min(len, file_table[fd].size - file_table[fd].open_offset);
+    size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
+    ramdisk_write(buf, disk_offset, write_len);
+    file_table[fd].open_offset += write_len;
+  }
   return write_len;
 }
 

@@ -26,16 +26,7 @@ _Context* do_syscall(_Context *c) {
                       break;
                    }
     case SYS_write: {
-                      if (c->GPR2 == 1 || c->GPR2 == 2) {
-                        char* buf = (char*)c->GPR3;
-                        size_t len = c->GPR4;
-                        for(size_t i = 0; i < len; i++) {
-                          _putc(buf[i]);
-                        }
-                        c->GPRx = c->GPR4;
-                      } else {
-                        c->GPRx = fs_write(c->GPR2, c->GPR3, c->GPR4);
-                      }
+                      c->GPRx = fs_write(c->GPR2, c->GPR3, c->GPR4);
                       break;
                     }
     case SYS_close: {
