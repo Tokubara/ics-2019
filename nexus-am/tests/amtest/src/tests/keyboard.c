@@ -1,14 +1,6 @@
 #include <amtest.h>
 #include <amdev.h>
 
-#define NAME(key) \
-  [_KEY_##key] = #key,
-
-const char *names[256] = {
-  [_KEY_NONE] = "NONE",
-  _KEYS(NAME)
-};
-
 void keyboard_test() {
   printf("Try to press any key...\n");
   while (1) {

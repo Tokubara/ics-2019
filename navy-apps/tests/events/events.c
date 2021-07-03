@@ -9,13 +9,13 @@ int main() {
     char *p = buf, ch;
     while ((ch = fgetc(fp)) != -1) {
       *p ++ = ch;
-      if(ch == '\n') {
+      if(ch == '\n') { // 遇到换行符, 拷贝结束
         *p = '\0';
         break;
       }
     }
 
-    int is_time = buf[0] == 't';
+    int is_time = buf[0] == 't'; // 判断是哪一种时间
     time += is_time;
     if (!is_time) {
       printf("receive event: %s", buf);

@@ -51,7 +51,7 @@ void send_key(uint8_t scancode, bool is_keydown) {
 static void i8042_data_io_handler(uint32_t offset, int len, bool is_write) {
   assert(!is_write);
   assert(offset == 0);
-  if (key_f != key_r) { // 我怀疑key_f表示front, 而r表示rear, 这是个环形队列
+  if (key_f != key_r) { // key_f表示front, 而r表示rear, 这是个环形队列
     i8042_data_port_base[0] = key_queue[key_f];
     key_f = (key_f + 1) % KEY_QUEUE_LEN;
     printf("io_handler:%u\n",i8042_data_port_base[0]);

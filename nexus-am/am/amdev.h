@@ -58,6 +58,8 @@ enum {
   _KEYS(_KEY_NAME)
 };
 
+extern const char *names[]; 
+
 #ifdef __cplusplus
 }
 #endif

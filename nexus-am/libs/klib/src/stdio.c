@@ -32,12 +32,18 @@ static int fill_int_buf(unsigned long long lval, unsigned base) {
   return cur_pos;
 }
 
-int allprintf(char *out, const char *fmt, va_list ap) {
-#define out_putc(out_putc_ch)  if(out!=NULL) {\
+int allprintf(char *out, size_t size, const char *fmt, va_list ap) {
+#define out_putc(out_putc_ch) if(out!=NULL) {\
           out[cur_pos++] = out_putc_ch;\
       } else {\
+        cur_pos++;\
         _putc(out_putc_ch);\
       }
+#define check_out_putc(out_putc_ch) if(cur_pos==size_minus_one) {\
+goto return_label;\
+} else {out_putc(out_putc_ch);}
+  assert(size>0);
+  size_t size_minus_one = size-1;
   size_t cur_pos = 0; // cur_pos指向out, j指向fmt
   const char* p;
   int ival;
@@ -47,23 +53,28 @@ int allprintf(char *out, const char *fmt, va_list ap) {
   
   for (p = fmt; *p; ++p) {
     if (*p != '%') {
-      out_putc(*p);
+      check_out_putc(*p);
       continue;
     }
 
     // 处理其它情况
     ++p;
     switch (*p) {
+    case 'c': {
+      char ch = va_arg(ap, int);
+      check_out_putc(ch);
+      break;
+    }
     case 's': {
       for (char* s = va_arg(ap, char*); *s; ++s) {
-        out_putc(*s);
+        check_out_putc(*s);
       }
       break;
     }
     case 'd': {
       ival = va_arg(ap, int);
       if (ival < 0) {
-        out_putc('-');
+        check_out_putc('-');
         lval = (-ival);
       } else {
         lval = ival;
@@ -71,7 +82,7 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       int_buf_len = fill_int_buf(lval, 10);
       for(size_t i = 0; i<int_buf_len; i++) {
         tmp_ch = int_buf[i];
-        out_putc(tmp_ch);
+        check_out_putc(tmp_ch);
       }
       break;
     }
@@ -80,7 +91,7 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       int_buf_len = fill_int_buf(lval, 10);
       for(size_t i = 0; i<int_buf_len; i++) {
         tmp_ch = int_buf[i];
-        out_putc(tmp_ch);
+        check_out_putc(tmp_ch);
       }
       break;
     }
@@ -89,7 +100,7 @@ int allprintf(char *out, const char *fmt, va_list ap) {
       int_buf_len = fill_int_buf(lval, 16);
       for(size_t i = 0; i<int_buf_len; i++) {
         tmp_ch = int_buf[i];
-        out_putc(tmp_ch);
+        check_out_putc(tmp_ch);
       }
       break;
     }
@@ -98,17 +109,17 @@ int allprintf(char *out, const char *fmt, va_list ap) {
     }
     }
   }
-
+return_label:
   out_putc('\0');
   return (cur_pos-1); // 因为cur_pos包括\0
 #undef out_putc
+#undef check_out_putc
 }
-
 
 int printf(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  allprintf(NULL, fmt, ap);
+  allprintf(NULL, 0xffffffffu, fmt, ap);
   va_end(ap);
   return 0;
 }
@@ -120,13 +131,17 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 int sprintf(char* out, const char* fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  int ret = allprintf(out, fmt, ap);
+  int ret = allprintf(out, 0xffffffffu, fmt, ap);
   va_end(ap);
   return ret;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  return 0;
+  va_list ap;
+  va_start(ap, fmt);
+  int ret = allprintf(out, n, fmt, ap);
+  va_end(ap);
+  return ret;
 }
 
 #endif
