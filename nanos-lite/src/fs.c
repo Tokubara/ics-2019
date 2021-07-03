@@ -57,14 +57,15 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 ssize_t fs_read(int fd, void *buf, size_t len) {
   check_fd;
-  if(fd < 0 || fd >= NR_FILES) {
-    Log("error: invalid fd: %d", fd);
-    return 0;
+  size_t read_len;
+  if(file_table[fd].read != NULL) {
+    read_len = file_table[fd].read(buf, 0, len);
+  } else {
+    read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
+    size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
+    ramdisk_read(buf, disk_offset, read_len);
+    file_table[fd].open_offset += read_len;
   }
-  size_t read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
-  size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
-  ramdisk_read(buf, disk_offset, read_len);
-  file_table[fd].open_offset += read_len;
   return read_len;
 }
 
