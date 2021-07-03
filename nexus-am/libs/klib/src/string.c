@@ -71,14 +71,14 @@ void* memset(void* v,int c,size_t n) {
   return v;
 }
 
-void* memcpy(void* out, const void* in, size_t n) {
-  unsigned char* out_u8 = (unsigned char*)out;
-  unsigned char* in_u8 = (unsigned char*)in;
-  for(int i = 0; i < n; i++) {
-    out_u8[i] = in_u8[i];
-  }
-  return out;
-}
+// void* memcpy(void* out, const void* in, size_t n) {
+//   unsigned char* out_u8 = (unsigned char*)out;
+//   unsigned char* in_u8 = (unsigned char*)in;
+//   for(int i = 0; i < n; i++) {
+//     out_u8[i] = in_u8[i];
+//   }
+//   return out;
+// }
 
 int memcmp(const void* s1, const void* s2, size_t n){
   size_t i = 0;
