@@ -18,3 +18,6 @@ image:
 
 run:
 	$(BINARY)
+
+gdb: image
+	gdb $(BINARY)
