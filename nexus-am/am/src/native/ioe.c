@@ -1,6 +1,14 @@
 #include <am.h>
 #include <amdev.h>
 
+#define NAME(key) \
+  [_KEY_##key] = #key,
+
+const char *names[256] = {
+  [_KEY_NONE] = "NONE",
+  _KEYS(NAME)
+};
+
 void __am_timer_init();
 void __am_video_init();
 void __am_input_init();
