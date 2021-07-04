@@ -19,6 +19,7 @@ struct BitmapHeader {
   uint32_t clrused, clrimportant;
 } __attribute__((packed));
 
+// 从文件filename初始化bmp 
 int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
   FILE *fp;
   int w = 0, h = 0;
@@ -27,7 +28,7 @@ int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
   w = h = 0;
   if (!(fp = fopen(filename, "r"))) return -1;
 
-  struct BitmapHeader hdr;
+  struct BitmapHeader hdr; // 文件的一开始是BitmapHeader
   assert(sizeof(hdr) == 54);
   assert(1 == fread(&hdr, sizeof(struct BitmapHeader), 1, fp));
 

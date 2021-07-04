@@ -27,12 +27,18 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
 // {{{1 device声明和file_table
 size_t serial_write(const void *buf, size_t offset, size_t len);
 size_t events_read(void *buf, size_t offset, size_t len);
+size_t dispinfo_read(void *buf, size_t offset, size_t len);
+size_t fb_write(const void *buf, size_t offset, size_t len);
+size_t fbsync_write(const void *buf, size_t offset, size_t len);
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
   {"stdin", 0, 0, invalid_read, invalid_write},
   {"stdout", 0, 0, invalid_read, serial_write},
   {"stderr", 0, 0, invalid_read, serial_write},
   {"/dev/events", 0, 0, events_read, invalid_write},
+  {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
+  {"/dev/fb", 0, 0, invalid_read, fb_write},
+  {"/dev/fbsync", 0, 0, invalid_read, fbsync_write},
 #include "files.h"
 };
 
@@ -59,7 +65,7 @@ ssize_t fs_read(int fd, void *buf, size_t len) {
   check_fd;
   size_t read_len;
   if(file_table[fd].read != NULL) {
-    read_len = file_table[fd].read(buf, 0, len);
+    read_len = file_table[fd].read(buf, file_table[fd].open_offset, len); // 如果offset用不上, 比如设备的一些read, 不使用是它们自己的事
   } else {
     read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
     size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
@@ -73,7 +79,8 @@ ssize_t fs_write(int fd, const void *buf, size_t len) {
   check_fd;
   ssize_t write_len;
   if(file_table[fd].write != NULL) {
-    write_len = file_table[fd].write(buf, 0, len); // offset参数用不上, 写为0
+    write_len = file_table[fd].write(buf, file_table[fd].open_offset, len); // 如果是串口, offset参数本来也用不上, 是多少都可以
+    file_table[fd].open_offset += write_len;
   } else {
     write_len = min(len, file_table[fd].size - file_table[fd].open_offset);
     size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
@@ -117,6 +124,7 @@ int fs_close(int fd) {
   return 0;
 }
 
+extern int get_fb_size();
 void init_fs() {
-  // TODO: initialize the size of /dev/fb
+  file_table[5].size = get_fb_size(); // 这里硬编码了也是为了快一点, 实际上感觉应该用查找
 }

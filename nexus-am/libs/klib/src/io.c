@@ -19,6 +19,7 @@ int read_key() {
   return ret;
 }
 
+// 参数x,y,w,h的意义是, 横向是x, 纵向是y, w对应横向, 图对应 
 void draw_rect(uint32_t *pixels, int x, int y, int w, int h) {
   _DEV_VIDEO_FBCTL_t ctl = (_DEV_VIDEO_FBCTL_t) {
     .pixels = pixels,

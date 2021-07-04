@@ -11,9 +11,10 @@ static FILE *fbdev, *evtdev, *fbsyncdev;
 static void get_display_info();
 static int canvas_w, canvas_h, screen_w, screen_h, pad_x, pad_y;
 
+//? 
 int NDL_OpenDisplay(int w, int h) {
   if (!canvas) {
-    NDL_CloseDisplay();
+    NDL_CloseDisplay(); // 这里真的没问题? 是free, 我觉得这里逻辑有问题
   }
 
   canvas_w = w;
@@ -21,7 +22,7 @@ int NDL_OpenDisplay(int w, int h) {
   canvas = malloc(sizeof(uint32_t) * w * h);
   assert(canvas);
 
-  if (getenv("NWM_APP")) {
+  if (getenv("NWM_APP")) { //? 这个环境变量的作用, 大概跟实现无关? 看起来走的是else分支
     has_nwm = 1;
   } else {
     has_nwm = 0;
@@ -128,6 +129,11 @@ int NDL_WaitEvent(NDL_Event *event) {
   return -1;
 }
 
+// 此函数的信息如下:
+// 作用是根据/proc/dispinfo读出的内容初始化screen_w和screen_h
+// /proc/dispinfo的格式为:
+// WIDTH:数
+// HEIGHT:数
 static void get_display_info() {
   FILE *dispinfo = fopen("/proc/dispinfo", "r");
   assert(dispinfo);

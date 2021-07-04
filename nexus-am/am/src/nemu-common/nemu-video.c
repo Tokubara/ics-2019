@@ -25,7 +25,6 @@ extern void* memcpy(void* dst, const void* src, size_t n);
 size_t __am_video_write(uintptr_t reg, void *buf, size_t size) {
   switch (reg) {
     case _DEVREG_VIDEO_FBCTL: {
-      // printf("_DEVREG_VIDEO_FBCTL is called\n");
       _DEV_VIDEO_FBCTL_t *ctl = (_DEV_VIDEO_FBCTL_t *)buf;
       if(ctl->pixels!=NULL) {
         int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;

@@ -18,6 +18,7 @@ static const char *keyname[256] __attribute__((used)) = {
   _KEYS(NAME)
 };
 
+// TODO 怀疑offset参数是有意义的, 因为dispinfo_read和它类似, 但offset参数都有作用
 size_t events_read(void *buf, size_t offset, size_t len) {
   (void)offset;
   // 读键盘
@@ -36,16 +37,48 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 }
 
 static char dispinfo[128] __attribute__((used)) = {};
+static int height;
+static int width;
+static int size;
 
+// len到底是否包括\0?
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  // 这里offset参数是起作用的
+  // 未对len做检查
+  char* ch_buf = (char*)buf;
+  memcpy(ch_buf, dispinfo+offset, len);
+  ch_buf[len]='\0';
+  return len;
 }
 
+#define min(a,b) ((a<b)?a:b)
+//在navy中的调用, 是: `fwrite(&canvas[i * canvas_w], sizeof(uint32_t), canvas_w, fbdev);` 其实写的是convas的一整行, 也就是说, 不会出现跨行的情况, 但是为了避免错误, 还是处理了跨行的情况
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  // void draw_rect(uint32_t *pixels, int x, int y, int w, int h)
+  size_t cur_pos = 0;
+  size_t remain_len = min(len, size-offset);
+  int y = offset/width;
+  int x = offset%width;
+  int tmp_write_len = 0;
+  while(remain_len>0) {
+    tmp_write_len = min(width-x, remain_len);
+    draw_rect(buf+cur_pos, x, y, tmp_write_len, 1);
+    // 更新x,y
+    ++y;
+    x=0;
+    // 更新curpos和remain_len
+    remain_len -= tmp_write_len;
+    cur_pos += tmp_write_len;
+  }
+
+  return cur_pos;
 }
 
 size_t fbsync_write(const void *buf, size_t offset, size_t len) {
+  (void)*buf;
+  (void)offset;
+  (void)len;
+  draw_sync();
   return 0;
 }
 
@@ -53,6 +86,14 @@ void init_device() {
   Log("Initializing devices...");
   _ioe_init();
 
-  // TODO: print the string to array `dispinfo` with the format
-  // described in the Navy-apps convention
+  height = screen_height();
+  width = screen_width();
+  size = height*width;
+// WIDTH:640
+// HEIGHT:480
+  sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d");
+}
+
+int get_fb_size() {
+  return size;
 }
