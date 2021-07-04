@@ -94,7 +94,7 @@ int _cpu();
 intptr_t _atomic_xchg(volatile intptr_t *addr, intptr_t newval);
 
 // {{{1 functions from klib
-#define memcpy my_memcpy
+// #define memcpy my_memcpy
 void* memcpy(void* out, const void* in, size_t n);
 #ifdef __cplusplus
 }
