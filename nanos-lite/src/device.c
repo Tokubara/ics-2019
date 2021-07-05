@@ -36,10 +36,10 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   return write_len;
 }
 
-static char dispinfo[128] __attribute__((used)) = {};
+char dispinfo[128] __attribute__((used)) = {};
 static int height;
 static int width;
-static int size;
+int screen_size;
 
 // len到底是否包括\0?
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
@@ -54,10 +54,10 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 #define min(a,b) ((a<b)?a:b)
 //在navy中的调用, 是: `fwrite(&canvas[i * canvas_w], sizeof(uint32_t), canvas_w, fbdev);` 其实写的是convas的一整行, 也就是说, 不会出现跨行的情况, 但是为了避免错误, 还是处理了跨行的情况
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  Log("enter fb_write");
+  LLog("enter fb_write");
   // void draw_rect(uint32_t *pixels, int x, int y, int w, int h)
   size_t cur_pos = 0;
-  size_t remain_len = min(len, size-offset);
+  size_t remain_len = min(len, screen_size-offset);
   int y = offset/width;
   int x = offset%width;
   int tmp_write_len = 0;
@@ -72,7 +72,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
     cur_pos += tmp_write_len;
   }
 
-  Log("leave fb_write");
+  LLog("leave fb_write");
   return cur_pos;
 }
 
@@ -90,13 +90,13 @@ void init_device() {
 
   height = screen_height();
   width = screen_width();
-  size = height*width;
+  screen_size = height*width;
 // WIDTH:640
 // HEIGHT:480
   sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d", width, height);
   // printf("%s\n", dispinfo);
 }
 
-int get_fb_size() {
-  return size;
-}
+// int get_fb_size() {
+//   return screen_size;
+// }

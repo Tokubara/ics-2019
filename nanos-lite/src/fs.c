@@ -64,16 +64,15 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 ssize_t fs_read(int fd, void *buf, size_t len) {
   check_fd;
-  size_t read_len;
+  ssize_t read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
   if(file_table[fd].read != NULL) {
-    read_len = file_table[fd].read(buf, file_table[fd].open_offset, len); // 如果offset用不上, 比如设备的一些read, 不使用是它们自己的事
+    file_table[fd].read(buf, file_table[fd].open_offset, read_len); // 如果offset用不上, 比如设备的一些read, 不使用是它们自己的事
   } else {
-    read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
     size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
     ramdisk_read(buf, disk_offset, read_len);
-    file_table[fd].open_offset += read_len;
     // printf("read: offset:%d, len:%d\n", file_table[fd].open_offset, read_len);
   }
+  file_table[fd].open_offset += read_len;
   return read_len;
 }
 
@@ -128,7 +127,10 @@ int fs_close(int fd) {
   return 0;
 }
 
-extern int get_fb_size();
+// extern int get_fb_size();
+extern int screen_size;
+extern char dispinfo[];
 void init_fs() {
-  file_table[5].size = get_fb_size(); // 这里硬编码了也是为了快一点, 实际上感觉应该用查找
+  file_table[4].size = strlen(dispinfo); // 这里硬编码了也是为了快一点, 实际上感觉应该用查找
+  file_table[5].size = screen_size;
 }
