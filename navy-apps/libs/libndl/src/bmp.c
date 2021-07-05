@@ -21,6 +21,7 @@ struct BitmapHeader {
 
 // 从文件filename初始化bmp 
 int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
+  printf("enter NDL_LoadBitmap");
   FILE *fp;
   int w = 0, h = 0;
   uint32_t *pixels = NULL;
@@ -30,11 +31,15 @@ int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
 
   struct BitmapHeader hdr; // 文件的一开始是BitmapHeader
   assert(sizeof(hdr) == 54);
+  // printf("before fread\n");
   assert(1 == fread(&hdr, sizeof(struct BitmapHeader), 1, fp));
+  // printf("after fread\n");
 
   if (hdr.bitcount != 24) return -1;
   if (hdr.compression != 0) return -1;
+  // printf("before malloc\n");
   pixels = (uint32_t*)malloc(hdr.width * hdr.height * sizeof(uint32_t));
+  // printf("after malloc\n");
   if (!pixels) return -1;
 
   w = hdr.width; h = hdr.height;
@@ -43,7 +48,9 @@ int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
   for (int i = 0; i < h; i ++) {
     fseek(fp, hdr.offset + (h - 1 - i) * line_off, SEEK_SET);
     int nread = fread(&pixels[w * i], 3, w, fp);
+    // printf("i=%d\n");
     for (int j = w - 1; j >= 0; j --) {
+      // printf("j=%d\n");
       uint8_t b = *(((uint8_t*)&pixels[w * i]) + 3 * j);
       uint8_t g = *(((uint8_t*)&pixels[w * i]) + 3 * j + 1);
       uint8_t r = *(((uint8_t*)&pixels[w * i]) + 3 * j + 2);

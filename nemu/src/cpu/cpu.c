@@ -5,7 +5,7 @@ CPU_state cpu;
 rtlreg_t s0, s1, s2, s3, t0, t1, ir;
 
 /* shared by all helper functions */
-DecodeInfo decinfo;
+DecodeInfo decinfo; // 本来就会0初始化
 
 void decinfo_set_jmp(bool is_jmp) {
   decinfo.is_jmp = is_jmp;

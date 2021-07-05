@@ -135,30 +135,54 @@ make_EHelper(cld) {
   print_asm_template1(cld);
 }
 
+void isa_exec(vaddr_t *pc);
 make_EHelper(rep) {
-  // 啥也没干
-  print_asm_template1(rep);
+  print_asm_template1(rep); // 得放第一行, 否则与movsb顺序就是反的
+  decinfo.is_rep = true;
+  isa_exec(pc);
+  decinfo.is_rep = false;
 }
 
 make_EHelper(movsb) {
-  // s1源地址
-  // s2目的地址
-  assert(cpu.eflags.DF==0);
-  rtl_lr(&s1, R_ESI, 4);
-  rtl_lr(&s2, R_EDI, 4);
-  // 必须需要4个寄存器, 于是增加了s3
-  rtl_lr(&s3, R_ECX, 4); // len
+  if(decinfo.is_rep == true) {
+    // s1源地址
+    // s2目的地址
+    Assert(cpu.eflags.DF==0, "you need to take DF=1 in consideration");
+    rtl_lr(&s1, R_ESI, 4);
+    rtl_lr(&s2, R_EDI, 4);
+    // 必须需要4个寄存器, 于是增加了s3
+    rtl_lr(&s3, R_ECX, 4); // len
 
-  // static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len)
-  rtl_memcpy(&s0, &s2, &s1, s3); 
-  if(s0<0) {
-    // void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret)
-    Log("error: bad addr");
-    rtl_exit(NEMU_END, cpu.pc, -1);
+    // static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len)
+    rtl_memcpy(&s0, &s2, &s1, s3); 
+    if(s0<0) {
+      // void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret)
+      Log("error: bad addr");
+      rtl_exit(NEMU_END, cpu.pc, -1);
+    } else {
+      // 修改edi, esi, 它们已经增加了, 此时s1和s2还没有变
+      rtl_add(&s1, &s1, &s3);
+      rtl_sr(R_ESI, &s1, 4);
+      rtl_add(&s2, &s2, &s3);
+      rtl_sr(R_EDI, &s2, 4);
+
+      // 第2个参数还是指针
+      rtl_li(&s1, 0);
+      rtl_sr(R_ECX, &s1, 4);
+    }
+
   } else {
-    // 第2个参数还是指针
-    rtl_li(&s1, 0);
-    rtl_sr(R_ECX, &s1, 4);
+    // mov
+    rtl_lr(&s1, R_ESI, 4); // esi表示的是源地址, s1存
+    rtl_lm(&s0, &s1, 1); // 确认了interpret_rtl_lm的实现, 不会导致错误
+    rtl_lr(&s2, R_EDI, 4);
+    rtl_sm(&s2, &s0, 1);
+    // 修改edi和esi
+    s0 = cpu.eflags.DF==0?1:-1; 
+    rtl_add(&s1, &s1, &s0);
+    rtl_sr(R_ESI, &s1, 4);
+    rtl_add(&s2, &s2, &s0);
+    rtl_sr(R_EDI, &s2, 4);
   }
   print_asm_template1(movsb);
 }

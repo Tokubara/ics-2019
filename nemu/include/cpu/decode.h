@@ -29,6 +29,7 @@ typedef struct {
   uint32_t width;
   vaddr_t seq_pc;  // sequential pc
   bool is_jmp;
+  bool is_rep;
   vaddr_t jmp_pc;
   Operand src, dest, src2;
   struct ISADecodeInfo isa;
