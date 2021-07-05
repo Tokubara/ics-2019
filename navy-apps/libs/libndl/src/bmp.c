@@ -21,7 +21,7 @@ struct BitmapHeader {
 
 // 从文件filename初始化bmp 
 int NDL_LoadBitmap(NDL_Bitmap *bmp, const char *filename) {
-  printf("enter NDL_LoadBitmap");
+  // printf("enter NDL_LoadBitmap");
   FILE *fp;
   int w = 0, h = 0;
   uint32_t *pixels = NULL;

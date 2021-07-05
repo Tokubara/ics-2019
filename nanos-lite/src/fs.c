@@ -72,7 +72,7 @@ ssize_t fs_read(int fd, void *buf, size_t len) {
     size_t disk_offset = file_table[fd].disk_offset + file_table[fd].open_offset;
     ramdisk_read(buf, disk_offset, read_len);
     file_table[fd].open_offset += read_len;
-    printf("read: offset:%d, len:%d\n", file_table[fd].open_offset, read_len);
+    // printf("read: offset:%d, len:%d\n", file_table[fd].open_offset, read_len);
   }
   return read_len;
 }
@@ -94,7 +94,7 @@ ssize_t fs_write(int fd, const void *buf, size_t len) {
 
 ssize_t fs_lseek(int fd, ssize_t offset, int whence) { // 讲义与man 2 lseek不一致, 是size_t, 应该是符号数类型
   check_fd;
-  Log("enter fs_lseek");
+  // Log("enter fs_lseek");
   ssize_t new_offset = 0;
   switch(whence) {
     case SEEK_SET: {
@@ -120,7 +120,7 @@ ssize_t fs_lseek(int fd, ssize_t offset, int whence) { // 讲义与man 2 lseek�
     return file_table[fd].open_offset;
   }
   file_table[fd].open_offset = new_offset;
-  printf("new_offset:%u\n", new_offset);
+  // printf("new_offset:%u\n", new_offset);
   return new_offset;
 }
 

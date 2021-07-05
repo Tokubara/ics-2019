@@ -94,7 +94,7 @@ void init_device() {
 // WIDTH:640
 // HEIGHT:480
   sprintf(dispinfo, "WIDTH:%d\nHEIGHT:%d", width, height);
-  printf("%s\n", dispinfo);
+  // printf("%s\n", dispinfo);
 }
 
 int get_fb_size() {
