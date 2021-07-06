@@ -21,3 +21,16 @@ IOMap* fetch_mmio_map(paddr_t addr) {
   int mapid = find_mapid_by_addr(maps, nr_map, addr);
   return (mapid == -1 ? NULL : &maps[mapid]);
 }
+
+void* get_mmio_host_addr_by_addr(paddr_t st_addr, size_t end_addr) {
+  int i = find_mapid_by_addr(maps, nr_map, st_addr);
+  if(i<0) return NULL;
+  if(!map_inside(&maps[i], end_addr)) {
+    return NULL;
+  } else if(maps[i].callback != NULL) {
+    panic("not consider this case");
+  } else {
+    return maps[i].space+(st_addr-maps[i].low);
+  }
+}
+

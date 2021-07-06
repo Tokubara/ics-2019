@@ -119,7 +119,7 @@ static inline void interpret_rtl_host_sm(void *addr, const rtlreg_t *src1, int l
 }
 
 static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len) {
-  int ret = pmem_cpy(*dest_addr, *src_addr, len);
+  size_t ret = pmem_cpy(*dest_addr, *src_addr, len);
   rtl_li(ret_reg, ret);
 }
 

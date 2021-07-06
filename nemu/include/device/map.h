@@ -37,6 +37,6 @@ void add_mmio_map(char *name, paddr_t addr, uint8_t* space, int len, io_callback
 
 uint32_t map_read(paddr_t addr, int len, IOMap *map);
 void map_write(paddr_t addr, uint32_t data, int len, IOMap *map);
-
+void* get_mmio_host_addr_by_addr(paddr_t st_addr, size_t end_addr);
 #endif
 uint8_t* new_space(int size);

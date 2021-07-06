@@ -155,7 +155,7 @@ make_EHelper(movs) {
     rtl_mul_loi(&s3, &s3, id_dest->width); // 这里有32位存不下的风险
 
     rtl_memcpy(&s0, &s2, &s1, s3); 
-    if(s0<0) {
+    if(s0 != s3) {
       // void interpret_rtl_exit(int state, vaddr_t halt_pc, uint32_t halt_ret)
       Log("error: bad addr");
       rtl_exit(NEMU_END, cpu.pc, -1);
