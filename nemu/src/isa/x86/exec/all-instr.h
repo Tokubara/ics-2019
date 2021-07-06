@@ -10,7 +10,7 @@ make_EHelper(cltd);
 
 make_EHelper(cld);
 make_EHelper(rep);
-make_EHelper(movsb);
+make_EHelper(movs);
 
 make_EHelper(operand_size);
 
