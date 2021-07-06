@@ -9,6 +9,7 @@ int main() {
   printf("load finish\n");
   assert(bmp->pixels);
   NDL_OpenDisplay(bmp->w, bmp->h);
+  // printf("bmp: width=%d, height=%d\n", width, height);
   printf("opendisplay finish\n");
   NDL_DrawRect(bmp->pixels, 0, 0, bmp->w, bmp->h);
   printf("drawrect finish\n");

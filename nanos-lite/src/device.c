@@ -53,23 +53,28 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 
 #define min(a,b) ((a<b)?a:b)
 //在navy中的调用, 是: `fwrite(&canvas[i * canvas_w], sizeof(uint32_t), canvas_w, fbdev);` 其实写的是convas的一整行, 也就是说, 不会出现跨行的情况, 但是为了避免错误, 还是处理了跨行的情况
-size_t fb_write(const void *buf, size_t offset, size_t len) {
+// 这里的offset是*4的, 需要/4
+size_t fb_write(const void *buf, size_t bytes_offset, size_t bytes_len) {
   LLog("enter fb_write");
   // void draw_rect(uint32_t *pixels, int x, int y, int w, int h)
+  size_t offset = bytes_offset >> 2;
+  size_t len = bytes_len >> 2;
   size_t cur_pos = 0;
-  size_t remain_len = min(len, screen_size-offset);
+  size_t remain_len = min(len, screen_size-offset); // 以格子为单位
+  // printf("remain_len:%d, len:%d, screen_size:%d, offset:%d\n", remain_len, len, screen_size, offset);
   int y = offset/width;
   int x = offset%width;
-  int tmp_write_len = 0;
+  int tmp_write_len = 0; // 这是以4字节为单位的, 或者说像素数
   while(remain_len>0) {
-    tmp_write_len = min(width-x, remain_len);
+    tmp_write_len = min(width-x, remain_len); 
     draw_rect(buf+cur_pos, x, y, tmp_write_len, 1);
+    // printf("cur_pos=%d,x=%d,y=%d,width=%d,height=%d\n", cur_pos, x, y, tmp_write_len, 1);
     // 更新x,y
     ++y;
     x=0;
     // 更新curpos和remain_len
-    remain_len -= tmp_write_len;
-    cur_pos += tmp_write_len;
+    remain_len -= tmp_write_len; 
+    cur_pos += tmp_write_len<<2; // 以字节为单位
   }
 
   LLog("leave fb_write");

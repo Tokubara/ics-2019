@@ -114,12 +114,11 @@ ssize_t fs_lseek(int fd, ssize_t offset, int whence) { // 讲义与man 2 lseek�
                      break;
                    }
   }
-  if(new_offset < 0 && new_offset > file_table[fd].size) {
-    Log("invalid offset: %d, offset unchange", (int)new_offset);
+  if(new_offset < 0 || new_offset > file_table[fd].size) {
+    Log("invalid offset: %d, offset unchange. size=%u, old_offset=%u, offset=%u, new_offset:%u\n", (int)new_offset, file_table[fd].size, file_table[fd].open_offset, offset, new_offset);
     return file_table[fd].open_offset;
   }
   file_table[fd].open_offset = new_offset;
-  // printf("new_offset:%u\n", new_offset);
   return new_offset;
 }
 
@@ -132,5 +131,5 @@ extern int screen_size;
 extern char dispinfo[];
 void init_fs() {
   file_table[4].size = strlen(dispinfo); // 这里硬编码了也是为了快一点, 实际上感觉应该用查找
-  file_table[5].size = screen_size;
+  file_table[5].size = screen_size<<2;
 }
