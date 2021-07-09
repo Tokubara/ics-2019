@@ -64,7 +64,7 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 ssize_t fs_read(int fd, void *buf, size_t len) {
   check_fd;
-  ssize_t read_len = min(len, file_table[fd].size - file_table[fd].open_offset);
+  ssize_t read_len = file_table[fd].size==0?len:min(len, file_table[fd].size - file_table[fd].open_offset);
   if(file_table[fd].read != NULL) {
     file_table[fd].read(buf, file_table[fd].open_offset, read_len); // 如果offset用不上, 比如设备的一些read, 不使用是它们自己的事
   } else {
