@@ -4,7 +4,7 @@
 /* Uncomment these macros to enable corresponding functionality. */
 #define HAS_CTE
 // #define HAS_VME
-#define TRACE
+// #define TRACE
 
 #include <am.h>
 #include <klib.h>

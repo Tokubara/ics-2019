@@ -9,6 +9,7 @@ int main() {
     char *p = buf, ch;
     while ((ch = fgetc(fp)) != -1) {
       *p ++ = ch;
+      // printf("ch:%c,%d\n", ch, ch);
       if(ch == '\n') { // 遇到换行符, 拷贝结束
         *p = '\0';
         break;

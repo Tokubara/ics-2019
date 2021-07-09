@@ -22,6 +22,7 @@ static const char *keyname[256] __attribute__((used)) = {
 size_t events_read(void *buf, size_t offset, size_t len) {
   (void)offset;
   // 读键盘
+  // printf("events_read:%d\n", len);
   size_t write_len = 0;
   int key_code = read_key();
   char* ch_buf = (char*)buf;
@@ -33,6 +34,7 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     unsigned time = uptime();
     write_len = snprintf(ch_buf, len, "t %u\n", time);
   }
+  // printf("events_read:ch=%c,%d\n", ch_buf[write_len-1], ch_buf[write_len-1]);
   return write_len;
 }
 
