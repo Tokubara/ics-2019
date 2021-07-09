@@ -596,7 +596,7 @@ PAL_InterpretInstruction(
    int                    iPlayerRole, i, j, x, y;
    WORD                   w, wCurEventObjectID;
 
-   pScript = &(gpGlobals->g.lprgScriptEntry[wScriptEntry]);
+   pScript = &(gpGlobals->g.lprgScriptEntry[wScriptEntry]); // wScriptEntry是下标
 
    if (wEventObjectID != 0)
    {

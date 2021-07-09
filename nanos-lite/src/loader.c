@@ -10,8 +10,6 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
-#define TMP_BUF_SIZE 0x10000
-unsigned char tmp_buf[TMP_BUF_SIZE];
 static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_header;
   int fd = fs_open(filename, 0, 0); // 后两个参数没用上, 于是随便写0了
@@ -33,14 +31,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     if(tmp_ph.p_type==PT_NULL) {
       continue;
     }
-    if(tmp_ph.p_filesz>TMP_BUF_SIZE) {
-      printf("segment size: %u", tmp_ph.p_filesz);
-      _halt(1);
-    }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
-    fs_read(fd, &tmp_buf, tmp_ph.p_filesz);
     tmp_addr = (void*)tmp_ph.p_vaddr;
-    memcpy(tmp_addr, tmp_buf, tmp_ph.p_filesz);
+    fs_read(fd, tmp_addr, tmp_ph.p_filesz);
     if(tmp_ph.p_memsz>tmp_ph.p_filesz) {
       tmp_addr = (void*)(tmp_ph.p_vaddr+tmp_ph.p_filesz);
       memset(tmp_addr, 0, tmp_ph.p_memsz-tmp_ph.p_filesz);
