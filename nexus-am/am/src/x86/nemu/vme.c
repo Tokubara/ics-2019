@@ -90,6 +90,6 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
-  context->GPRx = ustack.end;
+  context->GPRx = ustack.end - 0x1c;
   return context;
 }
