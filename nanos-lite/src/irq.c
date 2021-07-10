@@ -8,7 +8,7 @@ static _Context* do_event(_Event e, _Context* c) {
                            break;
                          }
     case _EVENT_YIELD: {
-                         printf("event _yield\n"); 
+                         LLog("event _yield\n"); 
                          ret = schedule(c);
                          break;
                        };

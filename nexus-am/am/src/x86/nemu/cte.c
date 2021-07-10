@@ -56,11 +56,16 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
 }
 
 _Context *_kcontext(_Area stack, void (*entry)(void *), void *arg) {
-  _Context* context = (_Context*)stack.start;
+  _Context* context = (_Context*)(stack.end - sizeof(_Context) - 8);
   memset(context, 0, sizeof(_Context));
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
+  int* arg_addr = stack.end - 4; //? 这里能不能用void*?
+  *arg_addr = arg;
+  // 或许可以
+  // void* arg_addr = stack.end - 4;
+  // memcpy(arg_addr, arg, 4);
   return context;
 }
 
