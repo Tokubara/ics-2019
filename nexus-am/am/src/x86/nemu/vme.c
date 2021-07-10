@@ -136,7 +136,7 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
-  context->GPRx = esp - 0x10;
+  context->GPRx = esp;
 	printf("[ucontext]:%d, argv:%x, envp:%x, argv[0](%x):%s, argv[1](%x):%s\n", argc, argv_addr_base, envp_addr_base, argv_addr_base[0], argv_addr_base[0], argv_addr_base[1], argv_addr_base[1]);
   return context;
 }
