@@ -63,9 +63,6 @@ _Context *_kcontext(_Area stack, void (*entry)(void *), void *arg) {
   context->cs = 8;
   int* arg_addr = stack.end - 4; //? 这里能不能用void*?
   *arg_addr = arg;
-  // 或许可以
-  // void* arg_addr = stack.end - 4;
-  // memcpy(arg_addr, arg, 4);
   return context;
 }
 

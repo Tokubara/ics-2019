@@ -84,5 +84,12 @@ int _map(_AddressSpace *as, void *va, void *pa, int prot) {
 }
 
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, void *args) {
-  return NULL;
+  // 相比_kcontext, 大概需要设置GPRx
+  _Context* context = (_Context*)(kstack.end - sizeof(_Context));
+  memset(context, 0, sizeof(_Context));
+  // 由于popa中并没有用到esp, 因此不需要设置esp
+  context->eip = entry;
+  context->cs = 8;
+  context->GPRx = ustack.end;
+  return context;
 }
