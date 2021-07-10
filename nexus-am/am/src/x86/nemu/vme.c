@@ -83,13 +83,59 @@ int _map(_AddressSpace *as, void *va, void *pa, int prot) {
   return 0;
 }
 
-_Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, void *args) {
+_Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]) {
+  int n_envp = 0;
+  while(envp[n_envp]!=0) {
+    ++n_envp;
+  }
+
+  int argc = 0;
+  while(argv[argc]!=0) {
+    ++argc;
+  }
+
+  size_t cur_pos = ustack.end;
+  for(int i = n_envp-1; i >= 0; --i) {
+    size_t len = strlen(envp[i])+1;
+    cur_pos -= len;
+    strcpy((char*)cur_pos, envp[i]);
+  }
+  size_t envp_base = cur_pos;
+  size_t tmp_envp_base = cur_pos;
+
+  for(int i = argc-1; i >= 0; --i) {
+    size_t len = strlen(argv[i])+1;
+    cur_pos -= len;
+    strcpy((char*)cur_pos, argv[i]);
+  }
+  size_t argv_base = cur_pos;
+  size_t tmp_argv_base = cur_pos;
+
+  size_t* envp_addr_base = cur_pos - sizeof(size_t)*(1+n_envp);
+  envp_addr_base[n_envp] = NULL;
+  for(int i = 0; i < n_envp; ++i) {
+    envp_addr_base[i] = tmp_envp_base;
+    tmp_envp_base += strlen((char*)tmp_envp_base)+1;
+  }
+
+  size_t* argv_addr_base = (size_t)envp_addr_base - sizeof(size_t)*(1+argc);
+  argv_addr_base[argc] = NULL;
+  for(int i = 0; i < argc; ++i) {
+    argv_addr_base[i] = tmp_argv_base;
+    tmp_argv_base += strlen((char*)tmp_argv_base)+1;
+  }
+
+  size_t* esp = argv_addr_base - 3*sizeof(size_t);
+  esp[0] = argc;
+  esp[1] = argv_addr_base;
+  esp[2] = envp_addr_base;
+
   // 相比_kcontext, 大概需要设置GPRx
   _Context* context = (_Context*)(kstack.end - sizeof(_Context));
   memset(context, 0, sizeof(_Context));
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
-  context->GPRx = ustack.end - 0x2c;
+  context->GPRx = esp - 0x1c;
   return context;
 }

@@ -57,12 +57,11 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
   pcb->cp = _kcontext(stack, entry, arg);
 }
 
-void context_uload(PCB *pcb, const char *filename) {
+void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
   uintptr_t entry = loader(pcb, filename);
 
   _Area stack; // 是内核栈
   stack.start = pcb->stack;
   stack.end = stack.start + sizeof(pcb->stack);
-
-  pcb->cp = _ucontext(&pcb->as, _heap, stack, (void *)entry, NULL);
+  pcb->cp = _ucontext(&pcb->as, _heap, stack, (void *)entry, argv, envp);
 }
