@@ -25,7 +25,7 @@ _Context* __am_irq_handle(_Context *c) {
     }
 
     next = user_handler(ev, c);
-    if (next == NULL) { // 我不知道什么时候才不为NULL
+    if (next == NULL) { // 如果是yield, 不为NULL
       next = c;
     }
   }
@@ -56,7 +56,12 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
 }
 
 _Context *_kcontext(_Area stack, void (*entry)(void *), void *arg) {
-  return NULL;
+  _Context* context = (_Context*)stack.start;
+  memset(context, 0, sizeof(_Context));
+  // 由于popa中并没有用到esp, 因此不需要设置esp
+  context->eip = entry;
+  context->cs = 8;
+  return context;
 }
 
 void _yield() {

@@ -12,9 +12,11 @@ __am_asm_trap:
   pushl %esp # 这是__am_irq_handle的参数
   call __am_irq_handle
 
+  movl %eax, %esp
+
   addl $4, %esp  # 恢复push esp
 
-  addl $4, %esp # 恢复push 0
+  # addl $4, %esp # 恢复push 0
   popal
   addl $4, %esp # 恢复__am_vectrap传的参数
 

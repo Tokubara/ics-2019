@@ -20,14 +20,22 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
+  context_kload(&pcb[0], hello_fun, NULL);
   switch_boot_pcb();
 
-  Log("Initializing processes...");
+  // Log("Initializing processes...");
 
   // load program here
-  naive_uload(NULL, "/bin/init");
+  // naive_uload(NULL, "/bin/dummy");
 }
 
 _Context* schedule(_Context *prev) {
-  return NULL;
+  // save the context pointer
+  current->cp = prev; //? 为什么需要这一句?不用于恢复, 不就没用么
+
+  // always select pcb[0] as the new process
+  current = &pcb[0];
+
+  // then return the new context
+  return current->cp;
 }
