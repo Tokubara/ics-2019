@@ -9,14 +9,16 @@ int sys_execve(const char *name, char *const argv[], char *const env[]) {
 }
 
 _Context* do_syscall(_Context *c) {
+  _Context* ret = NULL;
   uintptr_t a[4];
   a[0] = c->GPR1;
 
   switch (a[0]) {
     case SYS_exit: {
                       LLog("exit: exit_number=%d\n", c->GPR2);
-                      naive_uload(NULL, "/bin/init");
-                      // _halt(c->GPR2);
+                      // ret = schedule(c);
+                      // naive_uload(NULL, "/bin/init");
+                      _halt(c->GPR2);
                       break;
                     }
     case SYS_yield: {
@@ -64,5 +66,5 @@ _Context* do_syscall(_Context *c) {
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
-  return NULL;
+  return ret;
 }

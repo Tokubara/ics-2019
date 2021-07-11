@@ -5,7 +5,7 @@
 
 
 static char int_buf[20]; // 最大的long long十进制长度为19
-char* hex_digits = "0123456789abcdedf";
+char* hex_digits = "0123456789abcdef";
 // base表示是几进制, 返回长度
 static int fill_int_buf(unsigned long long lval, unsigned base) {
   int cur_pos = 0;
