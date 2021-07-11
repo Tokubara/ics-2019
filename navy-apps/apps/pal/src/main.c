@@ -510,7 +510,7 @@ PAL_SplashScreen(
 }
 
 void
-main_loop() {
+main_loop(bool skip) {
    WORD          wScreenWidth = 0, wScreenHeight = 0;
    BOOL          fFullScreen = FALSE;
 
@@ -554,8 +554,10 @@ main_loop() {
    //
    // Show the trademark screen and splash screen
    //
-   // PAL_TrademarkScreen();
-   // PAL_SplashScreen();
+   if (skip==0) {
+     PAL_TrademarkScreen();
+     PAL_SplashScreen();
+   }
 
    //
    // Run the main game routine

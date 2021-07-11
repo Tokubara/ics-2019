@@ -28,7 +28,7 @@ void init_proc() {
   argv[2] = NULL;
   char* envp[1];
   envp[0] = NULL;
-  context_uload(&pcb[1], "/bin/dummy", argv, envp);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
   switch_boot_pcb();
 
   // Log("Initializing processes...");

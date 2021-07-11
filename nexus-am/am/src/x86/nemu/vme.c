@@ -137,6 +137,6 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   context->eip = entry;
   context->cs = 8;
   context->GPRx = esp;
-	printf("[ucontext]argc:%d, argv:%x, envp:%x, argv[0](%x):%s, argv[1](%x):%s\n", argc, argv_addr_base, envp_addr_base, argv_addr_base[0], argv_addr_base[0], argv_addr_base[1], argv_addr_base[1]);
+	// printf("[ucontext]argc:%d, argv:%x, envp:%x, argv[0](%x):%s, argv[1](%x):%s\n", argc, argv_addr_base, envp_addr_base, argv_addr_base[0], argv_addr_base[0], argv_addr_base[1], argv_addr_base[1]);
   return context;
 }
