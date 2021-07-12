@@ -4,17 +4,15 @@
 bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
   addr_t addr;
   addr.val = vaddr;
-  PDE* pde_arr = (PDE*)((uintptr_t)(cpu.cr3.page_directory_base << 12));
-  PDE pde = pde_arr[addr.hi];
+  PDE pde = {.val=paddr_read((cpu.cr3.page_directory_base << 12) + (addr.hi << 2), 4)};
   if (pde.present!=1) {
     return false;
   }
-  PTE* pte_arr = (PTE*)((uintptr_t)(pde.page_frame << 12));
-  PTE pte = pte_arr[addr.mid];
+  PTE pte = {.val=paddr_read((pde.page_frame << 12) + (addr.mid << 2), 4)};
   if (pte.present!=1) {
     return false;
   }
-  *paddr = pte.page_frame << 12 | addr.lo;
+  *paddr = (pte.page_frame << 12) | addr.lo;
   return true;
 }
 
