@@ -4,7 +4,7 @@
 
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
-static PDE kpdirs[NR_PDE] PG_ALIGN = {};
+static PDE kpdirs[NR_PDE] PG_ALIGN = {}; // 那它应该是恰好占一页
 static PTE kptabs[(PMEM_SIZE + MMIO_SIZE) / PGSIZE] PG_ALIGN = {};
 static void* (*pgalloc_usr)(size_t) = NULL;
 static void (*pgfree_usr)(void*) = NULL;
@@ -15,7 +15,7 @@ static _Area segments[] = {      // Kernel memory mappings
   {.start = (void*)MMIO_BASE,  .end = (void*)(MMIO_BASE + MMIO_SIZE)}
 };
 
-#define NR_KSEG_MAP (sizeof(segments) / sizeof(segments[0]))
+#define NR_KSEG_MAP (sizeof(segments) / sizeof(segments[0])) // 段数
 
 int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
   pgalloc_usr = pgalloc_f;
@@ -30,8 +30,8 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
 
   PTE *ptab = kptabs;
   for (i = 0; i < NR_KSEG_MAP; i ++) {
-    uint32_t pdir_idx = (uintptr_t)segments[i].start / (PGSIZE * NR_PTE);
-    uint32_t pdir_idx_end = (uintptr_t)segments[i].end / (PGSIZE * NR_PTE);
+    uint32_t pdir_idx = (uintptr_t)segments[i].start / (PGSIZE * NR_PTE); // 得到的是地址的最高10位
+    uint32_t pdir_idx_end = (uintptr_t)segments[i].end / (PGSIZE * NR_PTE); // 按理说这个也是应该要覆盖到的, 除非它是整页的倍数
     for (; pdir_idx < pdir_idx_end; pdir_idx ++) {
       // fill PDE
       kpdirs[pdir_idx] = (uintptr_t)ptab | PTE_P;
@@ -53,6 +53,7 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
   return 0;
 }
 
+// 用于创建一个默认的地址空间
 int _protect(_AddressSpace *as) {
   PDE *updir = (PDE*)(pgalloc_usr(1));
   as->ptr = updir;
@@ -72,13 +73,15 @@ void __am_get_cur_as(_Context *c) {
   c->as = cur_as;
 }
 
+// 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
-    set_cr3(c->as->ptr);
+    set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
     cur_as = c->as;
   }
 }
 
+// 似乎作用是创建映射, 在as中使va映射到pa
 int _map(_AddressSpace *as, void *va, void *pa, int prot) {
   return 0;
 }

@@ -192,3 +192,18 @@ make_EHelper(movs) {
     default:{panic("impossible");}
   }
 }
+
+make_EHelper(mov_E2cr) {
+  assert(id_dest->reg!=1);
+  rtl_mv(&cpu.cr[id_dest->reg], &id_src->val);
+  if(id_dest->reg==0&&cpu.cr0.paging==1) {
+    Log("paging enable");
+  }
+  print_asm("movl %s,%%cr%d", id_src->str, id_dest->reg);
+}
+
+make_EHelper(mov_cr2E) {
+  assert(id_src->reg!=1);
+  operand_write(id_dest, &cpu.cr[id_src->reg]);
+  print_asm("movl %%cr%d,%s", id_src->reg, id_dest->str);
+}

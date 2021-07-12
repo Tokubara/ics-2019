@@ -1,7 +1,9 @@
 #include "memory.h"
 
+// 这好像意味着空闲物理地址的起始
 static void *pf = NULL;
 
+// 分配nr_page这么多物理页, 返回物理地址, 其实就是pf+PGSIZE * nr_page
 void* new_page(size_t nr_page) {
   void *p = pf;
   pf += PGSIZE * nr_page;

@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "nemu.h"
+#include "isa/mmu.h"
 
 #define PC_START IMAGE_START
 
@@ -58,6 +59,15 @@ typedef struct {
 
   vaddr_t cs, ss, ds, es, fs, gs;
   vaddr_t idt;
+  union {
+    rtlreg_t cr[4];
+    struct {
+      CR0 cr0;
+      rtlreg_t cr1;
+      rtlreg_t cr2;
+      CR3 cr3;
+    };
+  };
 
 } CPU_state;
 
