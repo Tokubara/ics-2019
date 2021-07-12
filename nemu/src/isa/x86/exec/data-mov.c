@@ -198,6 +198,8 @@ make_EHelper(mov_E2cr) {
   rtl_mv(&cpu.cr[id_dest->reg], &id_src->val);
   if(id_dest->reg==0&&cpu.cr0.paging==1) {
     Log("paging enable");
+  } else if(id_dest->reg==3) {
+    Log("cr3:%u", id_src->val);
   }
   print_asm("movl %s,%%cr%d", id_src->str, id_dest->reg);
 }

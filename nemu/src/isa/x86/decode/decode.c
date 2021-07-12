@@ -131,6 +131,10 @@ make_DHelper(lea_M2G) {
   decode_op_rm(pc, id_src, false, id_dest, false);
 }
 
+make_DHelper(lea_G2E) { // cr to eax之类的使用
+  decode_op_rm(pc, id_dest, false, id_src, false);
+}
+
 make_DHelper(I2a) {
   decode_op_a(pc, id_dest, true);
   decode_op_I(pc, id_src, true);
