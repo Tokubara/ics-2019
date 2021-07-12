@@ -79,4 +79,13 @@ typedef union GateDescriptor {
   uint32_t val;
 } GateDesc;
 
+typedef union {
+  struct {
+    uint32_t lo:12;
+    uint32_t mid:10;
+    uint32_t hi:10;
+  };
+  uint32_t val;
+} addr_t;
+
 #endif
