@@ -28,13 +28,13 @@ void init_proc() {
   argv[0] = NULL;
   char* envp[1];
   envp[0] = NULL;
-  context_uload(&pcb[1], "/bin/dummy", argv, envp);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
   switch_boot_pcb();
 
   // Log("Initializing processes...");
 
   // load program here
-  // naive_uload(NULL, "/bin/dummy");
+  // naive_uload(NULL, "/bin/pal");
 }
 
 _Context* schedule(_Context *prev) {

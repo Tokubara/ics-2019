@@ -16,13 +16,26 @@ bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
   return true;
 }
 
+
 uint32_t isa_vaddr_read(vaddr_t addr, int len) {
   paddr_t paddr;
   if (cpu.cr0.paging==1) {
+    bool ret;
     // 判断是否跨页
-    assert((addr&0xfffff000)==((addr+len-1)&0xfffff000)); // 不处理跨页的情况
-    bool ret = page_translate(addr, &paddr);
-    assert(ret==true);
+    if ((addr&0xfffff000)!=((addr+len-1)&0xfffff000)) {
+      uint32_t addr_round_up = PGROUNDUP(addr);
+      ret = page_translate(addr, &paddr);
+      assert(ret==true);
+      paddr_t paddr_hi;
+      ret = page_translate(addr_round_up, &paddr_hi);
+      assert(ret==true);
+      int len_lo = addr_round_up-addr;
+      int len_hi = 4 - len_lo;
+      return paddr_read(paddr, len_lo) | (paddr_read(paddr_hi, len_hi) << len_lo);
+    } else {
+      ret = page_translate(addr, &paddr);
+      assert(ret==true);
+    }
   } else {
     paddr = addr;
   }
@@ -32,10 +45,22 @@ uint32_t isa_vaddr_read(vaddr_t addr, int len) {
 void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
   paddr_t paddr;
   if (cpu.cr0.paging==1) {
-    // 判断是否跨页
-    assert((addr&0xfffff000)==((addr+len-1)&0xfffff000)); // 不处理跨页的情况
-    bool ret = page_translate(addr, &paddr);
-    assert(ret==true);
+    bool ret;
+    if ((addr&0xfffff000)!=((addr+len-1)&0xfffff000)) {
+      uint32_t addr_round_up = PGROUNDUP(addr);
+      ret = page_translate(addr, &paddr);
+      assert(ret==true);
+      paddr_t paddr_hi;
+      ret = page_translate(addr_round_up, &paddr_hi);
+      assert(ret==true);
+      int len_lo = addr_round_up - addr;
+      int len_hi = 4 - len_lo;
+      paddr_write(paddr, data & (~0u >> (len_hi << 3)), len_lo);
+      paddr_write(paddr_hi, data >> (len_lo << 3), len_hi);
+    } else {
+      ret = page_translate(addr, &paddr);
+      assert(ret==true);
+    }
   } else {
     paddr = addr;
   }

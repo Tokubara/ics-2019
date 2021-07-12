@@ -5,6 +5,11 @@
 
 #include "memory/memory.h"
 
+#define PGSIZE 4096
+
+#define PGMASK          (PGSIZE - 1)    // Mask for bit ops
+#define PGROUNDUP(sz)   (((sz)+PGSIZE-1) & ~PGMASK)
+#define PGROUNDDOWN(a)  (((a)) & ~PGMASK)
 /* 32bit x86 uses 4KB page size */
 #define NR_PDE						1024
 #define NR_PTE						1024
