@@ -21,20 +21,20 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, "China");
-  char* argv[1];
+  // context_kload(&pcb[0], hello_fun, "China");
+  // char* argv[1];
   // argv[0] = "/bin/pal";
   // argv[1] = "--skip";
-  argv[0] = NULL;
-  char* envp[1];
-  envp[0] = NULL;
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
-  switch_boot_pcb();
+  // argv[0] = NULL;
+  // char* envp[1];
+  // envp[0] = NULL;
+  // context_uload(&pcb[1], "/bin/pal", argv, envp);
+  // switch_boot_pcb();
 
-  // Log("Initializing processes...");
+  Log("Initializing processes...");
 
   // load program here
-  // naive_uload(NULL, "/bin/pal");
+  naive_uload(NULL, "/bin/dummy");
 }
 
 _Context* schedule(_Context *prev) {

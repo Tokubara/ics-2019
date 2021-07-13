@@ -81,9 +81,58 @@ void __am_switch(_Context *c) {
   }
 }
 
-// 似乎作用是创建映射, 在as中使va映射到pa
-int _map(_AddressSpace *as, void *va, void *pa, int prot) {
+// 创建映射, 在as中使va映射到pa
+int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
+  (void)prot;
+  addr_t addr;
+  addr.val = vaddr;
+  PDE* pde = as->ptr + (addr.hi << 2);
+  if ((*pde & PTE_P)==0) {
+    void* tmp_paddr = pgalloc_usr(1);
+    *pde = (size_t)tmp_paddr | PTE_P;
+  }
+  PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
+  if ((*pte & PTE_P)==0) {
+    *pte = (size_t)paddr | PTE_P;
+  }
   return 0;
+}
+
+int add_vmap(_AddressSpace *as, void *va) {
+  // FOR_DEBUG
+  if(!((size_t)va&0x00000fff)==0) {
+    printf("((size_t)va&0x00000fff)==0 fail\n");
+    _halt(1);
+  }
+  if(has_map(as, va)) {
+    return 0;
+  }
+  void *pa = pgalloc_usr(1);
+  return _map(as, va, pa, 0);
+}
+
+int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end) {
+    void* addr_down = PGROUNDDOWN((size_t)va_start);
+    void* addr_up = PGROUNDDOWN((size_t)va_end);
+    void* cur_addr = addr_down;
+    while(cur_addr<=addr_up) {
+      add_vmap(as, cur_addr);
+      cur_addr+=PGSIZE;
+    }
+}
+
+uint8_t has_map(_AddressSpace *as, void *vaddr) {
+  addr_t addr;
+  addr.val = vaddr;
+  PDE* pde = as->ptr + (addr.hi << 2);
+  if ((*pde & PTE_P)==0) {
+    return 0;
+  }
+  PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
+  if ((*pte & PTE_P)==0) {
+    return 0;
+  }
+  return 1;
 }
 
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]) {

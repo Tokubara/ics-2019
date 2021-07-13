@@ -33,6 +33,8 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
     tmp_addr = (void*)tmp_ph.p_vaddr;
+    add_vmap_range(&pcb->as, tmp_addr, tmp_addr+tmp_ph.p_memsz-1);
+    // 这里不同于一般情况, 分配的物理页可以是连续的
     fs_read(fd, tmp_addr, tmp_ph.p_filesz);
     if(tmp_ph.p_memsz>tmp_ph.p_filesz) {
       tmp_addr = (void*)(tmp_ph.p_vaddr+tmp_ph.p_filesz);
@@ -58,6 +60,7 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
+  _protect(&pcb->as);
   uintptr_t entry = loader(pcb, filename);
 
   _Area stack; // 是内核栈

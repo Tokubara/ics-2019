@@ -108,6 +108,8 @@ typedef uint32_t PDE;
 #define OFF(va)          ((uint32_t)(va) & 0xfff)
 #define ROUNDUP(a, sz)   ((((uintptr_t)a)+(sz)-1) & ~((sz)-1))
 #define ROUNDDOWN(a, sz) ((((uintptr_t)a)) & ~((sz)-1))
+#define PGROUNDUP(sz)   (((sz)+PGSIZE-1) & ~PGMASK)
+#define PGROUNDDOWN(a)  (((a)) & ~PGMASK)
 #define PTE_ADDR(pte)    ((uint32_t)(pte) & ~0xfff)
 #define PGADDR(d, t, o)  ((uint32_t)((d) << PDXSHFT | (t) << PTXSHFT | (o)))
 
@@ -296,6 +298,15 @@ static inline uint32_t get_cr2() {
 static inline void set_cr3(void *pdir) {
   asm volatile ("movl %0, %%cr3" : : "r"(pdir));
 }
+
+typedef union {
+  struct {
+    uint32_t lo:12;
+    uint32_t mid:10;
+    uint32_t hi:10;
+  };
+  uint32_t val;
+} addr_t;
 
 #endif
 

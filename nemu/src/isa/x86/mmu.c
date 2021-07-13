@@ -66,3 +66,39 @@ void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
   }
   paddr_write(addr, data, len);
 }
+
+// static inline void* get_host_addr_by_addr(vaddr_t st_addr, size_t len) {
+//   void* host_addr = get_mmio_host_addr_by_addr(st_addr, st_addr+len-1);
+//   if (host_addr == NULL) {
+
+//   }
+//   if (map_inside(&pmem_map, st_addr) && map_inside(&pmem_map, st_addr+len-1)) {
+//     host_addr = pmem + (st_addr - pmem_map.low);
+//   } else {
+//   }
+//   return host_addr;
+// }
+
+#define min(a,b) ((a<=b)?a:b)
+// movsb, 失败返回-1, 这样movsb的执行函数调用rtl_exit
+size_t vmem_cpy(vaddr_t dest_vaddr, vaddr_t src_vaddr, size_t tar_len) {
+  size_t cur_len = 0;
+  paddr_t dest_paddr, src_paddr;
+  bool ret;
+  size_t len1, len2, len;
+  while(cur_len < tar_len) {
+    ret = page_translate(dest_vaddr, &dest_paddr);
+    assert(ret);
+    ret = page_translate(src_vaddr, &src_paddr);
+    assert(ret);
+    len1 = PGROUNDUP_GT(dest_vaddr) - dest_vaddr;
+    len2 = PGROUNDUP_GT(src_vaddr) - src_vaddr;
+    len = min(len1, len2);
+    assert(len>0);
+    pmem_cpy(dest_paddr, src_paddr, len);
+    dest_vaddr += len;
+    src_vaddr += len;
+    cur_len += len;
+  }
+  return tar_len;
+}

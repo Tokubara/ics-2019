@@ -118,8 +118,9 @@ static inline void interpret_rtl_host_sm(void *addr, const rtlreg_t *src1, int l
   }
 }
 
+size_t vmem_cpy(vaddr_t dest_vaddr, vaddr_t src_vaddr, size_t tar_len);
 static inline void interpret_rtl_memcpy(rtlreg_t* ret_reg, rtlreg_t *dest_addr, const rtlreg_t *src_addr, size_t len) {
-  size_t ret = pmem_cpy(*dest_addr, *src_addr, len);
+  size_t ret = vmem_cpy(*dest_addr, *src_addr, len);
   rtl_li(ret_reg, ret);
 }
 
