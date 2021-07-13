@@ -32,15 +32,13 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   for(size_t i = 0; i<ph_num; i++,ph_addr+=ph_size) {
     fs_lseek(fd, ph_addr, SEEK_SET);
     fs_read(fd, &tmp_ph, ph_size);
-    // 看buffer大小是不是够了
     if(tmp_ph.p_type==PT_NULL) {
       continue;
     }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
     size_t vaddr_st = tmp_ph.p_vaddr;
-    size_t vaddr_end = (tmp_ph.p_vaddr+tmp_ph.p_memsz-1);
-    // 这里不同于一般情况, 分配的物理页可以是连续的
-    size_t vaddr_mid = tmp_ph.p_vaddr+tmp_ph.p_filesz-1;
+    size_t vaddr_end = tmp_ph.p_vaddr+tmp_ph.p_memsz; // 右开
+    size_t vaddr_mid = tmp_ph.p_vaddr+tmp_ph.p_filesz; // 右开
     size_t cur_addr = vaddr_st;
     size_t next_addr;
     size_t len;
