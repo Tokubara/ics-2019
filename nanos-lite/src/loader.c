@@ -10,6 +10,11 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
+#define PGSIZE 4096
+#define PGMASK          (PGSIZE - 1)    // Mask for bit ops
+#define PGROUNDDOWN(a)  (((a)) & ~PGMASK)
+#define PGROUNDUP_GT(sz)  (PGROUNDDOWN(sz)+PGSIZE)
+#define min(a,b) ((a<=b)?a:b)
 static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_header;
   int fd = fs_open(filename, 0, 0); // 后两个参数没用上, 于是随便写0了
@@ -32,13 +37,27 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       continue;
     }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
-    tmp_addr = (void*)tmp_ph.p_vaddr;
-    add_vmap_range(&pcb->as, tmp_addr, tmp_addr+tmp_ph.p_memsz-1);
+    size_t vaddr_st = tmp_ph.p_vaddr;
+    size_t vaddr_end = (tmp_ph.p_vaddr+tmp_ph.p_memsz-1);
     // 这里不同于一般情况, 分配的物理页可以是连续的
-    fs_read(fd, tmp_addr, tmp_ph.p_filesz);
-    if(tmp_ph.p_memsz>tmp_ph.p_filesz) {
-      tmp_addr = (void*)(tmp_ph.p_vaddr+tmp_ph.p_filesz);
-      memset(tmp_addr, 0, tmp_ph.p_memsz-tmp_ph.p_filesz);
+    size_t mid_addr = tmp_ph.p_vaddr+tmp_ph.p_filesz-1;
+    size_t cur_addr = vaddr_st;
+    size_t next_addr;
+    size_t len;
+    void* paddr;
+    while(cur_addr<mid_addr) {
+      paddr = add_vmap(&pcb->as, cur_addr);
+      next_addr = min(mid_addr, PGROUNDUP_GT(cur_addr));
+      len = next_addr - cur_addr;
+      fs_read(fd, paddr, len);
+      cur_addr = next_addr;
+    }
+    while(cur_addr<vaddr_end) {
+      paddr = add_vmap(&pcb->as, cur_addr);
+      next_addr = min(mid_addr, PGROUNDUP_GT(cur_addr));
+      len = next_addr - cur_addr;
+      memset(paddr, 0, len);
+      cur_addr = next_addr;
     }
   }
 
@@ -46,6 +65,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 }
 
 void naive_uload(PCB *pcb, const char *filename) {
+  _protect(&pcb->as);
   uintptr_t entry = loader(pcb, filename);
   Log("Jump to entry = %x", entry);
   ((void(*)())entry) ();

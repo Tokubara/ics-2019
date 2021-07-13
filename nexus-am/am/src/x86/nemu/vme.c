@@ -1,6 +1,7 @@
 #include <am.h>
 #include <x86.h>
 #include <nemu.h>
+#include <debug.h>
 
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
@@ -89,39 +90,30 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
   PDE* pde = as->ptr + (addr.hi << 2);
   if ((*pde & PTE_P)==0) {
     void* tmp_paddr = pgalloc_usr(1);
+    Log_debug("allocate for pte: paddr=%x, vaddr=%x", (size_t)tmp_paddr, (size_t)vaddr);
     *pde = (size_t)tmp_paddr | PTE_P;
   }
   PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
   if ((*pte & PTE_P)==0) {
     *pte = (size_t)paddr | PTE_P;
+  } else {
+    Log_error("pte exists, vaddr=%x, pte=%x\n", (size_t)vaddr, *pte);
   }
   return 0;
 }
 
-int add_vmap(_AddressSpace *as, void *va) {
-  // FOR_DEBUG
-  if(!((size_t)va&0x00000fff)==0) {
-    printf("((size_t)va&0x00000fff)==0 fail\n");
-    _halt(1);
+void* add_vmap(_AddressSpace *as, size_t va) {
+  void* ret = has_map(as, va);
+  if(ret == NULL) {
+    void *pa = pgalloc_usr(1);
+    Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
+    _map(as, PTE_ADDR(va), pa, 0);
+    ret = (void*)((size_t)pa | OFF(va));
   }
-  if(has_map(as, va)) {
-    return 0;
-  }
-  void *pa = pgalloc_usr(1);
-  return _map(as, va, pa, 0);
+  return ret;
 }
 
-int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end) {
-    void* addr_down = PGROUNDDOWN((size_t)va_start);
-    void* addr_up = PGROUNDDOWN((size_t)va_end);
-    void* cur_addr = addr_down;
-    while(cur_addr<=addr_up) {
-      add_vmap(as, cur_addr);
-      cur_addr+=PGSIZE;
-    }
-}
-
-uint8_t has_map(_AddressSpace *as, void *vaddr) {
+size_t has_map(_AddressSpace *as, size_t vaddr) {
   addr_t addr;
   addr.val = vaddr;
   PDE* pde = as->ptr + (addr.hi << 2);
@@ -132,7 +124,7 @@ uint8_t has_map(_AddressSpace *as, void *vaddr) {
   if ((*pte & PTE_P)==0) {
     return 0;
   }
-  return 1;
+  return (*pte & 0xfffff000) | addr.lo;
 }
 
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]) {
