@@ -40,21 +40,23 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     size_t vaddr_st = tmp_ph.p_vaddr;
     size_t vaddr_end = (tmp_ph.p_vaddr+tmp_ph.p_memsz-1);
     // 这里不同于一般情况, 分配的物理页可以是连续的
-    size_t mid_addr = tmp_ph.p_vaddr+tmp_ph.p_filesz-1;
+    size_t vaddr_mid = tmp_ph.p_vaddr+tmp_ph.p_filesz-1;
     size_t cur_addr = vaddr_st;
     size_t next_addr;
     size_t len;
     void* paddr;
-    while(cur_addr<mid_addr) {
+    Log_debug("vaddr_st:%x,vaddr_mid%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
+    
+    while(cur_addr<vaddr_mid) {
       paddr = add_vmap(&pcb->as, cur_addr);
-      next_addr = min(mid_addr, PGROUNDUP_GT(cur_addr));
+      next_addr = min(vaddr_mid, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
       fs_read(fd, paddr, len);
       cur_addr = next_addr;
     }
     while(cur_addr<vaddr_end) {
       paddr = add_vmap(&pcb->as, cur_addr);
-      next_addr = min(mid_addr, PGROUNDUP_GT(cur_addr));
+      next_addr = min(vaddr_end, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
       memset(paddr, 0, len);
       cur_addr = next_addr;
