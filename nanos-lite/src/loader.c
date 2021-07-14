@@ -36,6 +36,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       continue;
     }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
+    
     size_t vaddr_st = tmp_ph.p_vaddr;
     size_t vaddr_end = tmp_ph.p_vaddr+tmp_ph.p_memsz; // 右开
     size_t vaddr_mid = tmp_ph.p_vaddr+tmp_ph.p_filesz; // 右开
@@ -43,13 +44,14 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     size_t next_addr;
     size_t len;
     void* paddr;
-    // Log_debug("vaddr_st:%x,vaddr_mid%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
-    
+    Log_debug("vaddr_st:%x,vaddr_mid:%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
+    Log_debug("offset:%x", tmp_ph.p_offset);
     while(cur_addr<vaddr_mid) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_mid, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
       fs_read(fd, paddr, len);
+      Log_debug("paddr:%x,len:%d", paddr, len);
       cur_addr = next_addr;
     }
     while(cur_addr<vaddr_end) {
