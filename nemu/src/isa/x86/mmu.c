@@ -67,7 +67,7 @@ void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
   } else {
     paddr = addr;
   }
-  paddr_write(addr, data, len);
+  paddr_write(paddr, data, len);
 }
 
 // static inline void* get_host_addr_by_addr(vaddr_t st_addr, size_t len) {
