@@ -69,6 +69,10 @@ void naive_uload(PCB *pcb, const char *filename) {
   uintptr_t entry = loader(pcb, filename);
   Log_debug("finish loader");
   Log("Jump to entry = %x", entry);
+  pcb->cp->as = &pcb->as; 
+  // Log_debug("pcb->cp->as(%x) = &pcb->as(%x);", pcb->cp->as, &pcb->as);
+  // Log_debug("pcb->cp->as->ptr(%x) = pcb->as.ptr(%x); (&pcb->as)->ptr(%x)", pcb->cp->as->ptr, pcb->as.ptr, (&pcb->as)->ptr);
+  __am_switch(pcb->cp);
   ((void(*)())entry) ();
 }
 

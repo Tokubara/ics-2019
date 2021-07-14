@@ -47,7 +47,7 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
     }
   }
 
-  set_cr3(kpdirs);
+  set_cr3(kpdirs); // 我觉得这里也该设置一下cur_as
   set_cr0(get_cr0() | CR0_PG);
   vme_enable = 1;
 
@@ -58,6 +58,7 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
 int _protect(_AddressSpace *as) {
   PDE *updir = (PDE*)(pgalloc_usr(1));
   as->ptr = updir;
+  Log_debug("pde addr:%x", (size_t)as->ptr);
   // map kernel space
   for (int i = 0; i < NR_PDE; i ++) {
     updir[i] = kpdirs[i];
@@ -77,6 +78,7 @@ void __am_get_cur_as(_Context *c) {
 // 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
+    Log_debug("cr3:%x", c->as->ptr);
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
     cur_as = c->as;
   }
