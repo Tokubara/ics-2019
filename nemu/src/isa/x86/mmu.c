@@ -94,6 +94,7 @@ size_t vmem_cpy(vaddr_t dest_vaddr, vaddr_t src_vaddr, size_t tar_len) {
     len1 = PGROUNDUP_GT(dest_vaddr) - dest_vaddr;
     len2 = PGROUNDUP_GT(src_vaddr) - src_vaddr;
     len = min(len1, len2);
+    len = min(len, tar_len);
     assert(len>0);
     pmem_cpy(dest_paddr, src_paddr, len);
     dest_vaddr += len;

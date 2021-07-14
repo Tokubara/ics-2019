@@ -90,7 +90,7 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
   PDE* pde = as->ptr + (addr.hi << 2);
   if ((*pde & PTE_P)==0) {
     void* tmp_paddr = pgalloc_usr(1);
-    Log_debug("allocate for pte: paddr=%x, vaddr=%x", (size_t)tmp_paddr, (size_t)vaddr);
+    // Log_debug("allocate for pte: paddr=%x, vaddr=%x", (size_t)tmp_paddr, (size_t)vaddr);
     *pde = (size_t)tmp_paddr | PTE_P;
   }
   PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
@@ -106,7 +106,7 @@ void* add_vmap(_AddressSpace *as, size_t va) {
   void* ret = has_map(as, va);
   if(ret == NULL) {
     void *pa = pgalloc_usr(1);
-    Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
+    // Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
     _map(as, PTE_ADDR(va), pa, 0);
     ret = (void*)((size_t)pa | OFF(va));
   }

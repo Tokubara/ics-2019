@@ -43,30 +43,31 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     size_t next_addr;
     size_t len;
     void* paddr;
-    Log_debug("vaddr_st:%x,vaddr_mid%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
+    // Log_debug("vaddr_st:%x,vaddr_mid%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
     
     while(cur_addr<vaddr_mid) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_mid, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
-      fs_read(fd, paddr, len);
+      // fs_read(fd, paddr, len);
       cur_addr = next_addr;
     }
     while(cur_addr<vaddr_end) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_end, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
-      memset(paddr, 0, len);
+      // memset(paddr, 0, len);
       cur_addr = next_addr;
     }
   }
-
+  Log_debug("finish");
   return entry; // 返回的是入口地址
 }
 
 void naive_uload(PCB *pcb, const char *filename) {
   _protect(&pcb->as);
   uintptr_t entry = loader(pcb, filename);
+  Log_debug("finish loader");
   Log("Jump to entry = %x", entry);
   ((void(*)())entry) ();
 }
