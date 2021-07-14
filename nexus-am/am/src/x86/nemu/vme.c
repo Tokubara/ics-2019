@@ -101,6 +101,7 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
   } else {
     Log_error("pte exists, vaddr=%x, pte=%x\n", (size_t)vaddr, *pte);
   }
+  Log_debug("vaddr:%x, paddr:%x", (size_t)vaddr, (size_t)paddr);
   return 0;
 }
 

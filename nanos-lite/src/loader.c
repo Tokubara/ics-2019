@@ -49,14 +49,14 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_mid, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
-      // fs_read(fd, paddr, len);
+      fs_read(fd, paddr, len);
       cur_addr = next_addr;
     }
     while(cur_addr<vaddr_end) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_end, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
-      // memset(paddr, 0, len);
+      memset(paddr, 0, len);
       cur_addr = next_addr;
     }
   }
