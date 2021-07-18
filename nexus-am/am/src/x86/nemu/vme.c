@@ -77,7 +77,7 @@ void __am_get_cur_as(_Context *c) {
 // 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
-    Log_debug("cr3:%x", c->as->ptr);
+    // Log_debug("cr3:%x", c->as->ptr);
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
     cur_as = c->as;
   }

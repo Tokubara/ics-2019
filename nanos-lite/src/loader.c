@@ -15,6 +15,7 @@
 #define PGROUNDDOWN(a)  (((a)) & ~PGMASK)
 #define PGROUNDUP_GT(sz)  (PGROUNDDOWN(sz)+PGSIZE)
 #define min(a,b) ((a<=b)?a:b)
+#define max(a,b) ((a>=b)?a:b)
 static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_header;
   int fd = fs_open(filename, 0, 0); // 后两个参数没用上, 于是随便写0了
@@ -29,10 +30,11 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   uintptr_t ph_addr = elf_header.e_phoff;
   size_t ph_size = sizeof(Elf_Phdr);
   void* tmp_addr = NULL;
+  size_t heap_start = 0;
   for(size_t i = 0; i<ph_num; i++,ph_addr+=ph_size) {
     fs_lseek(fd, ph_addr, SEEK_SET);
     fs_read(fd, &tmp_ph, ph_size);
-    if(tmp_ph.p_type==PT_NULL) {
+    if(tmp_ph.p_type==PT_NULL || tmp_ph.p_vaddr==0) {
       continue;
     }
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
@@ -44,6 +46,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     size_t next_addr;
     size_t len;
     void* paddr;
+    heap_start = max(heap_start, vaddr_end);
     // Log_debug("vaddr_st:%x,vaddr_mid:%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
     // Log_debug("offset:%x", tmp_ph.p_offset);
     while(cur_addr<vaddr_mid) {
@@ -62,6 +65,8 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       cur_addr = next_addr;
     }
   }
+  pcb->max_brk = heap_start;
+  Log_debug("max_brk:%x", heap_start);
   return entry; // 返回的是入口地址
 }
 

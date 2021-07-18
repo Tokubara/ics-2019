@@ -22,8 +22,8 @@ update-ramdisk-single:
 	cp $(SINGLE_APP_FILE) $(RAMDISK_FILE)
 	touch src/files.h
 
-update-fsimg:;
-	# $(MAKE) -C $(NAVY_HOME) ISA=$(ISA)
+update-fsimg:
+	$(MAKE) -C $(NAVY_HOME) ISA=$(ISA)
 
 update-ramdisk-fsimg: update-fsimg
 	$(eval FSIMG_FILES := $(shell find $(FSIMG_PATH) -type f))

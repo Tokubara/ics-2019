@@ -9,7 +9,7 @@
 #include <am.h>
 #include <klib.h>
 #include "debug.h"
-
+#define max(a,b) ((a>=b)?a:b)
 typedef char bool;
 #define true 1
 #define false 0

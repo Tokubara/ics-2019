@@ -4,8 +4,8 @@ void main_loop(bool skip);
 void hal_init();
 
 int
-// main(int argc, char *argv[], char *envp[]) {
-main() {
+main(int argc, char *argv[], char *envp[]) {
+// main() {
 
   // 解析命令行参数
   bool skip = 1;
