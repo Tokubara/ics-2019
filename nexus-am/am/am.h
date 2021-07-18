@@ -84,6 +84,7 @@ int _protect(_AddressSpace *as);
 void _unprotect(_AddressSpace *as);
 int _map(_AddressSpace *as, void *va, void *pa, int prot);
 void* add_vmap(_AddressSpace *as, size_t va);
+int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end);
 size_t has_map(_AddressSpace *as, size_t vaddr);
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]);
 

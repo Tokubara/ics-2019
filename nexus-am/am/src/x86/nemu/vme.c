@@ -58,7 +58,6 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
 int _protect(_AddressSpace *as) {
   PDE *updir = (PDE*)(pgalloc_usr(1));
   as->ptr = updir;
-  Log_debug("pde addr:%x", (size_t)as->ptr);
   // map kernel space
   for (int i = 0; i < NR_PDE; i ++) {
     updir[i] = kpdirs[i];
@@ -78,7 +77,7 @@ void __am_get_cur_as(_Context *c) {
 // 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
-    Log_debug("cr3:%x", c->as->ptr);
+    // Log_debug("cr3:%x", c->as->ptr);
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
     cur_as = c->as;
   }
@@ -101,7 +100,7 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
   } else {
     Log_error("pte exists, vaddr=%x, pte=%x\n", (size_t)vaddr, *pte);
   }
-  Log_debug("vaddr:%x, paddr:%x", (size_t)vaddr, (size_t)paddr);
+  // Log_debug("vaddr:%x, paddr:%x", (size_t)vaddr, (size_t)paddr);
   return 0;
 }
 
@@ -114,6 +113,17 @@ void* add_vmap(_AddressSpace *as, size_t va) {
     ret = (void*)((size_t)pa | OFF(va));
   }
   return ret;
+}
+
+// 右闭
+int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end) {
+    void* addr_down = PGROUNDDOWN((size_t)va_start);
+    void* addr_up = PGROUNDDOWN((size_t)va_end);
+    void* cur_addr = addr_down;
+    while(cur_addr<=addr_up) {
+      add_vmap(as, cur_addr);
+      cur_addr+=PGSIZE;
+    }
 }
 
 size_t has_map(_AddressSpace *as, size_t vaddr) {
@@ -180,6 +190,7 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   // 相比_kcontext, 大概需要设置GPRx
   _Context* context = (_Context*)(kstack.end - sizeof(_Context));
   memset(context, 0, sizeof(_Context));
+  context->as = as;
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;

@@ -13,12 +13,11 @@ bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
     return false;
   }
   *paddr = (pte.page_frame << 12) | addr.lo;
-  if(vaddr>0x40000000) {
-    Log_debug("vaddr:%x, paddr:%x", vaddr, *paddr);
-  }
+  // if(vaddr>0x40000000) {
+    // Log_debug("vaddr:%x, paddr:%x", vaddr, *paddr);
+  // }
   return true;
 }
-
 
 uint32_t isa_vaddr_read(vaddr_t addr, int len) {
   paddr_t paddr;
@@ -69,18 +68,6 @@ void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
   }
   paddr_write(paddr, data, len);
 }
-
-// static inline void* get_host_addr_by_addr(vaddr_t st_addr, size_t len) {
-//   void* host_addr = get_mmio_host_addr_by_addr(st_addr, st_addr+len-1);
-//   if (host_addr == NULL) {
-
-//   }
-//   if (map_inside(&pmem_map, st_addr) && map_inside(&pmem_map, st_addr+len-1)) {
-//     host_addr = pmem + (st_addr - pmem_map.low);
-//   } else {
-//   }
-//   return host_addr;
-// }
 
 #define min(a,b) ((a<=b)?a:b)
 // movsb, 失败返回-1, 这样movsb的执行函数调用rtl_exit
