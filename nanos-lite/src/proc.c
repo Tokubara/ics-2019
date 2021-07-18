@@ -34,7 +34,7 @@ void init_proc() {
   Log("Initializing processes...");
 
   // load program here
-  naive_uload(&pcb[0], "/bin/dummy");
+  naive_uload(&pcb[0], "/bin/events");
 }
 
 _Context* schedule(_Context *prev) {
