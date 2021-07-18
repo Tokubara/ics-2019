@@ -42,9 +42,22 @@ void paddr_write(paddr_t addr, uint32_t data, int len) {
   }
 }
 
+static inline void* get_host_addr_by_addr(paddr_t st_addr, size_t len) {
+  void* host_addr;
+  if (map_inside(&pmem_map, st_addr) && map_inside(&pmem_map, st_addr+len-1)) {
+    host_addr = pmem + (st_addr - pmem_map.low);
+  } else {
+    host_addr = get_mmio_host_addr_by_addr(st_addr, st_addr+len-1);
+  }
+  return host_addr;
+}
+
 size_t pmem_cpy(paddr_t dest_paddr, paddr_t src_paddr, size_t len) {
-  assert(map_inside(&pmem_map, dest_paddr) && map_inside(&pmem_map, dest_paddr+len-1) && map_inside(&pmem_map, src_paddr) && map_inside(&pmem_map, src_paddr+len-1));
-  memcpy(pmem+dest_paddr, pmem+src_paddr, len);
+  void* dest_host_addr = get_host_addr_by_addr(dest_paddr, len);
+  assert(dest_host_addr != NULL);
+  void* src_host_addr = get_host_addr_by_addr(src_paddr, len);
+  assert(src_host_addr != NULL);
+  memcpy(dest_host_addr, src_host_addr, len);
   return len;
 }
 
