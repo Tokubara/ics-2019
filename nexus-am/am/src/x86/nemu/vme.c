@@ -5,7 +5,7 @@
 
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
-static PDE kpdirs[NR_PDE] PG_ALIGN = {}; // 那它应该是恰好占一页
+PDE kpdirs[NR_PDE] PG_ALIGN = {}; // 那它应该是恰好占一页
 static PTE kptabs[(PMEM_SIZE + MMIO_SIZE) / PGSIZE] PG_ALIGN = {};
 static void* (*pgalloc_usr)(size_t) = NULL;
 static void (*pgfree_usr)(void*) = NULL;
@@ -77,7 +77,7 @@ void __am_get_cur_as(_Context *c) {
 // 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
-    // Log_debug("cr3:%x", c->as->ptr);
+    Log_debug("cr3:%x", c->as->ptr);
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
     cur_as = c->as;
   }
@@ -191,6 +191,7 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   _Context* context = (_Context*)(kstack.end - sizeof(_Context));
   memset(context, 0, sizeof(_Context));
   context->as = as;
+  Log_debug("as:%x", (size_t)as->ptr);
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;

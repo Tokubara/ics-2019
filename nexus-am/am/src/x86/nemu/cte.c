@@ -56,9 +56,10 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
   return 0;
 }
 
-_Context *_kcontext(_Area stack, void (*entry)(void *), void *arg) {
+_Context *_kcontext(_AddressSpace *as, _Area stack, void (*entry)(void *), void *arg) {
   _Context* context = (_Context*)(stack.end - sizeof(_Context) - 8);
   memset(context, 0, sizeof(_Context));
+  context->as = as;
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
