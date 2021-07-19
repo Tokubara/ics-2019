@@ -43,7 +43,10 @@ size_t __am_video_write(uintptr_t reg, void *buf, size_t size) {
       }
       return size;
     }
-    default: {_halt(1);}
+    default: {
+               printf("reg not exists\n");
+               _halt(1);
+             }
   }
   return 0;
 }

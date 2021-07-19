@@ -132,15 +132,19 @@ VIDEO_Init(
    // Create the screen buffer and the backup screen buffer.
    //
    gpScreen = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
+   assert(gpScreen!=NULL);
    gpScreenBak = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 8, 0, 0, 0, 0);
+   assert(gpScreenBak!=NULL);
    gpScreenReal = SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 200, 32,
                                        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+   assert(gpScreenReal!=NULL);
 
    //
    // Create texture for screen.
    //
    gpTexture = SDL_CreateTexture(gpRenderer, SDL_PIXELFORMAT_ARGB8888,
 							  SDL_TEXTUREACCESS_STREAMING, 320, 200);
+   assert(gpTexture!=NULL);
 
    //
    // Failed?
@@ -177,6 +181,7 @@ VIDEO_Init(
       SDL_DestroyWindow(gpWindow);
       gpWindow = NULL;
 
+      assert(0);
       return -2;
    }
 
@@ -270,10 +275,12 @@ VIDEO_Init(
    gpScreen = SDL_CreateRGBSurface(gpScreenReal->flags & ~SDL_HWSURFACE, 320, 200, 8,
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);
+   assert(gpScreen!=NULL);
 
    gpScreenBak = SDL_CreateRGBSurface(gpScreenReal->flags & ~SDL_HWSURFACE, 320, 200, 8,
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);
+   assert(gpScreenBak!=NULL);
 
    //
    // Failed?
@@ -295,6 +302,7 @@ VIDEO_Init(
       SDL_FreeSurface(gpScreenReal);
 	  gpScreenReal = NULL;
 
+    assert(0);
       return -2;
    }
 
