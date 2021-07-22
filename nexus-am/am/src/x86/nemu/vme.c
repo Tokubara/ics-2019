@@ -191,7 +191,7 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   _Context* context = (_Context*)(kstack.end - sizeof(_Context));
   memset(context, 0, sizeof(_Context));
   context->as = as;
-  Log_debug("as:%x", (size_t)as->ptr);
+  // Log_debug("as:%x", (size_t)as->ptr);
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;

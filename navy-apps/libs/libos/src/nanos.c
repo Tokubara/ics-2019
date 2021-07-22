@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <time.h>
+#include <stdio.h>
 #include "syscall.h"
 
 // helper macros
@@ -64,17 +65,15 @@ int _write(int fd, void *buf, size_t count) {
   return _syscall_(SYS_write, fd, buf, count);
 }
 
-extern char end;
+extern char _end;
 
 void *_sbrk(intptr_t increment) {
-  static unsigned char initialized = 0;
-  static void* program_break;
-  if(initialized==0) {
-    program_break = (void*)end;
-    initialized = 1;
+  static void* program_break = &_end;
+  if (increment == 0) {
+    return program_break;
   }
   void* old_program_break = program_break;
-  void* new_program_break = (void*)((int)program_break+increment);
+  void* new_program_break = (void*)((intptr_t)program_break+increment);
   int ret = _syscall_(SYS_brk, new_program_break, 0, 0);
   if(ret==0) {
     program_break = new_program_break;

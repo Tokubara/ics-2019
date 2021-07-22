@@ -55,9 +55,11 @@ _Context* do_syscall(_Context *c) {
                     }
     case SYS_brk: {
                     LLog("brk");
-                    mm_brk(c->as, current->max_brk, current->max_brk+c->GPR2);
-                    current->max_brk = max(current->max_brk, current->max_brk+c->GPR2);
+                    Log_debug("brk");
+                    mm_brk(c->as, current->max_brk, c->GPR2);
+                    current->max_brk = max(current->max_brk, c->GPR2);
                     c->GPRx = 0; // 表示成功
+                    Log_debug("leave brk");
                     break;
                   }
     case SYS_execve: {

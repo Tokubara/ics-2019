@@ -233,6 +233,9 @@ void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 SDL_Surface* SDL_CreateRGBSurface(uint32_t flags, int width, int height, int depth,
     uint32_t Rmask, uint32_t Gmask, uint32_t Bmask, uint32_t Amask) {
   SDL_Surface *s = malloc(sizeof(SDL_Surface));
+  if(s==NULL) {
+    assert(0);
+  }
   assert(s);
   s->format = malloc(sizeof(SDL_PixelFormat));
   assert(s);

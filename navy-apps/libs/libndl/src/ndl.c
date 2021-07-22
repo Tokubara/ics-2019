@@ -13,13 +13,16 @@ static int canvas_w, canvas_h, screen_w, screen_h, pad_x, pad_y;
 
 //? 
 int NDL_OpenDisplay(int w, int h) {
+  printf("enter NDL_OpenDisplay");
   if (!canvas) {
     NDL_CloseDisplay(); // 这里真的没问题? 是free, 我觉得这里逻辑有问题
   }
 
   canvas_w = w;
   canvas_h = h;
+  printf("before malloc, w=%d, h=%d\n", w, h);
   canvas = malloc(sizeof(uint32_t) * w * h);
+  printf("canvas:%x\n", canvas);
   assert(canvas);
 
   if (getenv("NWM_APP")) { //? 这个环境变量的作用, 大概跟实现无关? 看起来走的是else分支
@@ -32,7 +35,9 @@ int NDL_OpenDisplay(int w, int h) {
     printf("\033[X%d;%ds", w, h); fflush(stdout);
     evtdev = stdin;
   } else {
+    printf("before get_display_info");
     get_display_info();
+    printf("after get_display_info");
     assert(screen_w >= canvas_w);
     assert(screen_h >= canvas_h);
     pad_x = (screen_w - canvas_w) / 2;
@@ -41,6 +46,7 @@ int NDL_OpenDisplay(int w, int h) {
     fbdev = fopen("/dev/fb", "w"); assert(fbdev);
     evtdev = fopen("/dev/events", "r"); assert(evtdev);
     fbsyncdev = fopen("/dev/fbsync", "w"); assert(fbsyncdev);
+    printf("open\n");
   }
 }
 

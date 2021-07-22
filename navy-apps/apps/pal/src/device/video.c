@@ -275,18 +275,23 @@ VIDEO_Init(
    gpScreen = SDL_CreateRGBSurface(gpScreenReal->flags & ~SDL_HWSURFACE, 320, 200, 8,
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);
-   assert(gpScreen!=NULL);
 
    gpScreenBak = SDL_CreateRGBSurface(gpScreenReal->flags & ~SDL_HWSURFACE, 320, 200, 8,
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);
-   assert(gpScreenBak!=NULL);
+   if(gpScreenBak==NULL) {
+     assert(0);
+   }
 
+   if(gpScreen==NULL) {
+     assert(0);
+   }
    //
    // Failed?
    //
    if (gpScreen == NULL || gpScreenBak == NULL)
    {
+    assert(0);
       if (gpScreen != NULL)
       {
          SDL_FreeSurface(gpScreen);
@@ -302,7 +307,6 @@ VIDEO_Init(
       SDL_FreeSurface(gpScreenReal);
 	  gpScreenReal = NULL;
 
-    assert(0);
       return -2;
    }
 

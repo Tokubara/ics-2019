@@ -19,6 +19,10 @@
 static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr elf_header;
   int fd = fs_open(filename, 0, 0); // 后两个参数没用上, 于是随便写0了
+  if (fd<0) {
+    Log_error("%s not exists", filename);
+    _halt(1);
+  }
   fs_read(fd, &elf_header, sizeof(Elf_Ehdr));
   uintptr_t entry = elf_header.e_entry;
   size_t ph_num = elf_header.e_phnum;
