@@ -1,4 +1,4 @@
-#include "proc.h"
+#include "proc.h" // 包含了common.h
 #include "fs.h"
 #include <elf.h>
 
@@ -44,6 +44,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     fs_lseek(fd, tmp_ph.p_offset, SEEK_SET);
     
     size_t vaddr_st = tmp_ph.p_vaddr;
+#ifdef HAS_VME
     size_t vaddr_end = tmp_ph.p_vaddr+tmp_ph.p_memsz; // 右开
     size_t vaddr_mid = tmp_ph.p_vaddr+tmp_ph.p_filesz; // 右开
     size_t cur_addr = vaddr_st;
@@ -68,9 +69,18 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       memset(paddr, 0, len);
       cur_addr = next_addr;
     }
+#else
+    fs_read(fd, vaddr_st, tmp_ph.p_filesz);
+    if(tmp_ph.p_memsz>tmp_ph.p_filesz) {
+      tmp_addr = (void*)(tmp_ph.p_vaddr+tmp_ph.p_filesz);
+      memset(tmp_addr, 0, tmp_ph.p_memsz-tmp_ph.p_filesz);
+    }
+#endif
   }
+#ifdef HAS_VME
   pcb->max_brk = heap_start;
   Log_debug("max_brk:%x", heap_start);
+#endif
   return entry; // 返回的是入口地址
 }
 

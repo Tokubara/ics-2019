@@ -56,11 +56,13 @@ int _vme_init(void* (*pgalloc_f)(size_t), void (*pgfree_f)(void*)) {
 
 // 用于创建一个默认的地址空间
 int _protect(_AddressSpace *as) {
-  PDE *updir = (PDE*)(pgalloc_usr(1));
-  as->ptr = updir;
-  // map kernel space
-  for (int i = 0; i < NR_PDE; i ++) {
-    updir[i] = kpdirs[i];
+  if(vme_enable) {
+    PDE *updir = (PDE*)(pgalloc_usr(1));
+    as->ptr = updir;
+    // map kernel space
+    for (int i = 0; i < NR_PDE; i ++) {
+      updir[i] = kpdirs[i];
+    }
   }
 
   return 0;
@@ -105,18 +107,23 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
 }
 
 void* add_vmap(_AddressSpace *as, size_t va) {
-  void* ret = has_map(as, va);
-  if(ret == NULL) {
-    void *pa = pgalloc_usr(1);
-    // Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
-    _map(as, PTE_ADDR(va), pa, 0);
-    ret = (void*)((size_t)pa | OFF(va));
+  if (vme_enable) {
+    void* ret = has_map(as, va);
+    if(ret == NULL) {
+      void *pa = pgalloc_usr(1);
+      // Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
+      _map(as, PTE_ADDR(va), pa, 0);
+      ret = (void*)((size_t)pa | OFF(va));
+    }
+    return ret;
+  } else {
+    return NULL;
   }
-  return ret;
 }
 
 // 右闭
 int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end) {
+  if (vme_enable) {
     void* addr_down = PGROUNDDOWN((size_t)va_start);
     void* addr_up = PGROUNDDOWN((size_t)va_end);
     void* cur_addr = addr_down;
@@ -124,20 +131,25 @@ int add_vmap_range(_AddressSpace *as, void *va_start, void* va_end) {
       add_vmap(as, cur_addr);
       cur_addr+=PGSIZE;
     }
+  }
 }
 
 size_t has_map(_AddressSpace *as, size_t vaddr) {
-  addr_t addr;
-  addr.val = vaddr;
-  PDE* pde = as->ptr + (addr.hi << 2);
-  if ((*pde & PTE_P)==0) {
+  if (vme_enable) {
+    addr_t addr;
+    addr.val = vaddr;
+    PDE* pde = as->ptr + (addr.hi << 2);
+    if ((*pde & PTE_P)==0) {
+      return 0;
+    }
+    PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
+    if ((*pte & PTE_P)==0) {
+      return 0;
+    }
+    return (*pte & 0xfffff000) | addr.lo;
+  } else {
     return 0;
   }
-  PTE* pte = (*pde&0xfffff000)+(addr.mid << 2);
-  if ((*pte & PTE_P)==0) {
-    return 0;
-  }
-  return (*pte & 0xfffff000) | addr.lo;
 }
 
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]) {
