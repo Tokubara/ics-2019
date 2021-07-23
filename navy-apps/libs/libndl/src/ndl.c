@@ -13,7 +13,7 @@ static int canvas_w, canvas_h, screen_w, screen_h, pad_x, pad_y;
 
 //? 
 int NDL_OpenDisplay(int w, int h) {
-  printf("enter NDL_OpenDisplay");
+  printf("enter NDL_OpenDisplay\n");
   if (!canvas) {
     NDL_CloseDisplay(); // 这里真的没问题? 是free, 我觉得这里逻辑有问题
   }

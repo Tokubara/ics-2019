@@ -5,8 +5,8 @@
 #define LEN	SRC+4
 
 .section        .text
-.global memcpy
-memcpy:
+.global my_asm_memcpy
+my_asm_memcpy:
   pushl %edi
   pushl %esi
 	movl	DEST(%esp), %edi

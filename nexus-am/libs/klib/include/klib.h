@@ -18,7 +18,7 @@
 #define strcmp my_strcmp
 #define strncmp my_strncmp
 #define memset my_memset
-// #define memcpy my_memcpy
+#define memcpy my_asm_memcpy
 #define memcmp my_memcmp
 #define printf my_printf
 #define vsprintf my_vsprintf
