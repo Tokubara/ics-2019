@@ -107,7 +107,6 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
-  Log_debug("enter");
   _protect(&pcb->as);
   uintptr_t entry = loader(pcb, filename);
 

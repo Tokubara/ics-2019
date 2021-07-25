@@ -276,6 +276,9 @@ VIDEO_Init(
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);
 
+   if(gpScreen==NULL) {
+     assert(0);
+   }
    gpScreenBak = SDL_CreateRGBSurface(gpScreenReal->flags & ~SDL_HWSURFACE, 320, 200, 8,
       gpScreenReal->format->Rmask, gpScreenReal->format->Gmask,
       gpScreenReal->format->Bmask, gpScreenReal->format->Amask);

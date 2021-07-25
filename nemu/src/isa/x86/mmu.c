@@ -33,7 +33,7 @@ uint32_t isa_vaddr_read(vaddr_t addr, int len) {
       assert(ret==true);
       int len_lo = addr_round_up-addr;
       int len_hi = 4 - len_lo;
-      return paddr_read(paddr, len_lo) | (paddr_read(paddr_hi, len_hi) << len_lo);
+      return paddr_read(paddr, len_lo) | (paddr_read(paddr_hi, len_hi) << (len_lo << 3));
     } else {
       ret = page_translate(addr, &paddr);
       assert(ret==true);
