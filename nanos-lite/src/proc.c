@@ -22,13 +22,15 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   context_kload(&pcb[0], hello_fun, "China");
-  char* argv[1];
-  // argv[0] = "/bin/pal";
-  // argv[1] = "--skip";
-  argv[0] = NULL;
+  char* argv[3];
+  argv[0] = "/bin/dummy";
+  argv[1] = "--skip";
+  argv[2] = NULL;
+  // char* argv[1];
+  // argv[0] = NULL;
   char* envp[1];
   envp[0] = NULL;
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
+  context_uload(&pcb[1], "/bin/dummy", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");

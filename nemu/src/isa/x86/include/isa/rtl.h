@@ -29,12 +29,15 @@ static inline void rtl_sr(int r, const rtlreg_t* src1, int width) {
   }
 }
 
+#define USER_STACK_END 0x48000000
+#define USER_STACK_SIZE 0x8000
 //TODO push esp这种特殊情况
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
   // M[esp] <- src1
   rtl_lr(&t0, 4, 4);
   rtl_subi(&t0, &t0, 4);
+  // Assert(t0 >= USER_STACK_END - USER_STACK_SIZE, "esp=%.8x", t0);
   rtl_sr(4, &t0, 4);
 	rtl_sm(&t0, src1, 4);
 }
@@ -44,6 +47,7 @@ static inline void rtl_pop(rtlreg_t* dest) {
   // esp <- esp + 4
   rtl_lr(&t0, 4, 4);
 	rtl_lm(dest, &t0, 4);
+  // Assert(t0 <= USER_STACK_END, "esp=%.8x", t0);
   rtl_addi(&t0, &t0, 4);
   rtl_sr(4, &t0, 4);
 }

@@ -19,6 +19,7 @@ bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
   return true;
 }
 
+#define Assert_vaddr(addr) Assert(ret==true, "cr3:%.8x, vaddr:%.8x", cpu.cr3.val, addr)
 uint32_t isa_vaddr_read(vaddr_t addr, int len) {
   paddr_t paddr;
   if (cpu.cr0.paging==1) {
@@ -27,16 +28,19 @@ uint32_t isa_vaddr_read(vaddr_t addr, int len) {
     if ((addr&0xfffff000)!=((addr+len-1)&0xfffff000)) {
       uint32_t addr_round_up = PGROUNDUP(addr);
       ret = page_translate(addr, &paddr);
-      assert(ret==true);
+      Assert_vaddr(addr);
+      // Assert(ret==true, "vaddr:%.8x", addr);
       paddr_t paddr_hi;
       ret = page_translate(addr_round_up, &paddr_hi);
-      assert(ret==true);
+      Assert_vaddr(addr_round_up);
+      // Assert(ret==true, "vaddr:%.8x", addr_round_up);
       int len_lo = addr_round_up-addr;
       int len_hi = 4 - len_lo;
       return paddr_read(paddr, len_lo) | (paddr_read(paddr_hi, len_hi) << (len_lo << 3));
     } else {
       ret = page_translate(addr, &paddr);
-      assert(ret==true);
+      Assert_vaddr(addr);
+      // Assert(ret==true, "vaddr:%.8x", addr);
     }
   } else {
     paddr = addr;
@@ -51,17 +55,19 @@ void isa_vaddr_write(vaddr_t addr, uint32_t data, int len) {
     if ((addr&0xfffff000)!=((addr+len-1)&0xfffff000)) {
       uint32_t addr_round_up = PGROUNDUP(addr);
       ret = page_translate(addr, &paddr);
-      assert(ret==true);
+      Assert_vaddr(addr);
       paddr_t paddr_hi;
       ret = page_translate(addr_round_up, &paddr_hi);
-      assert(ret==true);
+      Assert_vaddr(addr_round_up);
+      // Assert(ret==true, "vaddr:%.8x", addr_round_up);
       int len_lo = addr_round_up - addr;
       int len_hi = 4 - len_lo;
       paddr_write(paddr, data & (~0u >> (len_hi << 3)), len_lo);
       paddr_write(paddr_hi, data >> (len_lo << 3), len_hi);
     } else {
       ret = page_translate(addr, &paddr);
-      assert(ret==true);
+      Assert_vaddr(addr);
+      // Assert(ret==true, "vaddr:%.8x", addr);
     }
   } else {
     paddr = addr;

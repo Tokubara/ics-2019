@@ -79,8 +79,8 @@ void __am_get_cur_as(_Context *c) {
 // 切换到另一个_Context的as
 void __am_switch(_Context *c) {
   if (vme_enable) {
-    // Log_debug("cr3:%x", c->as->ptr);
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
+    Log_debug("cr3:%x", c->as->ptr);
     cur_as = c->as;
   }
 }
@@ -111,7 +111,7 @@ void* add_vmap(_AddressSpace *as, size_t va) {
     void* ret = has_map(as, va);
     if(ret == NULL) {
       void *pa = pgalloc_usr(1);
-      Log_debug("allocate: paddr=%x, vaddr=%x", (size_t)pa, (size_t)va);
+      Log_debug("allocate: paddr=%x, vaddr=%x, cr3=%x", (size_t)pa, (size_t)va, (size_t)as->ptr);
       _map(as, PTE_ADDR(va), pa, 0);
       ret = (void*)((size_t)pa | OFF(va));
     }
@@ -152,6 +152,7 @@ size_t has_map(_AddressSpace *as, size_t vaddr) {
   }
 }
 
+// start是虚拟地址, end是物理地址
 _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, char* argv[], char* envp[]) {
   int n_envp = 0;
   while(envp[n_envp]!=0) {
@@ -207,7 +208,8 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
-  context->GPRx = esp;
+  assert((size_t)esp >= (size_t)ustack.end - PGSIZE);
+  context->GPRx = (size_t)esp + (size_t)ustack.start - (size_t)ustack.end; // start是虚拟地址, end是物理地址
 	// printf("[ucontext]argc:%d, argv:%x, envp:%x, argv[0](%x):%s, argv[1](%x):%s\n", argc, argv_addr_base, envp_addr_base, argv_addr_base[0], argv_addr_base[0], argv_addr_base[1], argv_addr_base[1]);
   return context;
 }

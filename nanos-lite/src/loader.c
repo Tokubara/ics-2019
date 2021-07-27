@@ -10,6 +10,9 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
+#define USER_STACK_END 0x48000000
+#define USER_STACK_SIZE 0x8000
+
 #define PGSIZE 4096
 #define PGMASK          (PGSIZE - 1)    // Mask for bit ops
 #define PGROUNDDOWN(a)  (((a)) & ~PGMASK)
@@ -79,7 +82,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   }
 #ifdef HAS_VME
   pcb->max_brk = heap_start;
-  Log_debug("max_brk:%x", heap_start);
+  // Log_debug("max_brk:%x", heap_start);
 #endif
   return entry; // 返回的是入口地址
 }
@@ -113,5 +116,17 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
   _Area stack; // 是内核栈
   stack.start = pcb->stack;
   stack.end = stack.start + sizeof(pcb->stack);
-  pcb->cp = _ucontext(&pcb->as, _heap, stack, (void *)entry, argv, envp);
+#ifdef HAS_VME
+  void* paddr_user_stack_end = add_vmap(&pcb->as, USER_STACK_END - PGSIZE);
+  add_vmap_range(&pcb->as, USER_STACK_END - USER_STACK_SIZE, USER_STACK_END - 1); // 分配用户栈空间
+  _Area ustack;
+  ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
+  ustack.end = paddr_user_stack_end + PGSIZE; // 存物理地址
+  pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
+#else
+  _Area ustack;
+  ustack.start = _heap.end; // 为了与VME的情况保持一致, start与end相同
+  ustack.end = _heap.end; // 存物理地址
+#endif
+  pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
 }
