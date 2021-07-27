@@ -1,4 +1,5 @@
 #include "rtl/rtl.h"
+#include "nemu.h"
 
 /* Condition Code */
 /** 猜测是set指令

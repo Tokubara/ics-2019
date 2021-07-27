@@ -1,5 +1,6 @@
 #include "common.h"
 #include "rtl/relop.h"
+#include "nemu.h"
 
 bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2) {
   switch (relop) {

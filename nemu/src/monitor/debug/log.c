@@ -1,4 +1,5 @@
 #include "common.h"
+#include "nemu.h"
 #include <stdarg.h>
 
 FILE *log_fp = NULL;

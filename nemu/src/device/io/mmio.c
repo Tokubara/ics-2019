@@ -1,5 +1,6 @@
 #include "common.h"
 #include "device/map.h"
+#include "nemu.h"
 
 #define NR_MAP 8
 

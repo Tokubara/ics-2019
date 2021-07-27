@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <SDL2/SDL.h>
+#include "nemu.h"
 
 #define TIMER_HZ 100
 #define VGA_HZ 50

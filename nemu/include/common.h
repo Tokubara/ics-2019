@@ -44,6 +44,4 @@ typedef uint16_t ioaddr_t;
 
 i32 parse_integer(char* arg, i64* val);
 
-bool bool_tmp_var; // 用于处理函数需要success参数, 但success为空的情况
-
 #endif

@@ -1,4 +1,5 @@
 #include "cpu/exec.h"
+#include "nemu.h"
 
 make_EHelper(lidt) {
   rtl_addi(&s0,&id_dest->addr,2);
