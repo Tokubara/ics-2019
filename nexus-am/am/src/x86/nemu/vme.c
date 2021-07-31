@@ -111,7 +111,7 @@ void* add_vmap(_AddressSpace *as, size_t va) {
     void* ret = has_map(as, va);
     if(ret == NULL) {
       void *pa = pgalloc_usr(1);
-      Log_debug("allocate: paddr=%x, vaddr=%x, cr3=%x", (size_t)pa, (size_t)va, (size_t)as->ptr);
+      Log_trace("allocate: paddr=%x, vaddr=%x, cr3=%x", (size_t)pa, (size_t)va, (size_t)as->ptr);
       _map(as, PTE_ADDR(va), pa, 0);
       ret = (void*)((size_t)pa | OFF(va));
     }

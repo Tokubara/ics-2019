@@ -60,12 +60,15 @@ make_EHelper(iret) {
   rtl_mv(&cpu.cs, &s1);
   rtl_pop(&s1);
   rtl_mv(&cpu.eflags.val, &s1);
-  rtl_pop(&s1); // ss, 不用
-  rtl_pop(&s1);
+  rtl_pop(&s1); // s1存着esp
+  rtl_pop(&s0); // 用不上, 随后被覆盖
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s1 == 0) {
+    Log_debug("esp not change, cr3=%x", cpu.cr3.val);
     // Assert(s0 == 0, "esp0 in tss: %x", s0);
   } else {
+    assert(s0 != 0);
+    Log_debug("old esp=%x, new esp=%x", cpu.esp, s1);
     rtl_mv(&cpu.esp, &s1);
   }
 
