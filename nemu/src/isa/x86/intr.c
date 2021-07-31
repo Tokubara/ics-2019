@@ -3,13 +3,13 @@
 void raise_intr(uint32_t NO, vaddr_t ret_addr) {
   // 与实际CPU的行为不一致, 本来需要特权级检查, 如果没有特权级变化, 不会压入esp, ss, 由于没有特权级, 因此压入0来表示不变化
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
-  if (s0 == 0) { // s1存要压入的esp, s0存esp0
+  if (s0 == 0 || cpu.esp <= s0) { // s1存要压入的esp, s0存esp0. <=s0表示当前已在内核栈中
     rtl_li(&s1, 0);
-    Log_debug("esp not change, cr3=%x", cpu.cr3.val);
+    Log_debug("cpu.pc=%x, esp not change, cr3=%x", cpu.pc, cpu.cr3.val);
   } else {
     rtl_mv(&s1, &cpu.esp);
     rtl_mv(&cpu.esp, &s0);
-    Log_debug("old esp=%x, new esp=%x", s1, s0);
+    Log_debug("cpu.pc=%x, old esp=%x, new esp=%x", cpu.pc, s1, s0);
   }
   // 压栈
   rtl_push(&cpu.ss);

@@ -21,16 +21,21 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, "China");
-  char* argv[3];
-  argv[0] = "/bin/dummy";
-  argv[1] = "--skip";
-  argv[2] = NULL;
+  // context_kload(&pcb[0], hello_fun, "China");
+  char* argv_0[1];
+  argv_0[0] = NULL;
+  char* envp_0[1];
+  envp_0[0] = NULL;
+  context_uload(&pcb[0], "/bin/dummy", argv_0, envp_0);
+  char* argv_1[3];
+  argv_1[0] = "/bin/dummy";
+  argv_1[1] = "--skip";
+  argv_1[2] = NULL;
   // char* argv[1];
   // argv[0] = NULL;
-  char* envp[1];
-  envp[0] = NULL;
-  context_uload(&pcb[1], "/bin/dummy", argv, envp);
+  char* envp_1[1];
+  envp_1[0] = NULL;
+  context_uload(&pcb[1], "/bin/bmptest", argv_1, envp_1);
   switch_boot_pcb();
 
   Log("Initializing processes...");
