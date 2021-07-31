@@ -51,6 +51,10 @@
 #define KSEL(desc)     (((desc) << 3) | DPL_KERN)
 #define USEL(desc)     (((desc) << 3) | DPL_USER)
 
+#define DESC_TYPE_CODE	8	// x=1,c=0,r=0,a=0 代码段是可执行的,非依从的,不可读的,已访问位a清0.  
+#define DESC_TYPE_DATA  2	// x=0,e=0,w=1,a=0 数据段是不可执行的,向上扩展的,可写的,已访问位a清0.
+#define DESC_TYPE_TSS   9	// B位为0,不忙
+
 // IDT size
 #define NR_IRQ         256     // IDT size
 
@@ -130,15 +134,17 @@ typedef struct SegDesc {
   uint32_t base_31_24 : 8; // High bits of segment base address
 } SegDesc;
 
-#define SEG(type, base, lim, dpl) (SegDesc)             \
-{  ((lim) >> 12) & 0xffff, (uint32_t)(base) & 0xffff,   \
+// SEG和SEG16此前并没有调用过
+#define SEG(type, base, _size, dpl) (SegDesc)             \
+{  ((((uint32_t)_size) >> 12) - 1) & 0xffff, (uint32_t)(base) & 0xffff,   \
   ((uint32_t)(base) >> 16) & 0xff, type, 1, dpl, 1,     \
-  (uint32_t)(lim) >> 28, 0, 0, 1, 1, (uint32_t)(base) >> 24 }
+  (((((uint32_t)_size) >> 12) - 1) >> 16) & 0xffff, 0, 0, 1, 1, (uint32_t)(base) >> 24 }
 
-#define SEG16(type, base, lim, dpl) (SegDesc)           \
-{  (lim) & 0xffff, (uint32_t)(base) & 0xffff,           \
+// SEG16与SEG的区别是, SEG适用于G=1时,
+#define SEG16(type, base, _size, dpl) (SegDesc)           \
+{  (_size-1) & 0xffff, (uint32_t)(base) & 0xffff,           \
   ((uint32_t)(base) >> 16) & 0xff, type, 0, dpl, 1,     \
-  (uint32_t)(lim) >> 16, 0, 0, 1, 0, (uint32_t)(base) >> 24 }
+  (uint32_t)(_size-1) >> 16, 0, 0, 1, 0, (uint32_t)(base) >> 24 }
 
 // Gate descriptors for interrupts and traps
 typedef struct GateDesc {

@@ -56,6 +56,8 @@ make_EHelper(out);
 make_EHelper(in);
 
 make_EHelper(lidt);
+make_EHelper(lgdt);
+make_EHelper(ltr);
 make_EHelper(int);
 make_EHelper(iret);
 make_EHelper(pusha);

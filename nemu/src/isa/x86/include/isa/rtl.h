@@ -3,6 +3,7 @@
 
 #include "rtl/rtl.h"
 #include "reg.h"
+#include "memory/memory.h"
 
 /** RTL pseudo instructions
  * *rtlreg_t* dest, int r, int width
@@ -50,6 +51,16 @@ static inline void rtl_pop(rtlreg_t* dest) {
   // Assert(t0 <= USER_STACK_END, "esp=%.8x", t0);
   rtl_addi(&t0, &t0, 4);
   rtl_sr(4, &t0, 4);
+}
+
+static inline void rtl_desc_addr(rtlreg_t* dest, rtlreg_t no, rtlreg_t is_idt) {
+  // idt首地址
+  vaddr_t entry_addr = (is_idt?cpu.idt:cpu.gdt) + 8*no;
+  // 得到门描述符
+  unsigned lo = vaddr_read(entry_addr, 4);
+  unsigned hi = vaddr_read(entry_addr+4, 4);
+  // 得到地址
+  rtl_li(dest, (lo&0x0000ffff) | (hi&0xffff0000));
 }
 
 #define switch_case_width(func) switch(width) {\

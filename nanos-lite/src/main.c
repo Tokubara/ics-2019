@@ -6,6 +6,7 @@ void init_device(void);
 void init_irq(void);
 void init_fs(void);
 void init_proc(void);
+size_t set_tss_esp0(size_t esp0);
 
 extern const char logo[];
 
@@ -33,6 +34,9 @@ int main() {
   Log("Finish initialization");
 
 #ifdef HAS_CTE
+  set_tss_esp0(0x182e3);
+  set_tss_esp0(0x12833);
+  assert(0);
   Log("yield in nano");
   _yield();
 #endif

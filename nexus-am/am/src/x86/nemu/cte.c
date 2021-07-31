@@ -8,6 +8,14 @@ void __am_vecsys();
 void __am_vectrap();
 void __am_vecnull();
 
+TSS tss;
+
+size_t set_tss_esp0(size_t esp0) {
+  size_t old_esp = tss.esp0;
+  tss.esp0 = esp0;
+  return old_esp;
+}
+
 _Context* __am_irq_handle(_Context *c) {
   __am_get_cur_as(c); // 设置c->as为cur_as
   _Context *next = c;
@@ -36,6 +44,7 @@ _Context* __am_irq_handle(_Context *c) {
 
 int _cte_init(_Context*(*handler)(_Event, _Context*)) {
   static GateDesc idt[NR_IRQ];
+  static SegDesc gdt[NR_SEG];
 
   // initialize IDT
   for (unsigned int i = 0; i < NR_IRQ; i ++) {
@@ -52,6 +61,14 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
 
   // register event handler
   user_handler = handler;
+
+  // init GDT
+  // 前面的没初始化, assert处理
+  gdt[SEG_TSS] = SEG16(DESC_TYPE_TSS, &tss, sizeof(TSS), 0); // DPL本来也应该是, 这里再次设为0. TSS是系统段, G=0
+  set_gdt(gdt, sizeof(gdt));
+
+  // init TSS
+  set_tr(SEG_TSS);
 
   return 0;
 }
@@ -78,3 +95,4 @@ int _intr_read() {
 
 void _intr_write(int enable) {
 }
+

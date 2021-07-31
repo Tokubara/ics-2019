@@ -1,12 +1,29 @@
 #include "cpu/exec.h"
 #include "nemu.h"
 
+// 只存了地址信息, 没有存界限信息, 按理说也该存段界限的
 make_EHelper(lidt) {
-  rtl_addi(&s0,&id_dest->addr,2);
-  unsigned idt_addr = vaddr_read(s0,4);
-  rtl_mv(&cpu.idt, &idt_addr);
+  rtl_addi(&s0, &id_dest->addr, 2); // 注意这里用的是addr字段, 而不是val字段 // +2是因为低2 bytes是段界限, 需要跳过段界限
+  unsigned idt_addr = vaddr_read(s0, 4);
+  rtl_mv(&cpu.idt, &idt_addr); // 其实这里既是虚拟地址也是物理地址, 因为这是在内核中
 
   print_asm_template1(lidt);
+}
+
+// copy from lidt, 因此也没有存段界限
+make_EHelper(lgdt) {
+  rtl_addi(&s0, &id_dest->addr, 2);
+  unsigned gdt_addr = vaddr_read(s0, 4);
+  rtl_mv(&cpu.gdt, &gdt_addr);
+
+  print_asm_template1(lgdt);
+}
+
+make_EHelper(ltr) {
+  rtl_desc_addr(&cpu.tr, id_dest->val, 0);
+  Log_debug("cpu.tr: %x", cpu.tr);
+
+  print_asm_template1(ltr);
 }
 
 make_EHelper(mov_r2cr) {

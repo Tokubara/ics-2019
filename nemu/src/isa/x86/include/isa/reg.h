@@ -59,6 +59,8 @@ typedef struct {
 
   vaddr_t cs, ss, ds, es, fs, gs;
   vaddr_t idt;
+  vaddr_t gdt;
+  vaddr_t tr;
   union {
     rtlreg_t cr[4];
     struct {
@@ -96,5 +98,29 @@ static inline const char* reg_name(int index, int width) {
 
 i32 isa_reg_str2val(const char *s, u32* val);
 void isa_reg_display();
+
+// Segment Descriptor
+typedef struct SegDesc {
+  uint32_t lim_15_0 : 16;  // Low bits of segment limit
+  uint32_t base_15_0 : 16; // Low bits of segment base address
+  uint32_t base_23_16 : 8; // Middle bits of segment base address
+  uint32_t type : 4  ;     // Segment type (see STS_ constants)
+  uint32_t s : 1;          // 0 = system, 1 = application
+  uint32_t dpl : 2;        // Descriptor Privilege Level
+  uint32_t p : 1;          // Present
+  uint32_t lim_19_16 : 4;  // High bits of segment limit
+  uint32_t avl : 1;        // Unused (available for software use)
+  uint32_t rsv1 : 1;       // Reserved
+  uint32_t db : 1;         // 0 = 16-bit segment, 1 = 32-bit segment
+  uint32_t g : 1;          // Granularity: limit scaled by 4K when set
+  uint32_t base_31_24 : 8; // High bits of segment base address
+} SegDesc;
+
+typedef struct TSS {
+  uint32_t link;     // Unused
+  uint32_t esp0;     // Stack pointers and segment selectors
+  uint32_t ss0;      //   after an increase in privilege level
+  char     padding[88];
+} TSS;
 
 #endif
