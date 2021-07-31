@@ -95,6 +95,11 @@ static inline void interpret_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int le
 static inline void interpret_rtl_sm(const rtlreg_t* addr, const rtlreg_t* src1, int len) {
   vaddr_write(*addr, *src1, len);
 }
+
+
+static inline void interpret_rtl_lm_ph(rtlreg_t *dest, const rtlreg_t* addr, int len) {
+  *dest = paddr_read(*addr, len);
+}
 /**
  * lm(load memory), 把地址内容的len字节存到*dest中. 虽然说是memory, 但是虚拟来看可能是指寄存器. 其实它只是提供了一个拷贝1/2/4字节到某个地址的接口
 */

@@ -39,11 +39,18 @@ void init_proc() {
   // naive_uload(&pcb[0], "/bin/dummy");
 }
 
+bool is_kernel_thread(_Context* c);
+
 _Context* schedule(_Context *prev) {
   // save the context pointer
   current->cp = prev; //? 为什么需要这一句?不用于恢复, 不就没用么
 
   current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  if (is_kernel_thread(current->cp)) {
+    set_tss_esp0(0);
+  } else {
+    set_tss_esp0((size_t)current->stack + STACK_SIZE);
+  }
 
   // then return the new context
   return current->cp;
