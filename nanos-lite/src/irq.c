@@ -4,7 +4,7 @@ static _Context* do_event(_Event e, _Context* c) {
   _Context* ret = NULL;
   switch (e.event) {
     case _EVENT_SYSCALL: {
-                           do_syscall(c);
+                           ret = do_syscall(c);
                            break;
                          }
     case _EVENT_YIELD: {

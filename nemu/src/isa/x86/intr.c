@@ -5,7 +5,7 @@ void raise_intr(uint32_t NO, vaddr_t ret_addr) {
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s0 == 0 || cpu.esp <= s0) { // s1存要压入的esp, s0存esp0. <=s0表示当前已在内核栈中
     rtl_li(&s1, 0);
-    Log_debug("cpu.pc=%x, esp not change, cr3=%x", cpu.pc, cpu.cr3.val);
+    Log_debug("cpu.pc=%x, esp not change, esp=%x, cr3=%x", cpu.pc, cpu.esp, cpu.cr3.val);
   } else {
     rtl_mv(&s1, &cpu.esp);
     rtl_mv(&cpu.esp, &s0);

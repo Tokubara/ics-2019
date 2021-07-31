@@ -26,7 +26,7 @@ void init_proc() {
   argv_0[0] = NULL;
   char* envp_0[1];
   envp_0[0] = NULL;
-  context_uload(&pcb[0], "/bin/dummy", argv_0, envp_0);
+  context_uload(&pcb[0], "/bin/bmptest", argv_0, envp_0);
   char* argv_1[3];
   argv_1[0] = "/bin/dummy";
   argv_1[1] = "--skip";
@@ -35,7 +35,7 @@ void init_proc() {
   // argv[0] = NULL;
   char* envp_1[1];
   envp_1[0] = NULL;
-  context_uload(&pcb[1], "/bin/bmptest", argv_1, envp_1);
+  context_uload(&pcb[1], "/bin/pal", argv_1, envp_1);
   switch_boot_pcb();
 
   Log("Initializing processes...");
@@ -50,6 +50,7 @@ _Context* schedule(_Context *prev) {
   static size_t next_index = 0;
   // save the context pointer
   current->cp = prev; // 需要这一句是因为pcb数组的那个pcb需要
+  Log_debug("cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   size_t tmp_index;
   size_t i;
   for (i = 0; i < MAX_NR_PROC; i++) {
@@ -64,7 +65,9 @@ _Context* schedule(_Context *prev) {
   } else {
     next_index = tmp_index;
   }
+  Log_debug("index=%u", next_index);
   current = &pcb[next_index];
+  Log_debug("cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   ++next_index;
   if (is_kernel_thread(current->cp)) {
     set_tss_esp0(0);

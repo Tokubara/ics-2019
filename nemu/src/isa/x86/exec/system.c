@@ -21,11 +21,11 @@ make_EHelper(lgdt) {
 
 make_EHelper(ltr) {
   rtl_seg_desc_addr(&cpu.tr, id_dest->val);
-  Log_debug("cpu.tr: %x", cpu.tr);
+  // Log_debug("cpu.tr: %x", cpu.tr);
 
   bool ret = page_translate(cpu.tr+offset(TSS, esp0),  &cpu.tss_esp0_paddr);
   Assert_vaddr(cpu.tr+offset(TSS, esp0));
-  Log_debug("esp0 paddr: %x", cpu.tss_esp0_paddr);
+  // Log_debug("esp0 paddr: %x", cpu.tss_esp0_paddr);
 
   print_asm_template1(ltr);
 }
@@ -64,7 +64,7 @@ make_EHelper(iret) {
   rtl_pop(&s0); // 用不上, 随后被覆盖
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s1 == 0) {
-    Log_debug("esp not change, cr3=%x", cpu.cr3.val);
+    Log_debug("esp not change, esp = %x, cr3=%x", cpu.esp, cpu.cr3.val);
     // Assert(s0 == 0, "esp0 in tss: %x", s0);
   } else {
     assert(s0 != 0);
