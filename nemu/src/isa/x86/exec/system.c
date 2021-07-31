@@ -20,7 +20,7 @@ make_EHelper(lgdt) {
 }
 
 make_EHelper(ltr) {
-  rtl_desc_addr(&cpu.tr, id_dest->val, 0);
+  rtl_seg_desc_addr(&cpu.tr, id_dest->val);
   Log_debug("cpu.tr: %x", cpu.tr);
 
   print_asm_template1(ltr);

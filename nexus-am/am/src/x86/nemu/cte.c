@@ -1,5 +1,6 @@
 #include <am.h>
 #include <x86.h>
+#include <debug.h>
 
 static _Context* (*user_handler)(_Event, _Context*) = NULL;
 
@@ -65,6 +66,7 @@ int _cte_init(_Context*(*handler)(_Event, _Context*)) {
   // init GDT
   // 前面的没初始化, assert处理
   gdt[SEG_TSS] = SEG16(DESC_TYPE_TSS, &tss, sizeof(TSS), 0); // DPL本来也应该是, 这里再次设为0. TSS是系统段, G=0
+  Log_debug("tss addr: %x", &tss);
   set_gdt(gdt, sizeof(gdt));
 
   // init TSS

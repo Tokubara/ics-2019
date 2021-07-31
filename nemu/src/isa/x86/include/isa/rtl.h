@@ -53,14 +53,24 @@ static inline void rtl_pop(rtlreg_t* dest) {
   rtl_sr(4, &t0, 4);
 }
 
-static inline void rtl_desc_addr(rtlreg_t* dest, rtlreg_t no, rtlreg_t is_idt) {
+static inline void rtl_gate_desc_addr(rtlreg_t* dest, rtlreg_t no) {
   // idt首地址
-  vaddr_t entry_addr = (is_idt?cpu.idt:cpu.gdt) + 8*no;
+  vaddr_t entry_addr = cpu.idt + 8 * no;
   // 得到门描述符
   unsigned lo = vaddr_read(entry_addr, 4);
   unsigned hi = vaddr_read(entry_addr+4, 4);
   // 得到地址
   rtl_li(dest, (lo&0x0000ffff) | (hi&0xffff0000));
+}
+
+static inline void rtl_seg_desc_addr(rtlreg_t* dest, rtlreg_t no) {
+  // idt首地址
+  vaddr_t entry_addr = cpu.gdt + 8 * no;
+  // 得到门描述符
+  unsigned lo = vaddr_read(entry_addr, 4);
+  unsigned hi = vaddr_read(entry_addr+4, 4);
+  // 得到地址
+  rtl_li(dest, (hi & 0xff000000) | ((hi & 0x000000ff) << 16) | ((lo >> 16) & 0x0000ffff));
 }
 
 #define switch_case_width(func) switch(width) {\
