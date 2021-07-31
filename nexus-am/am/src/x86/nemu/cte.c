@@ -82,6 +82,7 @@ _Context *_kcontext(_AddressSpace *as, _Area stack, void (*entry)(void *), void 
   // 由于popa中并没有用到esp, 因此不需要设置esp
   context->eip = entry;
   context->cs = 8;
+  context->esp = 0;
   int* arg_addr = stack.end - 4; //? 这里能不能用void*?
   *arg_addr = arg;
   return context;

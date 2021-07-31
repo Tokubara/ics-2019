@@ -64,7 +64,7 @@ make_EHelper(iret) {
   rtl_pop(&s1);
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s1 == 0) {
-    Assert(s0 == 0, "esp0 in tss: %x", s0);
+    // Assert(s0 == 0, "esp0 in tss: %x", s0);
   } else {
     rtl_mv(&cpu.esp, &s1);
   }

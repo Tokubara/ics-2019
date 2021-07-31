@@ -3,9 +3,9 @@
 
 struct _Context { // 后压入的在先
   struct _AddressSpace *as;
-  uintptr_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+  uintptr_t edi, esi, ebp, _esp, ebx, edx, ecx, eax;
   int irq;
-  uintptr_t eip, cs, eflags;
+  uintptr_t eip, cs, eflags, esp, ss;
 };
 
 #define GPR1 eax
