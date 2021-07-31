@@ -42,4 +42,11 @@
   printf("\33[0;31m[error][%d,%s] " format "\33[0m\n", \
       __LINE__, __func__, ## __VA_ARGS__)
 
+#define Log_info(format, ...) \
+  printf("\33[0;34m[info][%d,%s] " format "\33[0m\n", \
+      __LINE__, __func__, ## __VA_ARGS__)
+
+#define Log_trace(format, ...) \
+  printf("\33[0;90m[trace][%d,%s] " format "\33[0m\n", \
+      __LINE__, __func__, ## __VA_ARGS__)
 #endif

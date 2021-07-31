@@ -102,6 +102,7 @@ typedef uint32_t PDE;
 extern PDE kpdirs[]; // 那它应该是恰好占一页
 void context_kload(PCB *pcb, void *entry, void *arg) {
   pcb->as.ptr = kpdirs;
+  pcb->status = RUNNING;
   _Area stack;
   stack.start = pcb->stack;
   stack.end = stack.start + sizeof(pcb->stack);
@@ -111,6 +112,7 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
 
 void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
   _protect(&pcb->as);
+  pcb->status = RUNNING;
   uintptr_t entry = loader(pcb, filename);
 
   _Area stack; // 是内核栈

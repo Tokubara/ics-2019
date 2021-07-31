@@ -47,10 +47,25 @@ void init_proc() {
 bool is_kernel_thread(_Context* c);
 
 _Context* schedule(_Context *prev) {
+  static size_t next_index = 0;
   // save the context pointer
-  current->cp = prev; //? 为什么需要这一句?不用于恢复, 不就没用么
-
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current->cp = prev; // 需要这一句是因为pcb数组的那个pcb需要
+  size_t tmp_index;
+  size_t i;
+  for (i = 0; i < MAX_NR_PROC; i++) {
+    tmp_index = (i + next_index) % MAX_NR_PROC;
+    if (pcb[tmp_index].cp != NULL && (&pcb[tmp_index] != current) && pcb[tmp_index].status != EXITED) {
+      break;
+    }
+  }
+  if (i == MAX_NR_PROC) {
+    Log_info("All done!!");
+    _halt(0);
+  } else {
+    next_index = tmp_index;
+  }
+  current = &pcb[next_index];
+  ++next_index;
   if (is_kernel_thread(current->cp)) {
     set_tss_esp0(0);
   } else {

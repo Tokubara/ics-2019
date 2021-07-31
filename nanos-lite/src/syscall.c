@@ -17,9 +17,11 @@ _Context* do_syscall(_Context *c) {
   switch (a[0]) {
     case SYS_exit: {
                       LLog("exit: exit_number=%d\n", c->GPR2);
-                      // ret = schedule(c);
+                      current->status = EXITED;
+                      Log_info("A job done!");
+                      ret = schedule(c);
                       // naive_uload(NULL, "/bin/init");
-                      _halt(c->GPR2);
+                      // _halt(c->GPR2);
                       break;
                     }
     case SYS_yield: {
