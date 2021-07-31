@@ -19,7 +19,6 @@ bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
   return true;
 }
 
-#define Assert_vaddr(addr) Assert(ret==true, "cr3:%.8x, vaddr:%.8x", cpu.cr3.val, addr)
 uint32_t isa_vaddr_read(vaddr_t addr, int len) {
   paddr_t paddr;
   if (cpu.cr0.paging==1) {

@@ -11,5 +11,6 @@
 #define concat5(x, y, z, v, w) concat4(concat(x, y), z, v, w)
 
 #define MAP(c, f) c(f)
+#define offset(_struct_type,_member) (uint32_t)((uintptr_t)(&((_struct_type*)0)->_member))
 
 #endif

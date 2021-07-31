@@ -23,6 +23,10 @@ make_EHelper(ltr) {
   rtl_seg_desc_addr(&cpu.tr, id_dest->val);
   Log_debug("cpu.tr: %x", cpu.tr);
 
+  bool ret = page_translate(cpu.tr+offset(TSS, esp0),  &cpu.tss_esp0_paddr);
+  Assert_vaddr(cpu.tr+offset(TSS, esp0));
+  Log_debug("esp0 paddr: %x", cpu.tss_esp0_paddr);
+
   print_asm_template1(ltr);
 }
 

@@ -15,7 +15,9 @@
 #define NR_PDE						1024
 #define NR_PTE						1024
 #define PT_SIZE						((NR_PTE) * (PAGE_SIZE))
+#define Assert_vaddr(addr) Assert(ret==true, "cr3:%.8x, vaddr:%.8x", cpu.cr3.val, addr)
 
+bool page_translate(vaddr_t vaddr, paddr_t* paddr);
 /* the Control Register 0 */
 typedef union CR0 {
   struct {

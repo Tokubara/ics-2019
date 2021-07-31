@@ -61,6 +61,7 @@ typedef struct {
   vaddr_t idt;
   vaddr_t gdt;
   vaddr_t tr;
+  paddr_t tss_esp0_paddr;
   union {
     rtlreg_t cr[4];
     struct {
