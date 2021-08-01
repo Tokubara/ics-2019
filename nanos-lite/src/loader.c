@@ -116,7 +116,9 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   pcb->priority = priority;
   pcb->ticks = priority;
   pcb->pid = pid;
+  Log_debug("before loader");
   uintptr_t entry = loader(pcb, filename);
+  Log_debug("loader finish");
 
   _Area stack; // 是内核栈
   stack.start = pcb->stack;
