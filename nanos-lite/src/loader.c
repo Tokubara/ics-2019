@@ -110,11 +110,12 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
   pcb->cp = _kcontext(&pcb->as, stack, entry, arg);
 }
 
-void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], unsigned priority) {
+void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], unsigned priority, unsigned pid) {
   _protect(&pcb->as);
   pcb->status = RUNNING;
   pcb->priority = priority;
   pcb->ticks = priority;
+  pcb->pid = pid;
   uintptr_t entry = loader(pcb, filename);
 
   _Area stack; // 是内核栈
@@ -129,8 +130,8 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
 #else
   _Area ustack;
-  ustack.start = _heap.end; // 为了与VME的情况保持一致, start与end相同
-  ustack.end = _heap.end; // 存物理地址
+  ustack.end = _heap.end - pcb->pid * USER_STACK_SIZE; // 存物理地址
+  ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
 #endif
   pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
 }

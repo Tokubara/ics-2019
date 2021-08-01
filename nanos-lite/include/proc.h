@@ -21,6 +21,7 @@ typedef union {
     task_status status;
     unsigned priority;
     unsigned ticks;
+    unsigned pid;
   };
 } PCB;
 

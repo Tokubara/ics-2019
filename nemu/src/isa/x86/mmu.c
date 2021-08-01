@@ -2,6 +2,10 @@
 #include "isa/mmu.h"
 
 bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
+  if (cpu.cr0.paging == 0) {
+    *paddr = vaddr;
+    return true;
+  }
   addr_t addr;
   addr.val = vaddr;
   PDE pde = {.val=paddr_read((cpu.cr3.page_directory_base << 12) + (addr.hi << 2), 4)};
