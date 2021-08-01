@@ -3,6 +3,11 @@
 static _Context* do_event(_Event e, _Context* c) {
   _Context* ret = NULL;
   switch (e.event) {
+    case _EVENT_IRQ_TIMER: {
+                             Log_debug("timer interrupt");
+                             _yield();
+                             break;
+                           }
     case _EVENT_SYSCALL: {
                            ret = do_syscall(c);
                            break;

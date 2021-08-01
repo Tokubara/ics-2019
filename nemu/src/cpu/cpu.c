@@ -18,5 +18,8 @@ vaddr_t exec_once(void) {
   isa_exec(&decinfo.seq_pc);
   update_pc();
 
+  bool isa_query_intr(void);
+  isa_query_intr();
+
   return decinfo.seq_pc;
 }

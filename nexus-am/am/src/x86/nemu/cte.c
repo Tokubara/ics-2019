@@ -14,6 +14,7 @@ TSS tss;
 size_t set_tss_esp0(size_t esp0) {
   size_t old_esp = tss.esp0;
   tss.esp0 = esp0;
+  Log_debug("old esp: %x, new esp: %x", old_esp, esp0);
   return old_esp;
 }
 
@@ -23,6 +24,10 @@ _Context* __am_irq_handle(_Context *c) {
   if (user_handler) {
     _Event ev = {0};
     switch (c->irq) {
+      case 32: {
+                        ev.event = _EVENT_IRQ_TIMER;
+                        break;
+                      }
       case 0x80: {
                    ev.event = _EVENT_SYSCALL;
                    break;

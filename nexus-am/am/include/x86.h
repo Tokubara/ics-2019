@@ -60,7 +60,7 @@
 
 // Interrupts and exceptions
 #define T_IRQ0         32
-#define IRQ_TIMER      0
+#define IRQ_TIMER      0 // 为什么不是32, 因为这里给的是IRQ
 #define IRQ_KBD        1
 #define IRQ_ERROR      19
 #define IRQ_SPURIOUS   31

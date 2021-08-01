@@ -22,6 +22,7 @@ static void restart() {
   cpu.pc = PC_START;
   cpu.cs = 8;
   cpu.eflags.val = 0x2;
+  // cpu.eflags.IF = 0; // 一开始就应该关中断
 }
 
 void init_isa(void) {
