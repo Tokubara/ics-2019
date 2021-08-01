@@ -19,6 +19,8 @@ typedef union {
     // we do not free memory, so use `max_brk' to determine when to call _map()
     uintptr_t max_brk;
     task_status status;
+    unsigned priority;
+    unsigned ticks;
   };
 } PCB;
 

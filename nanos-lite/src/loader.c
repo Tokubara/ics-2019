@@ -110,9 +110,11 @@ void context_kload(PCB *pcb, void *entry, void *arg) {
   pcb->cp = _kcontext(&pcb->as, stack, entry, arg);
 }
 
-void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[]) {
+void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], unsigned priority) {
   _protect(&pcb->as);
   pcb->status = RUNNING;
+  pcb->priority = priority;
+  pcb->ticks = priority;
   uintptr_t entry = loader(pcb, filename);
 
   _Area stack; // 是内核栈

@@ -33,7 +33,8 @@ LIB_FILES += $(addsuffix -$(ISA).a, $(join \
   $(LIBS) \
 ))
 
-$(APP): $(LIBS) $(OBJS)
+# $(APP): $(LIBS) $(OBJS)
+$(APP): $(OBJS)
 	@echo + LD $@
 ifeq ($(ISA), native)
 	@g++ -o $(APP) $(OBJS) $(LIB_FILES)
