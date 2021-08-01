@@ -31,7 +31,6 @@ bool isa_query_intr(void) {
     cpu.INTR = false;
     Log_debug("intr");
     raise_intr(IRQ_TIMER, cpu.pc);
-    panic("I thought cound not come here");
     return true;
   } 
   return false;

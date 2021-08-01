@@ -7,7 +7,7 @@
 #include <SDL2/SDL.h>
 #include "nemu.h"
 
-#define TIMER_HZ 100
+#define TIMER_HZ 10
 #define VGA_HZ 50
 
 static struct itimerval it = {};
