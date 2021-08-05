@@ -80,17 +80,27 @@ make_EHelper(leave) {
   print_asm("leave");
 }
 
+// IF OperandSize = 16 (* CWD instruction *)
+// THEN
+//    IF AX < 0 THEN DX := 0FFFFH; ELSE DX := 0; FI;
+// ELSE (* OperandSize = 32, CDQ instruction *)
+//    IF EAX < 0 THEN EDX := 0FFFFFFFFH; ELSE EDX := 0; FI;
+// FI;
 make_EHelper(cltd) {
   if (decinfo.isa.is_operand_size_16) {
     rtl_lr(&s0, R_AX, 2);
-    rtl_sext(&s0, &s0, 2);
-    rtl_shri(&s0, &s0, 16);
-    rtl_sr(R_DX, &s0, 2);
+    rtl_shri(&s0, &s0, 15);
+    if (s0 > 0) {
+      rtl_li(&s1, 0xffff);
+    } else {
+      rtl_li(&s1, 0);
+    }
+    rtl_sr(R_DX, &s1, 2);
   }
   else {
     rtl_lr(&s0, R_EAX, 4);
-    rtl_shri(&s0, &s0, 31);
-    if(s0>0) {
+    rtl_shri(&s0, &s0, 31); // 得到s0的最高位
+    if (s0 > 0) {
       rtl_li(&s1, 0xffffffff);
     } else {
       rtl_li(&s1, 0);
@@ -101,12 +111,21 @@ make_EHelper(cltd) {
   print_asm(decinfo.isa.is_operand_size_16 ? "cwtl" : "cltd");
 }
 
+// IF OperandSize = 16 (* instruction = CBW *)
+// THEN AX := SignExtend(AL);
+// ELSE (* OperandSize = 32, instruction = CWDE *)
+//    EAX := SignExtend(AX);
+// FI;
 make_EHelper(cwtl) {
   if (decinfo.isa.is_operand_size_16) {
-    TODO();
+    rtl_lr(&s0, R_AL, 1);
+    rtl_sext(&s0, &s0, 1);
+    rtl_sr(R_AX, &s0, 2);
   }
   else {
-    TODO();
+    rtl_lr(&s0, R_AX, 2);
+    rtl_sext(&s0, &s0, 2);
+    rtl_sr(R_EAX, &s0, 4);
   }
 
   print_asm(decinfo.isa.is_operand_size_16 ? "cbtw" : "cwtl");
