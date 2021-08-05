@@ -97,12 +97,15 @@ void fce_run() {
   int nframes = -1, cur = -1;
 
   NDL_OpenDisplay(W, H);
+  // printf("NDL_OpenDisplay finish\n");
 
   while (1) {
     NDL_Event evt;
+    printf("waiting event \n");
     NDL_WaitEvent(&evt);
 
     if (evt.type == NDL_EVENT_KEYUP || evt.type == NDL_EVENT_KEYDOWN) {
+      printf("key event\n");
       int val = (evt.type == NDL_EVENT_KEYDOWN);
       //   p | 1 2      3     4  5    6    7     8
       // key | A B SELECT START UP DOWN LEFT RIGHT
@@ -120,14 +123,19 @@ void fce_run() {
     }
 
     if (evt.type == NDL_EVENT_TIMER) {
+      printf("timer event\n");
       int uptime = evt.data;
       if (nframes == -1) {
         nframes = uptime / (1000 / FPS);
+        printf("nframes:%d\n", nframes);
       }
       cur = uptime / (1000 / FPS);
+      printf("cur:%d\n", cur);
+
       while (nframes < cur) {
         need_draw = (nframes + 1 == cur);
         frame();
+        printf("frame once, %d/%d\n", nframes, cur);
         nframes ++;
       }
     }
@@ -178,7 +186,7 @@ void fce_update_screen() {
 
 void _ioe_init();
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[], char *envp[]) {
   const char *fname;
   if (argc < 2) {
     fname = "/share/games/nes/kungfu.nes";
@@ -189,6 +197,7 @@ int main(int argc, char *argv[]) {
 
   if (fce_load_rom(fname) == 0) {
     fce_init();
+    // printf("fce_init finish\n");
     fce_run();
   }
 

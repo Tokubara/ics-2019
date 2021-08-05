@@ -22,9 +22,10 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   // context_kload(&pcb[0], hello_fun, "China");
-  char* argv_0[2];
-  argv_0[0] = "/bin/pal";
-  argv_0[1] = NULL;
+  char* argv_0[3];
+  argv_0[0] = "/bin/litenes";
+  argv_0[1] = "/share/games/nes/mario.nes";
+  argv_0[2] = NULL;
   char* envp_0[1];
   envp_0[0] = NULL;
   context_uload(&pcb[0], "/bin/litenes", argv_0, envp_0, 1, 0);
