@@ -97,9 +97,13 @@ void naive_uload(PCB *pcb, const char *filename) {
 
 typedef uint32_t PDE;
 extern PDE kpdirs[]; // 那它应该是恰好占一页
-void context_kload(PCB *pcb, void *entry, void *arg) {
+void context_kload(PCB *pcb, void *entry, void *arg, unsigned priority, unsigned pid) {
   pcb->as.ptr = kpdirs;
   pcb->status = RUNNING;
+  pcb->priority = priority;
+  pcb->ticks = priority;
+  pcb->pid = pid;
+
   _Area stack;
   stack.start = pcb->stack;
   stack.end = stack.start + sizeof(pcb->stack);

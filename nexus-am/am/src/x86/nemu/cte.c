@@ -88,6 +88,7 @@ _Context *_kcontext(_AddressSpace *as, _Area stack, void (*entry)(void *), void 
   context->eip = entry;
   context->cs = 8;
   context->esp = 0;
+  context->eflags |= FL_IF; // 保证开中断
   int* arg_addr = stack.end - 4; //? 这里能不能用void*?
   *arg_addr = arg;
   return context;
