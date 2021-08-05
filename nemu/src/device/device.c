@@ -22,7 +22,9 @@ void timer_intr();
 void send_key(uint8_t, bool);
 
 static void timer_sig_handler(int signum) {
+#ifdef TIMER_ITERRUPT_ENABLE
   timer_intr();
+#endif
 
   device_update_flag = true;
 
