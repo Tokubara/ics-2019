@@ -27,7 +27,7 @@ void init_proc() {
   argv_0[1] = NULL;
   char* envp_0[1];
   envp_0[0] = NULL;
-  context_uload(&pcb[0], "/bin/pal", argv_0, envp_0, 1, 0);
+  context_uload(&pcb[0], "/bin/litenes", argv_0, envp_0, 1, 0);
   char* argv_1[3];
   argv_1[0] = "/bin/dummy";
   argv_1[1] = "--skip";

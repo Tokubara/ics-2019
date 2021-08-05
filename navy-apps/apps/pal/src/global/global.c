@@ -66,24 +66,24 @@ PAL_InitGlobals(
    //
    // Open files
    //
-   Log("loading fbp.mkf");
+   // Log("loading fbp.mkf");
    gpGlobals->f.fpFBP = UTIL_OpenRequiredFile("fbp.mkf");
-   Log("loading mgo.mkf");
+   // Log("loading mgo.mkf");
    gpGlobals->f.fpMGO = UTIL_OpenRequiredFile("mgo.mkf");
-   Log("loading ball.mkf");
+   // Log("loading ball.mkf");
    gpGlobals->f.fpBALL = UTIL_OpenRequiredFile("ball.mkf");
-   Log("loading data.mkf");
+   // Log("loading data.mkf");
    gpGlobals->f.fpDATA = UTIL_OpenRequiredFile("data.mkf");
-   Log("loading f.mkf");
+   // Log("loading f.mkf");
    gpGlobals->f.fpF = UTIL_OpenRequiredFile("f.mkf");
-   Log("loading fire.mkf");
+   // Log("loading fire.mkf");
    gpGlobals->f.fpFIRE = UTIL_OpenRequiredFile("fire.mkf");
-   Log("loading rgm.mkf");
+   // Log("loading rgm.mkf");
    gpGlobals->f.fpRGM = UTIL_OpenRequiredFile("rgm.mkf");
-   Log("loading sss.mkf");
+   // Log("loading sss.mkf");
    gpGlobals->f.fpSSS = UTIL_OpenRequiredFile("sss.mkf");
 #ifndef PAL_WIN95
-   Log("loading desc.dat");
+   // Log("loading desc.dat");
    gpGlobals->lpObjectDesc = PAL_LoadObjectDesc(va("%s%s", PAL_PREFIX, "desc.dat"));
 #endif
    gpGlobals->bCurrentSaveSlot = 1;
