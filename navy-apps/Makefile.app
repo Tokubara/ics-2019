@@ -33,8 +33,8 @@ LIB_FILES += $(addsuffix -$(ISA).a, $(join \
   $(LIBS) \
 ))
 
-$(APP): $(LIBS) $(OBJS)
-# $(APP): $(OBJS) $(NAVY_HOME)/Makefile.compile
+# $(APP): $(LIBS) $(OBJS)
+$(APP): $(OBJS) $(NAVY_HOME)/Makefile.compile
 	@echo + LD $@
 ifeq ($(ISA), native)
 	@g++ -o $(APP) $(OBJS) $(LIB_FILES)

@@ -141,6 +141,20 @@ make_EHelper(setcc) {
   print_asm("set%s %s", get_cc_name(cc), id_dest->str);
 }
 
+make_EHelper(rol) { // copy自sar
+  rtl_andi(&s0, &id_src->val, 0b11111u);
+  rtl_rol(&s1, &id_dest->val, &s0); // s1存着结果
+  operand_write(id_dest, &s1);
+
+  // if (id_dest->width != 4) {
+  //   rtl_andi(&s1, &s1, 0xffffffffu >> ((4 - id_dest->width) * 8));
+  // }
+
+  // unnecessary to update CF and OF in NEMU. rol会设置的只有CF和OF
+
+  print_asm_template2(rol);
+}
+
 make_EHelper(not) {
   // 不影响 eflags
   rtl_mv(&s0, &id_dest->val);

@@ -239,6 +239,7 @@ make_DHelper(gp2_1_E) {
  * 
 */
 make_DHelper(gp2_cl2E) {
+  // 不需要修改cl的值, 因为译码不应该改变寄存器, 而且在make_EHelper(sar)中也有设置
   decode_op_rm(pc, id_dest, true, NULL, false);
   id_src->type = OP_TYPE_REG;
   id_src->reg = R_CL;
