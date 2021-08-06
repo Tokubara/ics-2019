@@ -41,7 +41,7 @@
 
 #define TODO() panic("please implement me")
 
-#define LOG
+// #define LOG
 #ifdef LOG
 #define Log_debug(format, ...) \
   printf("\33[0;32m[debug][%d,%s] " format "\33[0m\n", \

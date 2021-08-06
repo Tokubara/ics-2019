@@ -11,7 +11,7 @@ static FILE *fbdev, *evtdev, *fbsyncdev;
 static void get_display_info();
 static int canvas_w, canvas_h, screen_w, screen_h, pad_x, pad_y;
 
-//? 
+// 没有显示, 感觉是打开文件这些初始化工作
 int NDL_OpenDisplay(int w, int h) {
   // printf("enter NDL_OpenDisplay\n");
   if (!canvas) {
@@ -56,6 +56,7 @@ int NDL_CloseDisplay() {
   return 0;
 }
 
+// pixels是怎样的参数, 有w*h那么大
 int NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   if (has_nwm) {
     for (int i = 0; i < h; i ++) {
@@ -98,6 +99,7 @@ static const char *keys[] = {
 
 #define numkeys ( sizeof(keys) / sizeof(keys[0]) )
 
+// 返回的evebt->data不包括通码信息, 会等到有事件为止
 int NDL_WaitEvent(NDL_Event *event) {
   char buf[256], *p = buf, ch;
 

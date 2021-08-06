@@ -101,11 +101,11 @@ void fce_run() {
 
   while (1) {
     NDL_Event evt;
-    printf("waiting event \n");
+    // printf("waiting event \n");
     NDL_WaitEvent(&evt);
 
     if (evt.type == NDL_EVENT_KEYUP || evt.type == NDL_EVENT_KEYDOWN) {
-      printf("key event\n");
+      // printf("key event\n");
       int val = (evt.type == NDL_EVENT_KEYDOWN);
       //   p | 1 2      3     4  5    6    7     8
       // key | A B SELECT START UP DOWN LEFT RIGHT
@@ -127,15 +127,15 @@ void fce_run() {
       int uptime = evt.data;
       if (nframes == -1) {
         nframes = uptime / (1000 / FPS);
-        printf("nframes:%d\n", nframes);
+        // printf("nframes:%d\n", nframes);
       }
       cur = uptime / (1000 / FPS);
-      printf("cur:%d\n", cur);
+      // printf("cur:%d\n", cur);
 
       while (nframes < cur) {
         need_draw = (nframes + 1 == cur);
         frame();
-        printf("frame once, %d/%d\n", nframes, cur);
+        // printf("frame once, %d/%d\n", nframes, cur);
         nframes ++;
       }
     }

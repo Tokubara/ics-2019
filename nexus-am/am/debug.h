@@ -11,7 +11,7 @@
   printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
       __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
-#define LOG
+// #define LOG
 #ifdef LOG
 #define Log_trace(format, ...) \
   printf("\33[0;90m[debug][%d,%s] " format "\33[0m\n", \
