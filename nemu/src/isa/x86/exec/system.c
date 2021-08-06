@@ -62,11 +62,11 @@ make_EHelper(iret) {
   rtl_pop(&s0); // 用不上, 随后被覆盖
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s1 == 0) {
-    Log_debug("esp not change, esp = %x, cr3=%x, new pc = %x", cpu.esp, cpu.cr3.val, cpu.pc);
+    Log_trace("esp not change, esp = %x, cr3=%x, new pc = %x", cpu.esp, cpu.cr3.val, cpu.pc);
     // Assert(s0 == 0, "esp0 in tss: %x", s0);
   } else {
     assert(s0 != 0);
-    Log_debug("old esp=%x, new esp=%x, new pc = %x", cpu.esp, s1, cpu.pc);
+    Log_trace("old esp=%x, new esp=%x, new pc = %x", cpu.esp, s1, cpu.pc);
     rtl_mv(&cpu.esp, &s1);
   }
 

@@ -123,7 +123,7 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
   ustack.end = paddr_user_stack_end + PGSIZE; // 存物理地址
   pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
-  Log_debug("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
+  Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
 #else
   _Area ustack;
   ustack.end = _heap.end - pcb->pid * USER_STACK_SIZE; // 存物理地址

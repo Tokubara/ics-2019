@@ -44,7 +44,7 @@ void init_proc() {
   context_uload(&pcb[3], "/bin/slider-am", argv_3, envp_3, 100, 3);
 
   fg_pcb = &pcb[1]; // 默认是pcb[1]
-  Log_debug("fg_pcb cp(esp):%x, cr3:%x", (size_t)fg_pcb->cp, fg_pcb->as.ptr);
+  Log_trace("fg_pcb cp(esp):%x, cr3:%x", (size_t)fg_pcb->cp, fg_pcb->as.ptr);
 
 
   Log("Initializing processes...");
@@ -56,20 +56,20 @@ int check_function_key();
 _Context* schedule(_Context *prev) {
   // save the context pointer
   current->cp = prev; // 需要这一句是因为pcb数组的那个pcb需要
-  Log_debug("old cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
+  Log_trace("old cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
 #ifdef DISPLAY
   int fn_key = check_function_key();
   if (fn_key > 0) {
-    Log_debug("switch to %d", fn_key);
+    Log_trace("switch to %d", fn_key);
     fg_pcb = &pcb[fn_key];
   }
 
   // 先看看之前运行的是不是hello
   if (current == &pcb[0]) {
-    Log_debug("switch to fg_pcb");
+    Log_trace("switch to fg_pcb");
     current = fg_pcb;
   } else {
-    Log_debug("switch to hello");
+    Log_trace("switch to hello");
     current = &pcb[0];
   }
 
@@ -89,7 +89,7 @@ _Context* schedule(_Context *prev) {
   current = &pcb[next_index];
   next_index = (next_index + 1) % MAX_NR_PROC;
 #endif
-  Log_debug("new cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
+  Log_trace("new cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   if (is_kernel_thread(current->cp)) {
     set_tss_esp0(0);
   } else {

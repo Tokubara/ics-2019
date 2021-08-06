@@ -44,7 +44,8 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 int check_function_key() {
   int key_code;
   int ret = -1;
-  while((key_code = read_key()) != _KEY_NONE) {
+  // while((key_code = read_key()) != _KEY_NONE) {
+    key_code = read_key();
     key_code &= ~0x8000; // 也就是无论是按起还是按下, 都做相同的处理
     switch(key_code) {
       case _KEY_F1: {ret = 1; Log_debug("F1 key"); break;}
@@ -52,7 +53,7 @@ int check_function_key() {
       case _KEY_F3: {ret = 3; Log_debug("F3 key"); break;}
       default: {}
     }
-  }
+  // }
   return ret;
 }
 
