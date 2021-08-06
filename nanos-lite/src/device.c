@@ -3,7 +3,7 @@
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
   (void)offset;
-  _yield();
+  // _yield();
   char* ch_buf = (char*)buf;
   for(size_t i = 0; i < len; i++) {
     _putc(ch_buf[i]);
@@ -22,7 +22,7 @@ static const char *keyname[256] __attribute__((used)) = {
 // 怀疑offset参数是有意义的, 因为dispinfo_read和它类似, 但offset参数都有作用
 size_t events_read(void *buf, size_t offset, size_t len) {
   (void)offset;
-  _yield();
+  // _yield();
   // 读键盘
   // printf("events_read:%d\n", len);
   size_t write_len = 0;
@@ -48,9 +48,9 @@ int check_function_key() {
     key_code = read_key();
     key_code &= ~0x8000; // 也就是无论是按起还是按下, 都做相同的处理
     switch(key_code) {
-      case _KEY_F1: {ret = 1; Log_debug("F1 key"); break;}
-      case _KEY_F2: {ret = 2; Log_debug("F2 key"); break;}
-      case _KEY_F3: {ret = 3; Log_debug("F3 key"); break;}
+      case _KEY_F1: {ret = 1; break;}
+      case _KEY_F2: {ret = 2; break;}
+      case _KEY_F3: {ret = 3; break;}
       default: {}
     }
   // }
@@ -77,7 +77,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 // 这里的offset是*4的, 需要/4
 size_t fb_write(const void *buf, size_t bytes_offset, size_t bytes_len) {
   LLog("enter fb_write");
-  _yield();
+  // _yield();
   // void draw_rect(uint32_t *pixels, int x, int y, int w, int h)
   size_t offset = bytes_offset >> 2;
   size_t len = bytes_len >> 2;

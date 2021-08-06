@@ -5,18 +5,8 @@
 #include "amdev.h"
 
 extern PCB *current;
-int sys_execve(const char *name, char *const argv[], char *const env[]) {
-  (void)argv;
-  (void)env;
-  naive_uload(NULL, name);
-}
 
-// copy from navy
-// typedef struct timeval {
-// 	long		tv_sec;		/* seconds */
-// 	long	tv_usec;	/* and microseconds */
-// } timeval;
-
+int sys_execve(const char *name, char *const argv[], char *const env[]);
 _Context* do_syscall(_Context *c) {
   _Context* ret = NULL;
   uintptr_t a[4];

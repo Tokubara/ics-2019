@@ -29,19 +29,19 @@ void init_proc() {
   argv_1[0] = NULL;
   char* envp_1[1];
   envp_1[0] = NULL;
-  context_uload(&pcb[1], "/bin/pal", argv_1, envp_1, 300, 1);
+  context_uload(&pcb[1], "/bin/init", argv_1, envp_1, 300, 1);
 
   char* argv_2[1];
   argv_2[0] = NULL;
   char* envp_2[1];
   envp_2[0] = NULL;
-  context_uload(&pcb[2], "/bin/typing-am", argv_2, envp_2, 300, 2);
+  context_uload(&pcb[2], "/bin/init", argv_2, envp_2, 300, 2);
 
   char* argv_3[1];
   argv_3[0] = NULL;
   char* envp_3[1];
   envp_3[0] = NULL;
-  context_uload(&pcb[3], "/bin/slider-am", argv_3, envp_3, 300, 3);
+  context_uload(&pcb[3], "/bin/init", argv_3, envp_3, 300, 3);
 
   fg_pcb = &pcb[1]; // 默认是pcb[1]
   Log_trace("fg_pcb cp(esp):%x, cr3:%x", (size_t)fg_pcb->cp, fg_pcb->as.ptr);

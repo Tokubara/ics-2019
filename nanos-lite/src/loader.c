@@ -122,12 +122,33 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   _Area ustack;
   ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
   ustack.end = paddr_user_stack_end + PGSIZE; // 存物理地址
-  pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
-  Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
 #else
   _Area ustack;
   ustack.end = _heap.end - pcb->pid * USER_STACK_SIZE; // 存物理地址
   ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
 #endif
   pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
+  Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
+}
+
+
+int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
+  uintptr_t entry = loader(pcb, filename);
+
+  _Area stack; // 是内核栈
+  stack.start = pcb->stack;
+  stack.end = stack.start + sizeof(pcb->stack);
+#ifdef HAS_VME
+  size_t paddr_user_stack_end = has_map(&pcb->as, USER_STACK_END-1) + 1; // 之所以-1再+1, 因为END为整页数不会直接被map
+  Log_debug("paddr_user_stack_end: %x", paddr_user_stack_end);
+  _Area ustack;
+  ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
+  ustack.end = paddr_user_stack_end + PGSIZE; // 存物理地址
+#else
+  _Area ustack;
+  ustack.end = _heap.end - pcb->pid * USER_STACK_SIZE; // 存物理地址
+  ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
+#endif
+  pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
+  Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
 }
