@@ -41,8 +41,6 @@
 
 #define TODO() panic("please implement me")
 
-// #define LOG
-#ifdef LOG
 #define Log_debug(format, ...) \
   printf("\33[0;32m[debug][%d,%s] " format "\33[0m\n", \
       __LINE__, __func__, ## __VA_ARGS__)
@@ -50,8 +48,15 @@
 #define Log_error(format, ...) \
   printf("\33[0;31m[error][%d,%s] " format "\33[0m\n", \
       __LINE__, __func__, ## __VA_ARGS__)
+
+#define LOG_TRACE
+#ifdef LOG_TRACE
+#define Log_trace(format, ...) \
+  printf("\33[0;90m[debug][%d,%s] " format "\33[0m\n", \
+      __LINE__, __func__, ## __VA_ARGS__)
+
 #else
-#define Log_debug(format, ...)
-#define Log_error(format, ...)
+#define Log_trace(format, ...)
 #endif
+
 #endif

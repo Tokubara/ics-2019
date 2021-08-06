@@ -14,7 +14,7 @@ TSS tss;
 size_t set_tss_esp0(size_t esp0) {
   size_t old_esp = tss.esp0;
   tss.esp0 = esp0;
-  Log_debug("old esp0: %x, new esp0: %x", old_esp, esp0);
+  // Log_debug("old esp0: %x, new esp0: %x", old_esp, esp0);
   return old_esp;
 }
 

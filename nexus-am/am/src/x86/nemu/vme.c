@@ -80,7 +80,7 @@ void __am_get_cur_as(_Context *c) {
 void __am_switch(_Context *c) {
   if (vme_enable) {
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
-    Log_debug("cr3:%x", c->as->ptr);
+    // Log_debug("cr3:%x", c->as->ptr);
     cur_as = c->as;
   }
 }
@@ -111,7 +111,7 @@ void* add_vmap(_AddressSpace *as, size_t va) {
     void* ret = has_map(as, va);
     if(ret == NULL) {
       void *pa = pgalloc_usr(1);
-      Log_trace("allocate: paddr=%x, vaddr=%x, cr3=%x", (size_t)pa, (size_t)va, (size_t)as->ptr);
+      // Log_debug("allocate: paddr=%x, vaddr=%x, cr3=%x", (size_t)pa, (size_t)va, (size_t)as->ptr);
       _map(as, PTE_ADDR(va), pa, 0);
       ret = (void*)((size_t)pa | OFF(va));
     }

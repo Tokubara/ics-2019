@@ -8,11 +8,11 @@ void raise_intr(uint32_t NO, vaddr_t ret_addr) {
   rtl_lm_ph(&s0, &cpu.tss_esp0_paddr, 4);
   if (s0 == 0 || cpu.esp <= s0) { // s1存要压入的esp, s0存esp0. <=s0表示当前已在内核栈中
     rtl_li(&s1, 0);
-    Log_debug("cpu.pc=%x, ret_addr:%x, esp not change, esp=%x, cr3=%x", cpu.pc, ret_addr, cpu.esp, cpu.cr3.val);
+    // Log_debug("cpu.pc=%x, ret_addr:%x, esp not change, esp=%x, cr3=%x", cpu.pc, ret_addr, cpu.esp, cpu.cr3.val);
   } else {
     rtl_mv(&s1, &cpu.esp);
     rtl_mv(&cpu.esp, &s0);
-    Log_debug("cpu.pc=%x, ret_addr:%x, old esp=%x, new esp=%x", cpu.pc, ret_addr, s1, s0);
+    // Log_debug("cpu.pc=%x, ret_addr:%x, old esp=%x, new esp=%x", cpu.pc, ret_addr, s1, s0);
   }
   // 压栈
   rtl_push(&cpu.ss);

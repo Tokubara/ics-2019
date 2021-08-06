@@ -40,7 +40,7 @@ int NDL_OpenDisplay(int w, int h) {
     // printf("after get_display_info\n");
     assert(screen_w >= canvas_w);
     assert(screen_h >= canvas_h);
-    pad_x = (screen_w - canvas_w) / 2;
+    pad_x = (screen_w - canvas_w) / 2
     pad_y = (screen_h - canvas_h) / 2;
     // printf("screen h:%d,w:%d;picture h:%d,w:%d\n", screen_h, screen_w, canvas_h, canvas_w);
     fbdev = fopen("/dev/fb", "w"); assert(fbdev);

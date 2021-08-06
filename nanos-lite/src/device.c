@@ -19,7 +19,7 @@ static const char *keyname[256] __attribute__((used)) = {
   _KEYS(NAME)
 };
 
-// TODO 怀疑offset参数是有意义的, 因为dispinfo_read和它类似, 但offset参数都有作用
+// 怀疑offset参数是有意义的, 因为dispinfo_read和它类似, 但offset参数都有作用
 size_t events_read(void *buf, size_t offset, size_t len) {
   (void)offset;
   _yield();

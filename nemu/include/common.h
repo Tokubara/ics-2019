@@ -3,7 +3,7 @@
 
 // #define DEBUG
 // #define DIFF_TEST
-// #define TIMER_ITERRUPT_ENABLE
+#define TIMER_ITERRUPT_ENABLE
 
 #if _SHARE
 // do not enable these features while building a reference design

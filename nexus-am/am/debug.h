@@ -11,12 +11,6 @@
   printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
       __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
-// #define LOG
-#ifdef LOG
-#define Log_trace(format, ...) \
-  printf("\33[0;90m[debug][%d,%s] " format "\33[0m\n", \
-      __LINE__, __func__, ## __VA_ARGS__)
-
 #define Log_debug(format, ...) \
   printf("\33[0;32m[debug][%d,%s] " format "\33[0m\n", \
       __LINE__, __func__, ## __VA_ARGS__)
@@ -24,10 +18,17 @@
 #define Log_error(format, ...) \
   printf("\33[0;31m[error][%d,%s] " format "\33[0m\n", \
       __LINE__, __func__, ## __VA_ARGS__)
+
+#define LOG_TRACE
+#ifdef LOG_TRACE
+#define Log_trace(format, ...) \
+  printf("\33[0;90m[debug][%d,%s] " format "\33[0m\n", \
+      __LINE__, __func__, ## __VA_ARGS__)
+
 #else
 #define Log_trace(format, ...)
-#define Log_debug(format, ...)
-#define Log_error(format, ...)
+// #define Log_debug(format, ...)
+// #define Log_error(format, ...)
 #endif
 
 #define assert(cond) \
