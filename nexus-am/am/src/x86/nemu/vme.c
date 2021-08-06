@@ -80,7 +80,7 @@ void __am_get_cur_as(_Context *c) {
 void __am_switch(_Context *c) {
   if (vme_enable) {
     set_cr3(c->as->ptr); // 这说明as->ptr就是一级页表的地址
-    // Log_debug("cr3:%x", c->as->ptr);
+    Log_debug("cr3:%x", c->as->ptr);
     cur_as = c->as;
   }
 }
@@ -100,9 +100,8 @@ int _map(_AddressSpace *as, void *vaddr, void *paddr, int prot) {
   if ((*pte & PTE_P)==0) {
     *pte = (size_t)paddr | PTE_P;
   } else {
-    // Log_error("pte exists, vaddr=%x, pte=%x\n", (size_t)vaddr, *pte);
   }
-  // Log_debug("vaddr:%x, paddr:%x", (size_t)vaddr, (size_t)paddr);
+  Log_debug("vaddr:%x, paddr:%x", (size_t)vaddr, (size_t)paddr);
   return 0;
 }
 

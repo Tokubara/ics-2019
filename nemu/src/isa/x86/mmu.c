@@ -17,9 +17,6 @@ bool page_translate(vaddr_t vaddr, paddr_t* paddr) {
     return false;
   }
   *paddr = (pte.page_frame << 12) | addr.lo;
-  // if(vaddr>0x40000000) {
-    // Log_debug("vaddr:%x, paddr:%x", vaddr, *paddr);
-  // }
   return true;
 }
 

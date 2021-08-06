@@ -44,6 +44,8 @@ void init_proc() {
   context_uload(&pcb[3], "/bin/slider-am", argv_3, envp_3, 100, 3);
 
   fg_pcb = &pcb[1]; // 默认是pcb[1]
+  Log_debug("fg_pcb cp(esp):%x, cr3:%x", (size_t)fg_pcb->cp, fg_pcb->as.ptr);
+
 
   Log("Initializing processes...");
 }
@@ -54,19 +56,26 @@ int check_function_key();
 _Context* schedule(_Context *prev) {
   // save the context pointer
   current->cp = prev; // 需要这一句是因为pcb数组的那个pcb需要
+  Log_debug("old cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
 #ifdef DISPLAY
   int fn_key = check_function_key();
   if (fn_key > 0) {
+    Log_debug("switch to %d", fn_key);
     fg_pcb = &pcb[fn_key];
   }
 
   // 先看看之前运行的是不是hello
-  current = (current == &pcb[0]) ? fg_pcb : &pcb[0];
+  if (current == &pcb[0]) {
+    Log_debug("switch to fg_pcb");
+    current = fg_pcb;
+  } else {
+    Log_debug("switch to hello");
+    current = &pcb[0];
+  }
 
 #else
   // 如果不是展示, 那就是顺序切换
   static size_t next_index = 0;
-  // Log_debug("old cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   // 得到next_index
   int i;
   for (i = 0; (pcb[next_index].cp == NULL || pcb[next_index].status == EXITED) && i < MAX_NR_PROC; ++i) {
@@ -78,9 +87,9 @@ _Context* schedule(_Context *prev) {
   }
   Log_trace("next pcb index=%u", next_index);
   current = &pcb[next_index];
-  // Log_debug("new cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   next_index = (next_index + 1) % MAX_NR_PROC;
 #endif
+  Log_debug("new cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   if (is_kernel_thread(current->cp)) {
     set_tss_esp0(0);
   } else {

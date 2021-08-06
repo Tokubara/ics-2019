@@ -17,7 +17,6 @@ void free_page(void *p) {
 
 /* The brk() system call handler. */
 int mm_brk(_AddressSpace *as, uintptr_t brk, uintptr_t new_brk) {
-  // Log_debug("old_brk:%x, new_brk:%x", brk, new_brk);
   if(new_brk > brk) {
     add_vmap_range(as, brk, new_brk); // 未考虑错误情况
   }

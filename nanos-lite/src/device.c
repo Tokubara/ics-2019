@@ -43,7 +43,7 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 // 返回-1表示没有按过F1,F2,F3之一, 否则返回1,2,3之一, 如果有多个功能键, 返回最后一次的
 int check_function_key() {
   int key_code;
-  bool ret = -1;
+  int ret = -1;
   while((key_code = read_key()) != _KEY_NONE) {
     key_code &= ~0x8000; // 也就是无论是按起还是按下, 都做相同的处理
     switch(key_code) {

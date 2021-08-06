@@ -52,14 +52,11 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     size_t len;
     void* paddr;
     heap_start = max(heap_start, vaddr_end);
-    // Log_debug("vaddr_st:%x,vaddr_mid:%x, vaddr_end:%x", vaddr_st, vaddr_mid, vaddr_end);
-    // Log_debug("offset:%x", tmp_ph.p_offset);
     while(cur_addr<vaddr_mid) {
       paddr = add_vmap(&pcb->as, cur_addr);
       next_addr = min(vaddr_mid, PGROUNDUP_GT(cur_addr));
       len = next_addr - cur_addr;
       fs_read(fd, paddr, len);
-      // Log_debug("paddr:%x,len:%d", paddr, len);
       cur_addr = next_addr;
     }
     while(cur_addr<vaddr_end) {
@@ -79,7 +76,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   }
 #ifdef HAS_VME
   pcb->max_brk = heap_start;
-  // Log_debug("max_brk:%x", heap_start);
 #endif
   return entry; // 返回的是入口地址
 }
@@ -89,8 +85,6 @@ void naive_uload(PCB *pcb, const char *filename) {
   uintptr_t entry = loader(pcb, filename);
   Log("Jump to entry = %x", entry);
   pcb->cp->as = &pcb->as; 
-  // Log_debug("pcb->cp->as(%x) = &pcb->as(%x);", pcb->cp->as, &pcb->as);
-  // Log_debug("pcb->cp->as->ptr(%x) = pcb->as.ptr(%x); (&pcb->as)->ptr(%x)", pcb->cp->as->ptr, pcb->as.ptr, (&pcb->as)->ptr);
   __am_switch(pcb->cp);
   ((void(*)())entry) ();
 }
@@ -129,6 +123,7 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
   ustack.end = paddr_user_stack_end + PGSIZE; // 存物理地址
   pcb->cp = _ucontext(&pcb->as, ustack, stack, (void *)entry, argv, envp);
+  Log_debug("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
 #else
   _Area ustack;
   ustack.end = _heap.end - pcb->pid * USER_STACK_SIZE; // 存物理地址
