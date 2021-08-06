@@ -5,7 +5,7 @@ static _Context* do_event(_Event e, _Context* c) {
   _Context* ret = NULL;
   switch (e.event) {
     case _EVENT_IRQ_TIMER: {
-                             Log_trace("timer interrupt");
+                             // Log_trace("timer interrupt");
                              --current->ticks;
                              if (current->ticks == 0) {
                                current->ticks = current->priority;

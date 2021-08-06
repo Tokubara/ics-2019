@@ -40,6 +40,22 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   return write_len;
 }
 
+// 返回-1表示没有按过F1,F2,F3之一, 否则返回1,2,3之一, 如果有多个功能键, 返回最后一次的
+int check_function_key() {
+  int key_code;
+  bool ret = -1;
+  while((key_code = read_key()) != _KEY_NONE) {
+    key_code &= ~0x8000; // 也就是无论是按起还是按下, 都做相同的处理
+    switch(key_code) {
+      case _KEY_F1: {ret = 1; Log_debug("F1 key"); break;}
+      case _KEY_F2: {ret = 2; Log_debug("F2 key"); break;}
+      case _KEY_F3: {ret = 3; Log_debug("F3 key"); break;}
+      default: {}
+    }
+  }
+  return ret;
+}
+
 char dispinfo[128] __attribute__((used)) = {};
 static int height;
 static int width;

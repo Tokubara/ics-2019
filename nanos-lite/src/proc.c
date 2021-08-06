@@ -5,6 +5,8 @@
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
 PCB *current = NULL;
+PCB *fg_pcb = NULL;
+
 
 void switch_boot_pcb() {
   current = &pcb_boot;
@@ -21,48 +23,49 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  // context_kload(&pcb[0], hello_fun, "China", 1, 0);
-
-  // char* argv_0[3];
-  // argv_0[0] = "/bin/init";
-  // argv_0[1] = "/share/games/nes/mario.nes";
-  // argv_0[2] = NULL;
-  // char* envp_0[1];
-  // envp_0[0] = NULL;
-  // context_uload(&pcb[0], "/bin/init", argv_0, envp_0, 20, 0);
-
-  char* argv_0[1];
-  argv_0[0] = NULL;
-  char* envp_0[1];
-  envp_0[0] = NULL;
-  context_uload(&pcb[0], "/bin/typing-am", argv_0, envp_0, 20, 0);
+  context_kload(&pcb[0], hello_fun, "China", 1, 0);
 
   char* argv_1[1];
   argv_1[0] = NULL;
   char* envp_1[1];
   envp_1[0] = NULL;
-  context_uload(&pcb[1], "/bin/slider-am", argv_1, envp_1, 20, 1);
-  // char* argv_1[3];
-  // argv_1[0] = "/bin/dummy";
-  // argv_1[1] = "--skip";
-  // argv_1[2] = NULL;
-  // char* envp_1[1];
-  // envp_1[0] = NULL;
-  // context_uload(&pcb[1], "/bin/hello", argv_1, envp_1, 1, 1);
-  // switch_boot_pcb();
+  context_uload(&pcb[1], "/bin/pal", argv_1, envp_1, 100, 1);
+
+  char* argv_2[1];
+  argv_2[0] = NULL;
+  char* envp_2[1];
+  envp_2[0] = NULL;
+  context_uload(&pcb[2], "/bin/typing-am", argv_2, envp_2, 100, 2);
+
+  char* argv_3[1];
+  argv_3[0] = NULL;
+  char* envp_3[1];
+  envp_3[0] = NULL;
+  context_uload(&pcb[3], "/bin/slider-am", argv_3, envp_3, 100, 3);
+
+  fg_pcb = &pcb[1]; // 默认是pcb[1]
 
   Log("Initializing processes...");
-
-  // load program here
-  // naive_uload(&pcb[0], "/bin/dummy");
 }
 
 bool is_kernel_thread(_Context* c);
+int check_function_key();
 
 _Context* schedule(_Context *prev) {
-  static size_t next_index = 0;
   // save the context pointer
   current->cp = prev; // 需要这一句是因为pcb数组的那个pcb需要
+#ifdef DISPLAY
+  int fn_key = check_function_key();
+  if (fn_key > 0) {
+    fg_pcb = &pcb[fn_key];
+  }
+
+  // 先看看之前运行的是不是hello
+  current = (current == &pcb[0]) ? fg_pcb : &pcb[0];
+
+#else
+  // 如果不是展示, 那就是顺序切换
+  static size_t next_index = 0;
   // Log_debug("old cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   // 得到next_index
   int i;
@@ -77,6 +80,7 @@ _Context* schedule(_Context *prev) {
   current = &pcb[next_index];
   // Log_debug("new cp(esp):%x, cr3:%x", (size_t)current->cp, current->as.ptr);
   next_index = (next_index + 1) % MAX_NR_PROC;
+#endif
   if (is_kernel_thread(current->cp)) {
     set_tss_esp0(0);
   } else {
