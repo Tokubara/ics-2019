@@ -22,23 +22,29 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   // context_kload(&pcb[0], hello_fun, "China", 1, 0);
-  char* argv_0[3];
-  argv_0[0] = "/bin/init";
-  argv_0[1] = "/share/games/nes/mario.nes";
-  argv_0[2] = NULL;
+
+  // char* argv_0[3];
+  // argv_0[0] = "/bin/init";
+  // argv_0[1] = "/share/games/nes/mario.nes";
+  // argv_0[2] = NULL;
+  // char* envp_0[1];
+  // envp_0[0] = NULL;
+  // context_uload(&pcb[0], "/bin/init", argv_0, envp_0, 20, 0);
+
+  char* argv_0[1];
+  argv_0[0] = NULL;
   char* envp_0[1];
   envp_0[0] = NULL;
-  context_uload(&pcb[0], "/bin/init", argv_0, envp_0, 20, 0);
-  char* argv_1[3];
-  argv_1[0] = "/bin/dummy";
-  argv_1[1] = "--skip";
-  argv_1[2] = NULL;
-  // char* argv[1];
-  // argv[0] = NULL;
-  char* envp_1[1];
-  envp_1[0] = NULL;
-  context_uload(&pcb[1], "/bin/hello", argv_1, envp_1, 1, 1);
-  switch_boot_pcb();
+  context_uload(&pcb[0], "/bin/slider-am", argv_0, envp_0, 20, 0);
+
+  // char* argv_1[3];
+  // argv_1[0] = "/bin/dummy";
+  // argv_1[1] = "--skip";
+  // argv_1[2] = NULL;
+  // char* envp_1[1];
+  // envp_1[0] = NULL;
+  // context_uload(&pcb[1], "/bin/hello", argv_1, envp_1, 1, 1);
+  // switch_boot_pcb();
 
   Log("Initializing processes...");
 

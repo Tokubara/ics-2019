@@ -144,7 +144,8 @@ void fce_update_screen() {
 
 #include "roms/gen/roms.h"
 
-int main(const char *rom_name) {
+// int main(const char *rom_name) {
+int main(int argc, char *argv[], char *envp[]) {
   _ioe_init();
 
   struct rom *rom = &roms[0];

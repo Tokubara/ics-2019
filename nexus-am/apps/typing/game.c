@@ -10,7 +10,8 @@ int get_fps() {
   return real_fps;
 }
 
-int main (){
+// int main (){
+int main(int argc, char *argv[], char *envp[]) {
   _ioe_init();
   init_screen();
   int num_draw = 0, frames = 0;

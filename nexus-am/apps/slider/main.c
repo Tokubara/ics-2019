@@ -10,7 +10,8 @@ void display_image(int i) {
   draw_sync();
 }
 
-int main() {
+// int main() {
+int main(int argc, char *argv[], char *envp[]) {
   _ioe_init();
   
   int i = 0;

@@ -1,4 +1,4 @@
-AM_SRCS := navy/trm.c
+AM_SRCS := navy/trm.c navy/ioe.c navy/input.c navy/video.c navy/timer.c
 
 NAVY_MAKEFILE = Makefile.navy
 NAVY_MAKEFILE_CONTENT = "NAME = $(NAME)-am\nAPP = $(BINARY)\nOBJS = $(LINK_FILES)\nLIBS += libndl\ninclude $${NAVY_HOME}/Makefile.app"
