@@ -142,8 +142,5 @@ clock_t _times(void *buf) {
 }
 
 int _gettimeofday(struct timeval *tv) {
-  assert(0);
-  tv->tv_sec = 0;
-  tv->tv_usec = 0;
-  return 0;
+  return _syscall_(SYS_gettimeofday, tv, 0, 0);
 }

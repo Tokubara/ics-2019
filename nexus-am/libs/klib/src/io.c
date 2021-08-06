@@ -1,6 +1,7 @@
 #include <klib.h>
 #include <amdev.h>
 
+// 以毫秒为单位
 uint32_t uptime() {
   _DEV_TIMER_UPTIME_t uptime;
   _io_read(_DEV_TIMER, _DEVREG_TIMER_UPTIME, &uptime, sizeof(uptime));

@@ -2,12 +2,20 @@
 #include "syscall.h"
 #include "fs.h"
 #include "proc.h"
+#include "amdev.h"
+
 extern PCB *current;
 int sys_execve(const char *name, char *const argv[], char *const env[]) {
   (void)argv;
   (void)env;
   naive_uload(NULL, name);
 }
+
+// copy from navy
+// typedef struct timeval {
+// 	long		tv_sec;		/* seconds */
+// 	long	tv_usec;	/* and microseconds */
+// } timeval;
 
 _Context* do_syscall(_Context *c) {
   _Context* ret = NULL;
@@ -68,6 +76,14 @@ _Context* do_syscall(_Context *c) {
                        panic("coundn't be here");
                        break;
                      }
+    case SYS_gettimeofday: {
+                             uint32_t cur_time = uptime(); // 以毫秒为单位
+                             struct timeval* tv = (struct timeval*)c->GPR2;
+                             tv->tv_sec = cur_time / 1000;
+                             tv->tv_usec = ((cur_time) % 1000) * 1000;
+                             c->GPRx = 0;
+                             break;
+                           }
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
