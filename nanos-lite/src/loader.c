@@ -131,13 +131,12 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
   Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", pcb->pid, stack.start, stack.end, ustack.start, ustack.end);
 }
 
-
 int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   static char filename_buf[30];
   static char argv_buf[4][40];
-  static char** argv_buf_ptr = argv_buf;
+  static char* argv_buf_ptr[4];
   static char envp_buf[4][40];
-  static char** envp_buf_ptr = envp_buf;
+  static char* envp_buf_ptr[4];
   // 参数拷贝到内核空间, 因为之后原内存空间会被覆盖
   assert(strlen(filename)<30);
   strcpy(filename_buf, filename);
@@ -145,6 +144,7 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   while(argv[i] != NULL && i < 3) {
     assert(strlen(argv[i])<40);
     strcpy(argv_buf[i], argv[i]);
+    argv_buf_ptr[i] = &argv_buf[i];
     ++i;
   }
   argv_buf_ptr[i] = NULL;
@@ -152,6 +152,7 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   while(envp[i] != NULL && i < 3) {
     assert(strlen(envp[i])<40);
     strcpy(envp_buf[i], envp[i]);
+    envp_buf_ptr[i] = &envp_buf[i];
     ++i;
   }
   envp_buf_ptr[i] = NULL;
@@ -171,6 +172,8 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   ustack.end = _heap.end - current->pid * USER_STACK_SIZE; // 存物理地址
   ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
 #endif
+  Log_debug("before _ucontext: %s", argv_buf[0]);
+  Log_debug("before _ucontext: %s", argv_buf_ptr[0]);
   current->cp = _ucontext(&current->as, ustack, stack, (void *)entry, argv_buf_ptr, envp_buf_ptr);
   Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", current->pid, stack.start, stack.end, ustack.start, ustack.end);
 }
