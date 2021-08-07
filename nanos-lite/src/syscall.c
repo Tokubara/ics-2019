@@ -64,6 +64,7 @@ _Context* do_syscall(_Context *c) {
                        LLog("execve");
                        c->GPRx = sys_execve(c->GPR2, c->GPR3, c->GPR4);
                        // panic("coundn't be here");
+                       ret = current->cp;
                        break;
                      }
     case SYS_gettimeofday: {

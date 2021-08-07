@@ -16,7 +16,7 @@ void hello_fun(void *arg) {
   int j = 1;
   while (1) {
     // Log("Hello World from Nanos-lite for the %dth time!", j);
-    printf("Hello World from %s for the %dth time", (char*)arg, j);
+    printf("Hello World from %s for the %dth time\n", (char*)arg, j);
     j++;
     _yield();
   }

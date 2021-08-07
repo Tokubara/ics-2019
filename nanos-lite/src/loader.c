@@ -133,7 +133,29 @@ void context_uload(PCB *pcb, const char *filename, char* argv[], char* envp[], u
 
 
 int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
-  uintptr_t entry = loader(current, filename);
+  static char filename_buf[30];
+  static char argv_buf[4][40];
+  static char** argv_buf_ptr = argv_buf;
+  static char envp_buf[4][40];
+  static char** envp_buf_ptr = envp_buf;
+  // 参数拷贝到内核空间, 因为之后原内存空间会被覆盖
+  assert(strlen(filename)<30);
+  strcpy(filename_buf, filename);
+  int i = 0;
+  while(argv[i] != NULL && i < 3) {
+    assert(strlen(argv[i])<40);
+    strcpy(argv_buf[i], argv[i]);
+    ++i;
+  }
+  argv_buf_ptr[i] = NULL;
+  i = 0;
+  while(envp[i] != NULL && i < 3) {
+    assert(strlen(envp[i])<40);
+    strcpy(envp_buf[i], envp[i]);
+    ++i;
+  }
+  envp_buf_ptr[i] = NULL;
+  uintptr_t entry = loader(current, filename_buf);
 
   _Area stack; // 是内核栈
   stack.start = current->stack;
@@ -149,6 +171,6 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   ustack.end = _heap.end - current->pid * USER_STACK_SIZE; // 存物理地址
   ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
 #endif
-  current->cp = _ucontext(&current->as, ustack, stack, (void *)entry, argv, envp);
+  current->cp = _ucontext(&current->as, ustack, stack, (void *)entry, argv_buf_ptr, envp_buf_ptr);
   Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", current->pid, stack.start, stack.end, ustack.start, ustack.end);
 }
