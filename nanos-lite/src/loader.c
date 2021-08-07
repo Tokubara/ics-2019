@@ -163,7 +163,6 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   stack.end = stack.start + sizeof(current->stack);
 #ifdef HAS_VME
   size_t paddr_user_stack_end = has_map(&current->as, USER_STACK_END-1) + 1; // 之所以-1再+1, 因为END为整页数不会直接被map
-  Log_debug("paddr_user_stack_end: %x", paddr_user_stack_end);
   _Area ustack;
   ustack.start = USER_STACK_END; // start字段用不上的, 存虚拟地址
   ustack.end = paddr_user_stack_end; // 存物理地址
@@ -172,8 +171,6 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[]) {
   ustack.end = _heap.end - current->pid * USER_STACK_SIZE; // 存物理地址
   ustack.start = ustack.end; // 为了与VME的情况保持一致, start与end相同
 #endif
-  Log_debug("before _ucontext: %s", argv_buf[0]);
-  Log_debug("before _ucontext: %s", argv_buf_ptr[0]);
   current->cp = _ucontext(&current->as, ustack, stack, (void *)entry, argv_buf_ptr, envp_buf_ptr);
   Log_trace("[pid %d] kernel stack start: %x, end: %x; user stack end paddr: %x, vaddr: %x", current->pid, stack.start, stack.end, ustack.start, ustack.end);
 }

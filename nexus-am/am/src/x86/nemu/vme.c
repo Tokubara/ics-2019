@@ -166,17 +166,14 @@ _Context *_ucontext(_AddressSpace *as, _Area ustack, _Area kstack, void *entry, 
   size_t cur_pos = ustack.end;
   for(int i = n_envp-1; i >= 0; --i) {
     size_t len = strlen(envp[i])+1;
-    Log_debug("envp, i=%d,len=%d", i, len);
     cur_pos -= len;
     strcpy((char*)cur_pos, envp[i]);
   }
   size_t envp_base = cur_pos;
   size_t tmp_envp_base = cur_pos;
-  Log_debug("before argv");
 
   for(int i = argc-1; i >= 0; --i) {
     size_t len = strlen(argv[i])+1;
-    Log_debug("argv, i=%d,len=%d", i, len);
     cur_pos -= len;
     strcpy((char*)cur_pos, argv[i]);
   }
