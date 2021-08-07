@@ -23,6 +23,7 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
+#ifdef DISPLAY
   context_kload(&pcb[0], hello_fun, "China", 1, 0);
 
   char* argv_1[1];
@@ -45,6 +46,15 @@ void init_proc() {
 
   fg_pcb = &pcb[1]; // 默认是pcb[1]
   Log_trace("fg_pcb cp(esp):%x, cr3:%x", (size_t)fg_pcb->cp, fg_pcb->as.ptr);
+#else
+  context_kload(&pcb[0], hello_fun, "China", 1, 0);
+
+  char* argv_1[1];
+  argv_1[0] = NULL;
+  char* envp_1[1];
+  envp_1[0] = NULL;
+  context_uload(&pcb[1], "/bin/dummy", argv_1, envp_1, 300, 1);
+#endif
 
 
   Log("Initializing processes...");
